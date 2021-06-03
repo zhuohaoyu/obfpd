@@ -9,7 +9,7 @@ public class OBELoginWorker {
 
     public static String convert(int fizzBuzz) {
         if (fizzBuzz % 15 == 0) {
-            return "FizzBuzz";
+            return "wangyuansen";
         }
         if (fizzBuzz % 3 == 0) {
             return "Fizz";
