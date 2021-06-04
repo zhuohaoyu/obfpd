@@ -6,7 +6,7 @@ group 'org.obfpd'
 version '1.0-SNAPSHOT'
 
 sourceSets {
-    main {
+    all {
         java {
             srcDirs = ['src']
         }
@@ -33,4 +33,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }

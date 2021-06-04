@@ -134,7 +134,7 @@ public class Crawler {
             return false;
         }
     }
-    private boolean downloadDocument(Map <String, String> ck, String path, String FileName, String fno, String submit) {
+    public boolean downloadDocument(Map <String, String> ck, String path, String FileName, String fno, String submit) {
         try {
             String url = "http://obe.ruc.edu.cn/index/common/documentDownload.html";
             Map<String, String> data = new HashMap<>();
@@ -211,7 +211,28 @@ public class Crawler {
             }
         }
     }
+    public boolean reCrawl(Map <String, String> ck) {
+        try {
+            String url = "http://obe.ruc.edu.cn/index/course/index.html";
+            Document document = Jsoup.connect(url).cookies(ck).get();
+            Elements content = document.getElementsByClass("thumbnail col-lg-2 col-md-2 col-sm-2 col-xs-2 block1 ellipsis");
+            for (Element item : content.select("a[href]")) {
+                String detail = item.toString();
+                String[] buf = detail.split("\"");
+                String CourseUrl = "http://obe.ruc.edu.cn" + buf[1];
+                String CourseName = buf[2].split(">")[1].split("<")[0];
+                String CourseTeacher = buf[2].split(">")[3].split("<")[0];
+                String CourseID = buf[1].split(".html")[0].split("/")[5];
 
+//                db.addCourse(CourseID, CourseName, CourseTeacher);
+            }
+            return true;
+        }
+        catch (IOException e) {
+            System.err.println("IOException: " + e);
+            return false;
+        }
+    }
     static public void main(String[] argv) {
         Login login = new Login();
         String usernumber = "2019201408";
@@ -219,10 +240,12 @@ public class Crawler {
         Map <String, String> ck = null;
         try {
             ck = login.getCookie(usernumber, password);
-            new Crawler().getCourses(ck);
-            String CourseID = "2021rpfugnl2pxin";
-            new Crawler().getHomeworks(ck, CourseID);
-            new Crawler().getDocuments(ck, CourseID, "./data/documents/");
+//            String CourseID = "2021rpfugnl2pxin";
+            Crawler crawler = new Crawler();
+//            crawler.getCourses(ck);
+//            crawler.getHomeworks(ck, CourseID);
+//            crawler.getDocuments(ck, CourseID, "./data/documents/");
+            crawler.reCrawl(ck);
         }
         catch (IOException e) {
             System.err.println("IOException: " + e);
