@@ -16,7 +16,7 @@ public class Crawler {
     public Crawler() {
         db = new DataBase();
     }
-    public void getCourses(Map <String, String> ck) {
+    public boolean getCourses(Map <String, String> ck) {
         try {
             FileOutputStream fos = new FileOutputStream("./data/course.txt");
             OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
@@ -35,128 +35,144 @@ public class Crawler {
                 osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
             }
             osw.close();
+            return true;
         }
         catch (IOException e) {
             System.err.println("IOException: " + e);
+            return false;
         }
     }
-    public Map <String, String> getHomeworks(Map <String, String> ck, String CourseID) throws IOException {
-        String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
-        FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
-        OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-        Map<String, String> isVis = new HashMap<String, String>();
-        int id = 0;
-        while (true) {
-            Document document = null;
-            Elements content = null;
-            try {
-                id += 1;
-                url = url.replace("/p/" + Integer.toString(id - 1) + ".html", "/p/" + Integer.toString(id) + ".html");
-                document = Jsoup.connect(url).cookies(ck).get();
-                content = document.getElementsByClass("panel panel-default");
-                for (Element page : content) {
-                    String buf = page.toString();
-                    if (isVis.containsKey(buf)) throw new Exception("visit same page.");
-                    else isVis.put(buf, "Exist");
-                }
-            }
-            catch (Exception e) { break; }
-            for (Element hw : content) {
-                Elements detail = hw.getElementsByClass("accordion-toggle title homework-title");
-                String HomeworkName = null;
-                String HomeworkDDL = null;
-                String HomeworkST = null;
-                String HomeworkHno = null;
-                String HomeworkContent = null;
-                String HomeworkAtt = null;
-                for (Element hn : detail) {
-                    HomeworkName = hn.toString().split(">")[1].split("<")[0];
-                } // get homework name
-
-                detail = hw.getElementsByClass("panel-body out collapse");
-                for (Element ddl : detail) {
-                    String[] buf = ddl.toString().split("<span id=\"deadline-");
-                    buf = buf[1].split("<");
-                    buf = buf[0].split(">");
-                    HomeworkDDL = buf[1];
-                } // get homework deadline
-
-                detail = hw.getElementsByClass("time pull-right");
-                for (Element st : detail) {
-                    HomeworkST = st.toString().split("</small>")[0].split(">")[1];
-                } // get homework start time
-
-                detail = hw.getElementsByClass("accordion-toggle title homework-title");
-                for (Element st : detail) {
-                    HomeworkHno = st.toString().split("id=\"hno-")[1].split("\"")[0];
-                } // get homework hno
-
-                detail = hw.getElementsByClass("content");
-                for (Element ct : detail) {
-                    String[] buf = ct.toString().split("</p></span>");
-                    buf = buf[0].split("<span class=\"content\"><p>");
-                    if (buf.length > 1) {
-                        HomeworkContent = buf[1];
-                        while (true) {
-                            int l = HomeworkContent.indexOf('<');
-                            int r = HomeworkContent.indexOf('>');
-                            if (l == -1 || r == -1) break;
-                            HomeworkContent = HomeworkContent.substring(0, l) + HomeworkContent.substring(r + 1, HomeworkContent.length());
-                        }
+    public boolean getHomeworks(Map <String, String> ck, String CourseID) {
+        try {
+            String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
+            FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
+            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+            Map<String, String> isVis = new HashMap<String, String>();
+            int id = 0;
+            while (true) {
+                Document document = null;
+                Elements content = null;
+                try {
+                    id += 1;
+                    url = url.replace("/p/" + Integer.toString(id - 1) + ".html", "/p/" + Integer.toString(id) + ".html");
+                    document = Jsoup.connect(url).cookies(ck).get();
+                    content = document.getElementsByClass("panel panel-default");
+                    for (Element page : content) {
+                        String buf = page.toString();
+                        if (isVis.containsKey(buf)) throw new Exception("visit same page.");
+                        else isVis.put(buf, "Exist");
                     }
-                } // get homework content
+                } catch (Exception e) {
+                    break;
+                }
+                for (Element hw : content) {
+                    Elements detail = hw.getElementsByClass("accordion-toggle title homework-title");
+                    String HomeworkName = null;
+                    String HomeworkDDL = null;
+                    String HomeworkST = null;
+                    String HomeworkHno = null;
+                    String HomeworkContent = null;
+                    String HomeworkAtt = null;
+                    for (Element hn : detail) {
+                        HomeworkName = hn.toString().split(">")[1].split("<")[0];
+                    } // get homework name
 
-                detail = hw.getElementsByClass("table");
-                for (Element at : detail) {
-                    String[] buf = at.toString().split("value=\"");
-                    if (buf.length < 4) continue;
-                    String fname  = buf[1].split("\"")[0];
-                    String fno    = buf[2].split("\"")[0];
-                    String submit = buf[3].split("\"")[0];
-                    HomeworkAtt = fname + "," + fno + "," + submit;
-                } // get homework attachment
+                    detail = hw.getElementsByClass("panel-body out collapse");
+                    for (Element ddl : detail) {
+                        String[] buf = ddl.toString().split("<span id=\"deadline-");
+                        buf = buf[1].split("<");
+                        buf = buf[0].split(">");
+                        HomeworkDDL = buf[1];
+                    } // get homework deadline
 
-                if (HomeworkName != null && HomeworkDDL != null) {
-//                    db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
-                    osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
+                    detail = hw.getElementsByClass("time pull-right");
+                    for (Element st : detail) {
+                        HomeworkST = st.toString().split("</small>")[0].split(">")[1];
+                    } // get homework start time
+
+                    detail = hw.getElementsByClass("accordion-toggle title homework-title");
+                    for (Element st : detail) {
+                        HomeworkHno = st.toString().split("id=\"hno-")[1].split("\"")[0];
+                    } // get homework hno
+
+                    detail = hw.getElementsByClass("content");
+                    for (Element ct : detail) {
+                        String[] buf = ct.toString().split("</p></span>");
+                        buf = buf[0].split("<span class=\"content\"><p>");
+                        if (buf.length > 1) {
+                            HomeworkContent = buf[1];
+                            while (true) {
+                                int l = HomeworkContent.indexOf('<');
+                                int r = HomeworkContent.indexOf('>');
+                                if (l == -1 || r == -1) break;
+                                HomeworkContent = HomeworkContent.substring(0, l) + HomeworkContent.substring(r + 1, HomeworkContent.length());
+                            }
+                        }
+                    } // get homework content
+
+                    detail = hw.getElementsByClass("table");
+                    for (Element at : detail) {
+                        String[] buf = at.toString().split("value=\"");
+                        if (buf.length < 4) continue;
+                        String fname = buf[1].split("\"")[0];
+                        String fno = buf[2].split("\"")[0];
+                        String submit = buf[3].split("\"")[0];
+                        HomeworkAtt = fname + "," + fno + "," + submit;
+                    } // get homework attachment
+
+                    if (HomeworkName != null && HomeworkDDL != null) {
+                        //                    db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
+                        osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
+                    }
                 }
             }
+            osw.close();
+            return true;
         }
-        osw.close();
-        return ck;
+        catch (IOException e) {
+            System.err.println("IOException: " + e);
+            return false;
+        }
     }
-    private void downloadDocument(Map <String, String> ck, String path, String FileName, String fno, String submit) throws IOException {
-        String url = "http://obe.ruc.edu.cn/index/common/documentDownload.html";
-        Map<String,String> data = new HashMap<>();
-        data.put("fname", FileName);
-        data.put("fno", fno);
-        data.put("submit", submit);
-        Connection.Response content = Jsoup.connect("http://obe.ruc.edu.cn/index/common/documentDownload.html")
-                .timeout(60000)
-                .ignoreContentType(true)
-                .postDataCharset("utf-8")
-                .header("Upgrade-Insecure-Requests","1")
-                .header("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-                .header("Accept-Encoding", "gzip, deflate")
-                .header("Accept-Language", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,mt;q=0.6")
-                .header("Connection", "keep-alive")
-                .header("Content-Type","application/x-www-form-urlencoded")
-                .header("Host", "obe.ruc.edu.cn")
-                .header("Origin", "http://obe.ruc.edu.cn")
-                .header("Referer", "http://obe.ruc.edu.cn/document/index/cno/2021rpfugnl2pxin")
-                .header("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36 Edg/90.0.818.62")
-                .header("X-Requested-With","XMLHttpRequest")
-                .maxBodySize(100*1024*1024)
-                .data(data)
-                .cookies(ck)
-                .method(Connection.Method.POST)
-                .execute()
-                .charset("UTF-8");
-        FileOutputStream out = (new FileOutputStream(new java.io.File(path + FileName)));
-        out.write(content.bodyAsBytes());
-        out.close();
+    private boolean downloadDocument(Map <String, String> ck, String path, String FileName, String fno, String submit) {
+        try {
+            String url = "http://obe.ruc.edu.cn/index/common/documentDownload.html";
+            Map<String, String> data = new HashMap<>();
+            data.put("fname", FileName);
+            data.put("fno", fno);
+            data.put("submit", submit);
+            Connection.Response content = Jsoup.connect("http://obe.ruc.edu.cn/index/common/documentDownload.html")
+                    .timeout(60000)
+                    .ignoreContentType(true)
+                    .postDataCharset("utf-8")
+                    .header("Upgrade-Insecure-Requests", "1")
+                    .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+                    .header("Accept-Encoding", "gzip, deflate")
+                    .header("Accept-Language", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7,mt;q=0.6")
+                    .header("Connection", "keep-alive")
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .header("Host", "obe.ruc.edu.cn")
+                    .header("Origin", "http://obe.ruc.edu.cn")
+                    .header("Referer", "http://obe.ruc.edu.cn/document/index/cno/2021rpfugnl2pxin")
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36 Edg/90.0.818.62")
+                    .header("X-Requested-With", "XMLHttpRequest")
+                    .maxBodySize(100 * 1024 * 1024)
+                    .data(data)
+                    .cookies(ck)
+                    .method(Connection.Method.POST)
+                    .execute()
+                    .charset("UTF-8");
+            FileOutputStream out = (new FileOutputStream(new java.io.File(path + FileName)));
+            out.write(content.bodyAsBytes());
+            out.close();
+            return true;
+        }
+        catch (IOException e) {
+            System.err.println("IOException: " + e);
+            return false;
+        }
     }
-    public void getDocuments(Map <String, String> ck, String CourseID, String filepath) throws IOException {
+    public void getDocuments(Map <String, String> ck, String CourseID, String filepath) {
         String url = "http://obe.ruc.edu.cn/index/document/index/cno/" + CourseID + "/p/0.html";
         Map<String, String> isVis = new HashMap<String, String>();
         int id = 0;
@@ -173,8 +189,7 @@ public class Crawler {
                     if (isVis.containsKey(buf)) throw new Exception("visit same page.");
                     else isVis.put(buf, "Exist");
                 }
-            }
-            catch (Exception e) { break; }
+            } catch (Exception e) { break; }
             String fname = null;
             String fno = null;
             String submit = null;
@@ -183,10 +198,15 @@ public class Crawler {
                 for (String detail : dc.toString().split("<tr>")) {
                     String[] buf = detail.split("value=\"");
                     if (buf.length < 4) continue;
-                    fname  = buf[1].split("\"")[0];
-                    fno    = buf[2].split("\"")[0];
+                    fname = buf[1].split("\"")[0];
+                    fno = buf[2].split("\"")[0];
                     submit = buf[3].split("\"")[0];
-                    downloadDocument(ck, filepath, fname, fno, submit);
+                    boolean tmp = downloadDocument(ck, filepath, fname, fno, submit);
+                    if (tmp == false)
+                        tmp = downloadDocument(ck, filepath, fname, fno, submit);
+                    if (tmp == false) {
+                        System.err.println("Download " + fname + " fail.");
+                    }
                 }
             }
         }
