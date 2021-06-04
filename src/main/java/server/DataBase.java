@@ -105,7 +105,7 @@ public class DataBase {
             pst = c.prepareStatement("SELECT * FROM COURSES WHERE id = ? ");
             pst.setString(1, course.get("id"));
             rs = pst.executeQuery();
-            if(rs.next()) throw new SQLSyntaxErrorException("Course already exists");
+            if(rs.next()) throw new SQLSyntaxErrorException("Course already exists" + course.get("name"));
             pst.close();
 
             pst = c.prepareStatement("INSERT INTO COURSES VALUES (?, ?, ?)");
@@ -116,7 +116,7 @@ public class DataBase {
             pst.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
     public void addCourse(String id, String name, String teacher) {
@@ -147,31 +147,35 @@ public class DataBase {
             rs = pst.executeQuery();
 
             if(rs.next()) {
+                int cnt = 0;
                 for(var entry: homework.entrySet()) {
                     if(!entry.getValue().equals(rs.getString(entry.getKey()))) {
                         /* update to MessageQueue */
+                        cnt += 1;
                         System.out.println("Update: " + rs.getString("id") + "/" + rs.getString(entry.getKey()));
                     }
                 }
                 pst.close();
-                sql = "UPDATE HOMEWORKS SET "
-                        + "name         = ?,"
-                        + "time_pull    = ?,"
-                        + "time_ddl     = ?,"
-                        + "description  = ?,"
-                        + "attachment   = ? "
-                        + "WHERE    course_id = ? "
-                        + "AND      id = ? ";
-                pst = c.prepareStatement(sql);
-                pst.setString(1, homework.get("name"));
-                pst.setString(2, homework.get("time_pull"));
-                pst.setString(3, homework.get("time_ddl"));
-                pst.setString(4, homework.get("description"));
-                pst.setString(5, homework.get("attachment"));
-                pst.setString(6, homework.get("course_id"));
-                pst.setString(7, homework.get("id"));
-                pst.executeUpdate();
-                pst.close();
+                if (cnt != 0) {
+                    sql = "UPDATE HOMEWORKS SET "
+                            + "name         = ?,"
+                            + "time_pull    = ?,"
+                            + "time_ddl     = ?,"
+                            + "description  = ?,"
+                            + "attachment   = ? "
+                            + "WHERE    course_id = ? "
+                            + "AND      id = ? ";
+                    pst = c.prepareStatement(sql);
+                    pst.setString(1, homework.get("name"));
+                    pst.setString(2, homework.get("time_pull"));
+                    pst.setString(3, homework.get("time_ddl"));
+                    pst.setString(4, homework.get("description"));
+                    pst.setString(5, homework.get("attachment"));
+                    pst.setString(6, homework.get("course_id"));
+                    pst.setString(7, homework.get("id"));
+                    pst.executeUpdate();
+                    pst.close();
+                }
             } else {
                 pst.close();
                 pst = c.prepareStatement("INSERT INTO HOMEWORKS VALUES (?, ?, ?, ?, ?, ?, ?)");
@@ -187,7 +191,7 @@ public class DataBase {
             }
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
     public void updateHomework(String id, String name, String timePull,
@@ -213,7 +217,7 @@ public class DataBase {
             /* update to MessageQueue */
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 
@@ -243,7 +247,7 @@ public class DataBase {
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -276,7 +280,7 @@ public class DataBase {
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -305,7 +309,7 @@ public class DataBase {
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -315,7 +319,7 @@ public class DataBase {
             c.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            // e.printStackTrace();
         }
     }
 
@@ -324,6 +328,7 @@ public class DataBase {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:test.db");
+            initCourseTable(); // ...
             System.out.println("Opened database successfully");
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
