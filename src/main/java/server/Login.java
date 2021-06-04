@@ -36,20 +36,5 @@ public class Login {
                 .charset("UTF-8");
         return login.cookies();
     }
-    public void test(Map <String, String> cok, String userInfoUrl) throws IOException {
-        System.out.println(cok);
-        Document document = Jsoup.connect(userInfoUrl)
-                .cookies(cok)
-                .get();
-        if (document != null) {
-            String test = document.title();
-            System.out.println("title: " + test);
-            Elements content = document.getElementsByClass("dropdown-menu");
-            for (Element detail : content) {
-                System.out.println(content.select("a[href]"));
-                break;
-            }
-        }
-    }
 }
 

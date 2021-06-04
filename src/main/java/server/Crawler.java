@@ -7,35 +7,43 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Crawler {
-    public Map <String, String> getCourses(Map <String, String> ck) throws IOException {
-        FileOutputStream fos = new FileOutputStream("course.txt");
-        OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-        String url = "http://obe.ruc.edu.cn/index/course/index.html";
-        Document document = Jsoup.connect(url).cookies(ck).get();
-        Elements content = document.getElementsByClass("thumbnail col-lg-2 col-md-2 col-sm-2 col-xs-2 block1 ellipsis");
-        for (Element item : content.select("a[href]")) {
-            String detail = item.toString();
-            String[] buf = detail.split("\"");
-            String CourseUrl = "http://obe.ruc.edu.cn" + buf[1];
-            String CourseName = buf[2].split(">")[1].split("<")[0];
-            String CourseTeacher = buf[2].split(">")[3].split("<")[0];
-            String CourseID = buf[1].split(".html")[0].split("/")[5];
-            osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
-        }
-        osw.close();
-        return ck;
+    private DataBase db;
+    private Map <String, String> cookie;
+    public Crawler() {
+        db = new DataBase();
     }
-    public Map <String, String> getHomeworks(Map <String, String> ck, String url) throws IOException {
-        FileOutputStream fos = new FileOutputStream("homework.txt");
+    public void getCourses(Map <String, String> ck) {
+        try {
+            FileOutputStream fos = new FileOutputStream("./data/course.txt");
+            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+            String url = "http://obe.ruc.edu.cn/index/course/index.html";
+            Document document = Jsoup.connect(url).cookies(ck).get();
+            Elements content = document.getElementsByClass("thumbnail col-lg-2 col-md-2 col-sm-2 col-xs-2 block1 ellipsis");
+            for (Element item : content.select("a[href]")) {
+                String detail = item.toString();
+                String[] buf = detail.split("\"");
+                String CourseUrl = "http://obe.ruc.edu.cn" + buf[1];
+                String CourseName = buf[2].split(">")[1].split("<")[0];
+                String CourseTeacher = buf[2].split(">")[3].split("<")[0];
+                String CourseID = buf[1].split(".html")[0].split("/")[5];
+
+//                db.addCourse(CourseID, CourseName, CourseTeacher);
+                osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
+            }
+            osw.close();
+        }
+        catch (IOException e) {
+            System.err.println("IOException: " + e);
+        }
+    }
+    public Map <String, String> getHomeworks(Map <String, String> ck, String CourseID) throws IOException {
+        String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
+        FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
         OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-        url = url.replace("notice", "homework");
-        url = url.replace(".html", "/p/0.html");
         Map<String, String> isVis = new HashMap<String, String>();
         int id = 0;
         while (true) {
@@ -60,6 +68,7 @@ public class Crawler {
                 String HomeworkST = null;
                 String HomeworkHno = null;
                 String HomeworkContent = null;
+                String HomeworkAtt = null;
                 for (Element hn : detail) {
                     HomeworkName = hn.toString().split(">")[1].split("<")[0];
                 } // get homework name
@@ -97,8 +106,20 @@ public class Crawler {
                     }
                 } // get homework content
 
-                if (HomeworkName != null && HomeworkDDL != null)
-                    osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\n");
+                detail = hw.getElementsByClass("table");
+                for (Element at : detail) {
+                    String[] buf = at.toString().split("value=\"");
+                    if (buf.length < 4) continue;
+                    String fname  = buf[1].split("\"")[0];
+                    String fno    = buf[2].split("\"")[0];
+                    String submit = buf[3].split("\"")[0];
+                    HomeworkAtt = fname + "," + fno + "," + submit;
+                } // get homework attachment
+
+                if (HomeworkName != null && HomeworkDDL != null) {
+//                    db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
+                    osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
+                }
             }
         }
         osw.close();
@@ -135,9 +156,8 @@ public class Crawler {
         out.write(content.bodyAsBytes());
         out.close();
     }
-    public void getDocuments(Map <String, String> ck, String url, String filepath) throws IOException {
-        url = url.replace("notice", "document");
-        url = url.replace(".html", "/p/0.html");
+    public void getDocuments(Map <String, String> ck, String CourseID, String filepath) throws IOException {
+        String url = "http://obe.ruc.edu.cn/index/document/index/cno/" + CourseID + "/p/0.html";
         Map<String, String> isVis = new HashMap<String, String>();
         int id = 0;
         while (true) {
@@ -171,7 +191,7 @@ public class Crawler {
             }
         }
     }
-    /*
+
     static public void main(String[] argv) {
         Login login = new Login();
         String usernumber = "2019201408";
@@ -179,18 +199,15 @@ public class Crawler {
         Map <String, String> ck = null;
         try {
             ck = login.getCookie(usernumber, password);
-//            new Crawler().getCourses(ck);
-//            String CourseUrl = "http://obe.ruc.edu.cn/index/notice/index/cno/20213ban15xk2vdv.html";
-//            String CourseUrl = "http://obe.ruc.edu.cn/index/notice/index/cno/20210s130b7kyx3c.html";
-//            String CourseUrl = "http://obe.ruc.edu.cn/index/notice/index/cno/2021bqjnnbmffiqn.html";
-//            String CourseUrl = "http://obe.ruc.edu.cn/index/notice/index/cno/20212ache8wmuykt.html";
-//            new Crawler().getHomeworks(ck, CourseUrl);
-//            new Crawler().getDocuments(ck, CourseUrl, "./testdownload/");
+            new Crawler().getCourses(ck);
+            String CourseID = "2021rpfugnl2pxin";
+            new Crawler().getHomeworks(ck, CourseID);
+            new Crawler().getDocuments(ck, CourseID, "./data/documents/");
         }
         catch (IOException e) {
             System.err.println("IOException: " + e);
         }
     }
-    */
+
 }
 
