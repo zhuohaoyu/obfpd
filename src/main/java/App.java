@@ -12,6 +12,7 @@ public class App {
     private JFrame frame ;
     private JPanel mainPanel ;
     private TestPanel testPanel ;
+    private ToolbarPanel toolbarPanel ;
 
     public static void main( String[] args ){
         EventQueue.invokeLater( ()->{
@@ -49,7 +50,7 @@ public class App {
 
             @Override
             public void windowClosing(WindowEvent e) {
-
+                System.exit( 1 ) ;
             }
 
             @Override
@@ -81,8 +82,14 @@ public class App {
 
     private void addComponent(){
         mainPanel = new JPanel() ;
+        mainPanel.setLayout( new BorderLayout() );
+
+        toolbarPanel = new ToolbarPanel() ;
         testPanel = new TestPanel() ;
+
+        mainPanel.add( toolbarPanel , BorderLayout.WEST ) ;
         mainPanel.add( testPanel ) ;
         frame.add( mainPanel ) ;
+
     }
 }
