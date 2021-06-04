@@ -31,7 +31,7 @@ public class Crawler {
                 String CourseTeacher = buf[2].split(">")[3].split("<")[0];
                 String CourseID = buf[1].split(".html")[0].split("/")[5];
 
-//                db.addCourse(CourseID, CourseName, CourseTeacher);
+                db.addCourse(CourseID, CourseName, CourseTeacher);
                 osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
             }
             osw.close();
@@ -121,7 +121,7 @@ public class Crawler {
                     } // get homework attachment
 
                     if (HomeworkName != null && HomeworkDDL != null) {
-                        //                    db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
+//                        db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
                         osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
                     }
                 }
@@ -131,6 +131,98 @@ public class Crawler {
         }
         catch (IOException e) {
             System.err.println("IOException: " + e);
+            return false;
+        }
+    }
+    public boolean crawlHomeworks(Map <String, String> ck, String CourseID) {
+        try {
+            String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
+            FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
+            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+            Map<String, String> isVis = new HashMap<String, String>();
+            int id = 0;
+            while (true) {
+                Document document = null;
+                Elements content = null;
+                try {
+                    id += 1;
+                    url = url.replace("/p/" + Integer.toString(id - 1) + ".html", "/p/" + Integer.toString(id) + ".html");
+                    document = Jsoup.connect(url).cookies(ck).get();
+                    content = document.getElementsByClass("panel panel-default");
+                    for (Element page : content) {
+                        String buf = page.toString();
+                        if (isVis.containsKey(buf)) throw new Exception("visit same page.");
+                        else isVis.put(buf, "Exist");
+                    }
+                } catch (Exception e) {
+                    break;
+                }
+                for (Element hw : content) {
+                    Elements detail = hw.getElementsByClass("accordion-toggle title homework-title");
+                    String HomeworkName = "";
+                    String HomeworkDDL = "";
+                    String HomeworkST = "";
+                    String HomeworkHno = "";
+                    String HomeworkContent = "";
+                    String HomeworkAtt = "";
+                    for (Element hn : detail) {
+                        HomeworkName = hn.toString().split(">")[1].split("<")[0];
+                    } // get homework name
+
+                    detail = hw.getElementsByClass("panel-body out collapse");
+                    for (Element ddl : detail) {
+                        String[] buf = ddl.toString().split("<span id=\"deadline-");
+                        buf = buf[1].split("<");
+                        buf = buf[0].split(">");
+                        HomeworkDDL = buf[1];
+                    } // get homework deadline
+
+                    detail = hw.getElementsByClass("time pull-right");
+                    for (Element st : detail) {
+                        HomeworkST = st.toString().split("</small>")[0].split(">")[1];
+                    } // get homework start time
+
+                    detail = hw.getElementsByClass("accordion-toggle title homework-title");
+                    for (Element st : detail) {
+                        HomeworkHno = st.toString().split("id=\"hno-")[1].split("\"")[0];
+                    } // get homework hno
+
+                    detail = hw.getElementsByClass("content");
+                    for (Element ct : detail) {
+                        String[] buf = ct.toString().split("</p></span>");
+                        buf = buf[0].split("<span class=\"content\"><p>");
+                        if (buf.length > 1) {
+                            HomeworkContent = buf[1];
+                            while (true) {
+                                int l = HomeworkContent.indexOf('<');
+                                int r = HomeworkContent.indexOf('>');
+                                if (l == -1 || r == -1) break;
+                                HomeworkContent = HomeworkContent.substring(0, l) + HomeworkContent.substring(r + 1, HomeworkContent.length());
+                            }
+                        }
+                    } // get homework content
+
+                    detail = hw.getElementsByClass("table");
+                    for (Element at : detail) {
+                        String[] buf = at.toString().split("value=\"");
+                        if (buf.length < 4) continue;
+                        String fname = buf[1].split("\"")[0];
+                        String fno = buf[2].split("\"")[0];
+                        String submit = buf[3].split("\"")[0];
+                        HomeworkAtt = fname + "," + fno + "," + submit;
+                    } // get homework attachment
+
+                    if (HomeworkName != "" && HomeworkDDL != "") {
+                        db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
+                        osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
+                    }
+                }
+            }
+//            osw.close();
+            return true;
+        }
+        catch (Exception e) {
+            System.err.println("Exception: " + e);
             return false;
         }
     }
@@ -223,8 +315,8 @@ public class Crawler {
                 String CourseName = buf[2].split(">")[1].split("<")[0];
                 String CourseTeacher = buf[2].split(">")[3].split("<")[0];
                 String CourseID = buf[1].split(".html")[0].split("/")[5];
-
-//                db.addCourse(CourseID, CourseName, CourseTeacher);
+                db.addCourse(CourseID, CourseName, CourseTeacher);
+                crawlHomeworks(ck, CourseID);
             }
             return true;
         }
