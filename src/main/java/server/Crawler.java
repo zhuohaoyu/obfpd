@@ -218,11 +218,11 @@ public class Crawler {
                     }
                 }
             }
-            osw.close();
+//            osw.close();
             return true;
         }
-        catch (IOException e) {
-            System.err.println("IOException: " + e);
+        catch (Exception e) {
+            System.err.println("Exception: " + e);
             return false;
         }
     }
