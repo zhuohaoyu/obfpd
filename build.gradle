@@ -6,7 +6,7 @@ group 'org.obfpd'
 version '1.0-SNAPSHOT'
 
 sourceSets {
-    main {
+    main{
         java {
             srcDirs = ['src']
         }
