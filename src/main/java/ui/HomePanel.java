@@ -1,15 +1,19 @@
 package main.java.ui;
 
+import main.java.App;
 import main.java.ui.mycompo.TimeRefresh ;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class HomePanel extends Panel {
     JLabel homeworktot , homework3d , homework1d ;
-    JLabel pptcnt ;
+    JLabel loginStatus ;
+    JLabel lableTitle ;
     public HomePanel(){
         initialize() ;
         addComponent() ;
@@ -30,7 +34,7 @@ public class HomePanel extends Panel {
         JPanel panelUp0 = new JPanel(new FlowLayout( FlowLayout.LEADING , UiConsts.MAIN_H_GAP , 15 ) ) ;
         JPanel panelUp = new JPanel( new GridLayout( 3 , 1 ) ) ;
 
-        JLabel lableTitle = new JLabel( "欢迎" ) ;
+        lableTitle = new JLabel( ) ;
         lableTitle.setFont( UiConsts.FONT_TITLE0 ) ;
         panelUp.add( lableTitle ) ;
 
@@ -55,25 +59,29 @@ public class HomePanel extends Panel {
             homework3d = new JLabel() ;
             homework1d = new JLabel() ;
             homeworktot.setFont(UiConsts.FONT_NORMAL) ;
-            homeworktot.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH , 30 ) ) ;
+            homeworktot.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH * 2 , 30 ) ) ;
             homework3d.setFont(UiConsts.FONT_NORMAL );
             homework3d.setForeground( UiConsts.MIMOSAYELLOW ) ;
-            homework3d.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH , 30 ) ) ;
+            homework3d.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH * 2 , 30 ) ) ;
             homework1d.setFont(UiConsts.FONT_NORMAL );
             homework1d.setForeground( UiConsts.BRIGHTRED ) ;
-            homework1d.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH , 30 ) ) ;
+            homework1d.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH * 2 , 30 ) ) ;
             panel1.add( homeworktot ) ;
             panel1.add( homework3d ) ;
             panel1.add( homework1d ) ;
 
-        // ppt info
-        JPanel panel2 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 30 ) ) ;
-            pptcnt = new JLabel() ;
-            pptcnt.setFont(UiConsts.FONT_NORMAL );
-            panel2.add( pptcnt ) ;
+        // empty
+        JPanel panel2 = new JPanel() ;
+
+        // login info
+        JPanel panel3 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 30 ) ) ;
+            loginStatus = new JLabel() ;
+            loginStatus.setFont(UiConsts.FONT_NORMAL );
+            panel3.add( loginStatus ) ;
 
         panelCenter.add( panel1 ) ;
         panelCenter.add( panel2 ) ;
+        panelCenter.add( panel3 ) ;
 
         return panelCenter ;
     }
@@ -106,10 +114,22 @@ public class HomePanel extends Panel {
     }
 
     public void setContent(){
+        String nowT = "" ;
+        Calendar cal = new GregorianCalendar() ;
+        int hour = cal.get( Calendar.HOUR_OF_DAY ) ;
+        if( hour <= 5 ) nowT = "夜深了" ;
+        else if( hour <= 8 ) nowT = "早上好" ;
+        else if( hour <= 11 ) nowT = "上午好" ;
+        else if( hour <= 13 ) nowT = "中午好" ;
+        else if( hour <= 18 ) nowT = "下午好" ;
+        else if( hour <= 23 ) nowT = "晚上好" ;
+        else if( hour <= 24 ) nowT = "夜深了" ;
+
+        lableTitle.setText( nowT + ( App.islogin ? ", " + App.username : "" ) ) ;
         homeworktot.setText( "待完成的作业:" + "" + " 项" ) ;
         homework3d.setText( "剩余时间不足 3 天的作业:" + "" + " 项" ) ;
         homework1d.setText( "剩余时间不足 1 天的作业:" + "" + " 项" ) ;
-        pptcnt.setText( "最近一周的新课件:" + "" + " 项");
+        loginStatus.setText( "状态:" + ( App.islogin ? "已登录" : "未登录" ) ) ;
     }
 
 }

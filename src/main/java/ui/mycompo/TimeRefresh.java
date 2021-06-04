@@ -13,7 +13,7 @@ public class TimeRefresh extends JLabel implements ActionListener {
     {
         df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         this.setText( df.format( new Date() ) ) ;
-        timer = new Timer(1000, this);
+        timer = new Timer(300, this);
         timer.start();
     }
 
