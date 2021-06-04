@@ -3,6 +3,9 @@ package main.java.ui;
 import javax.swing.*;
 import java.awt.*;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
+import main.java.ui.*;
+
 public class TestPanel extends JPanel {
     public static JButton homeButton ;
     public TestPanel(){
@@ -11,7 +14,7 @@ public class TestPanel extends JPanel {
     }
 
     private void initialize(){
-        this.setBackground(Color.lightGray ) ;
+
         this.setLayout( new BorderLayout() ) ;
     }
 
