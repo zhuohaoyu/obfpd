@@ -1,8 +1,13 @@
 package main.java.ui;
 
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.ui.FlatButtonUI;
+import com.formdev.flatlaf.ui.FlatRoundBorder;
 import main.java.App;
 import javax.swing.*;
+import javax.swing.plaf.ButtonUI;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.* ;
 
 public class ToolbarPanel extends JPanel{
@@ -25,16 +30,15 @@ public class ToolbarPanel extends JPanel{
     }
 
     private void addButton(){
-        JPanel panelUp = new JPanel() ;
-        panelUp.setLayout( new FlowLayout( FlowLayout.CENTER ,  0 , 0 ) ) ;
-        JPanel panelDown = new JPanel() ;
-        panelDown.setLayout( new BorderLayout( 0 , 0 ) ) ;
+        JPanel panelUp = new JPanel( new FlowLayout( FlowLayout.CENTER ,  0 , 0 ) ) ;
+        JPanel panelDown = new JPanel( new BorderLayout() ) ;
 
         Dimension buttonPreferredSize = new Dimension( UiConsts.TOOLBAR_BUTTON_WIDTH , UiConsts.TOOLBAR_BUTTON_HEIGHT ) ;
 
         buttonHome = new JButton() ;
         buttonHome.setPreferredSize( buttonPreferredSize ) ;
-        buttonHome.setBorderPainted( false );
+        buttonHome.setBorderPainted( false ) ;
+
         buttonClasses = new JButton() ;
         buttonClasses.setPreferredSize( buttonPreferredSize ) ;
         buttonClasses.setBorderPainted( false );
@@ -52,22 +56,32 @@ public class ToolbarPanel extends JPanel{
 
     private void addListener(){
         buttonHome.addActionListener( e -> {
+            buttonHome.setSelected( true ) ;
+            buttonClasses.setSelected( false ) ;
+            buttonSettings.setSelected( false ) ;
+
             App.mainPanelCenter.removeAll();
             App.homePanel.setContent() ;
             App.mainPanelCenter.add( App.homePanel , BorderLayout.CENTER );
-            SwingUtilities.invokeLater(() -> App.mainPanelCenter.revalidate());
+            SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
         } );
         buttonClasses.addActionListener( e -> {
+            buttonHome.setSelected( false ) ;
+            buttonClasses.setSelected( true ) ;
+            buttonSettings.setSelected( false ) ;
             App.mainPanelCenter.removeAll();
             App.classesPanel.setContent() ;
             App.mainPanelCenter.add( App.classesPanel , BorderLayout.CENTER );
-            SwingUtilities.invokeLater(() -> App.mainPanelCenter.revalidate());
+            SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
         } );
 
         buttonSettings.addActionListener( e-> {
+            buttonHome.setSelected( false ) ;
+            buttonClasses.setSelected( false ) ;
+            buttonSettings.setSelected( true ) ;
             App.mainPanelCenter.removeAll() ;
             App.mainPanelCenter.add( App.settingsPanel , BorderLayout.CENTER ) ;
-            SwingUtilities.invokeLater(() -> App.mainPanelCenter.revalidate());
+            SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
         });
     }
 

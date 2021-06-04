@@ -7,6 +7,8 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import main.java.ui.* ;
 
 public class App {
+    public static boolean islogin ;
+    public static String username ;
     public static JFrame frame ;
     public static JPanel mainPanelCenter , mainToolPanel ;
 
@@ -28,6 +30,7 @@ public class App {
     }
 
     App(){
+        islogin = false ;
         initialize() ;
         addComponent() ;
     }
