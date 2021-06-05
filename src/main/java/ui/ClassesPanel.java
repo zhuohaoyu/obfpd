@@ -97,8 +97,7 @@ public class ClassesPanel extends JPanel {
     }
 
     public void setContent(){
-        chosedClassId = 0 ;
-        chosedHomeworkId = 0 ;
+        chosedClassId = -1 ;
         chosedClass = null ;
         chosedHomework = null ;
         homeworkList = null ;
@@ -123,6 +122,7 @@ public class ClassesPanel extends JPanel {
                 if (chosedClassId == 2)
                     homeworkList = new String[]{"qwqwqwqwq", "_(:з)∠)_", "homework3"};
                 homeworkTabinit = false;
+                chosedHomeworkId = -1 ;
                 homeworkTab.removeAll();
                 homeworkTabinit = true;
                 classTab.setComponentAt(chosedClassId, homeworkTab);
