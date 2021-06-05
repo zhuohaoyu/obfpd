@@ -31,7 +31,7 @@ public class ForumPanel extends JPanel {
         private void initialize() {
             Reply.setLayout( new MigLayout(
                     "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ",hidemode 3",
-                    "[][grow,fill]para",
+                    "[grow,fill]para",
                     "[]10[]10[grow,fill]10[]"
             ));
 
@@ -41,7 +41,7 @@ public class ForumPanel extends JPanel {
                 JLabel label = new JLabel("帖子详情");
                 label.setFont(UiConsts.FONT_TITLE0);
                 panelTitle.add(label);
-                Reply.add(panelTitle, "cell 0 0");
+                Reply.add(panelTitle, "cell 0 0,alignx left,growx 0");
             }
 
             /******** Poster ********/
@@ -64,13 +64,21 @@ public class ForumPanel extends JPanel {
 //            }
 
             /******** Send ********/
-//            {
-//                JPanel panelTitle = new JPanel();
-//                JLabel label = new JLabel("帖子详情");
-//                label.setFont(UiConsts.FONT_TITLE0);
-//                panelTitle.add(label);
-//                Reply.add(panelTitle, "cell 0 3");
-//            }
+            {
+                JPanel panelSend = new JPanel();
+                panelSend.setLayout( new MigLayout(
+                        "insets 0,hidemode 3",
+                        "[grow,fill]para",
+                        "[grow,fill]para[]"
+                ));
+                JTextArea jta = new JTextArea();
+                jta.setLineWrap(true);
+                jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
+                JScrollPane jsp = new JScrollPane( jta );
+                panelSend.add(jsp, "cell 0 0");
+                panelSend.setPreferredSize(new Dimension(200, 90));
+                Reply.add(panelSend, "cell 0 3");
+            }
         }
 
         @Override
@@ -97,16 +105,16 @@ public class ForumPanel extends JPanel {
         panel.setLayout( new MigLayout(
                 "insets 0,hidemode 3",
                 "[grow,fill]para",
-                "[]5[]"
+                "[][]"
         ));
         JTextArea jta = new JTextArea();
         jta.setLineWrap(true);
         jta.setEnabled(false);
         jta.setText("Title: \n" + title + ".\n\nUser:  " + user);
         jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
-        JScrollPane jsp = new JScrollPane(  jta );
+        JScrollPane jsp = new JScrollPane( jta );
         panel.add(jsp, "cell 0 0");
-        panel.setPreferredSize(new Dimension(200, 100));
+        panel.setPreferredSize(new Dimension(200, 120));
         JButton ReadMoreButton = new JButton();
         ReadMoreButton.setText("Read More");
         ReadMoreButton.setSelected(true);
