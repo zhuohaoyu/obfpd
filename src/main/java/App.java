@@ -136,7 +136,8 @@ public class App {
         islogin = false;
         student = new OBEManager();
         initialize() ;
-        new Login().login();
+//        new Login().login();
+        islogin = true;
         if (islogin == false) System.exit(0);
         addComponent() ;
     }

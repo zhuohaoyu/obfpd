@@ -32,7 +32,7 @@ public class ForumPanel extends JPanel {
             Reply.setLayout( new MigLayout(
                     "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ",hidemode 3",
                     "[grow,fill]para",
-                    "[]10[]10[grow,fill]10[]"
+                    "[]10[]10[grow,fill]10[100]"
             ));
 
             /******** Title ********/
@@ -76,7 +76,23 @@ public class ForumPanel extends JPanel {
                 jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
                 JScrollPane jsp = new JScrollPane( jta );
                 panelSend.add(jsp, "cell 0 0");
-                panelSend.setPreferredSize(new Dimension(200, 90));
+                panelSend.setPreferredSize(new Dimension(200, 120));
+
+                /******** Button ********/
+                {
+                    JPanel panelButton = new JPanel();
+                    panelButton.setLayout( new MigLayout(
+                            "insets 0,hidemode 3",
+                            "[]10[]",
+                            "[grow,fill]para"
+                    ));
+                    JButton jbok = new JButton("发 送");
+                    JButton jbcancle = new JButton("取 消");
+                    panelButton.add(jbok, "cell 0 0");
+                    panelButton.add(jbcancle, "cell 1 0");
+                    panelSend.add(panelButton, "cell 0 1,align right,growx 0");
+                }
+
                 Reply.add(panelSend, "cell 0 3");
             }
         }
@@ -153,6 +169,8 @@ public class ForumPanel extends JPanel {
                 "[grow, fill]para"));
         tabPlacementLabel.setText("论坛");
         tabPlacementLabel.setFont(UiConsts.FONT_TITLE0);
+        JSeparator sepline = new JSeparator() ;
+        sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
         panelTitle.add(tabPlacementLabel, "cell 0 0");
 
         add(panelTitle, "cell 0 0");
@@ -175,6 +193,7 @@ public class ForumPanel extends JPanel {
         JScrollPane jsp = new JScrollPane(panelContent);
         jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         jsp.setBorder(null);
+        jsp.getVerticalScrollBar().setUnitIncrement(16);
         add(jsp, "cell 0 1");
     }
 }
