@@ -26,3 +26,13 @@ main/java/client/OBELoginWorker.java
  main.java.client.OBELoginWorker
 main/java/client/OBEUser.java
  main.java.client.OBEUser
+main/java/server/MyWebSocketServer.java
+ main.java.server.MyWebSocketServer
+main/java/server/WebServerEnum.java
+ main.java.server.WebServerEnum
+main/java/server/SocketServerEngine.java
+ main.java.server.SocketServerEngine
+main/java/client/MyWebSocketClient.java
+ main.java.client.MyWebSocketClient
+main/java/client/MyTest.java
+ main.java.client.MyTest
