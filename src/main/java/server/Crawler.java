@@ -7,14 +7,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class Crawler {
+public class Crawler implements Runnable {
+    private int SleepTime;
     private DataBase db;
     private Map <String, String> cookie;
-    public Crawler() {
+    public Crawler(int __SleepTime) {
         db = new DataBase(":data:test.db");
+        SleepTime = __SleepTime;
     }
     public boolean getCourses(Map <String, String> ck) {
         try {
@@ -121,7 +122,6 @@ public class Crawler {
                     } // get homework attachment
 
                     if (HomeworkName != null && HomeworkDDL != null) {
-//                        db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
                         osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
                     }
                 }
@@ -135,6 +135,11 @@ public class Crawler {
         }
     }
     public boolean crawlHomeworks(Map <String, String> ck, String CourseID) {
+        Set<String> homework = new HashSet<String>();
+        List<String> oldhw = db.getCourseHomework(CourseID);
+        for (String old : oldhw) {
+            homework.add(old);
+        }
         try {
             String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
             FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
@@ -213,10 +218,17 @@ public class Crawler {
                     } // get homework attachment
 
                     if (HomeworkName != "" && HomeworkDDL != "") {
+                        if (homework.contains(HomeworkHno)) {
+                            homework.remove(HomeworkHno);
+                        }
                         db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
                         osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
                     }
                 }
+            }
+            for (String old : homework) {
+                System.err.println("Delete homework: " + old);
+                db.deleteHomework(old, CourseID);
             }
             osw.close();
             return true;
@@ -230,9 +242,9 @@ public class Crawler {
         try {
             String url = "http://obe.ruc.edu.cn/index/common/documentDownload.html";
             Map<String, String> data = new HashMap<>();
-            data.put("fname", FileName);
+//            data.put("fname", FileName);
             data.put("fno", fno);
-            data.put("submit", submit);
+//            data.put("submit", submit);
             Connection.Response content = Jsoup.connect("http://obe.ruc.edu.cn/index/common/documentDownload.html")
                     .timeout(60000)
                     .ignoreContentType(true)
@@ -305,6 +317,8 @@ public class Crawler {
     }
     public boolean reCrawl(Map <String, String> ck) {
         try {
+            FileOutputStream fos = new FileOutputStream("./data/course.txt");
+            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
             String url = "http://obe.ruc.edu.cn/index/course/index.html";
             Document document = Jsoup.connect(url).cookies(ck).get();
             Elements content = document.getElementsByClass("thumbnail col-lg-2 col-md-2 col-sm-2 col-xs-2 block1 ellipsis");
@@ -317,7 +331,9 @@ public class Crawler {
                 String CourseID = buf[1].split(".html")[0].split("/")[5];
                 db.addCourse(CourseID, CourseName, CourseTeacher);
                 crawlHomeworks(ck, CourseID);
+                osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
             }
+            osw.close();
             return true;
         }
         catch (IOException e) {
@@ -325,24 +341,36 @@ public class Crawler {
             return false;
         }
     }
-    static public void main(String[] argv) {
+
+    @Override
+    public void run() {
         Login login = new Login();
-        String usernumber = "2019201408";
-        String password = "algorithm";
+        boolean flag = true;
+        String line = null;
         Map <String, String> ck = null;
-        try {
-            ck = login.getCookie(usernumber, password);
-//            String CourseID = "2021rpfugnl2pxin";
-            Crawler crawler = new Crawler();
-//            crawler.getCourses(ck);
-//            crawler.getHomeworks(ck, CourseID);
-//            crawler.getDocuments(ck, CourseID, "./data/documents/");
-            crawler.reCrawl(ck);
+        Account account = new Account();
+        for (String usernumber : account.student.keySet()) {
+            flag = false;
+            try {
+                String password = account.student.get(usernumber);
+                ck = login.getCookie(usernumber, password);
+            }
+            catch (IOException e) {
+                flag = true;
+            }
+            if (!flag) break;
         }
-        catch (IOException e) {
-            System.err.println("IOException: " + e);
+        while (true) {
+            this.reCrawl(ck);
+            try {
+                Thread.sleep(SleepTime);
+            }
+            catch (Exception e) { }
         }
     }
 
+    static public void main(String[] argv) {
+        new Thread(new Crawler(5 * 60 * 1000)).run();
+    }
 }
 
