@@ -1,3 +1,5 @@
+package main.java.server;
+
 import java.sql.*;
 import java.util.*;
 import java.text.SimpleDateFormat;

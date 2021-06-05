@@ -14,7 +14,7 @@ public class Crawler {
     private DataBase db;
     private Map <String, String> cookie;
     public Crawler() {
-        db = new DataBase();
+        db = new DataBase(":data:test.db");
     }
     public boolean getCourses(Map <String, String> ck) {
         try {
