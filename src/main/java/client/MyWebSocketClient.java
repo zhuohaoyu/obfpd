@@ -1,6 +1,8 @@
 package main.java.client;
 
 import java.net.URI;
+import java.rmi.server.ExportException;
+
 import org.apache.log4j.Logger;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
@@ -15,7 +17,7 @@ public class MyWebSocketClient extends WebSocketClient{
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
-        System.err.println("Successfully");
+        System.err.println("Succ");
     }
 
     @Override
