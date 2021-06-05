@@ -1,5 +1,7 @@
 package main.java.ui;
 
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -26,14 +28,21 @@ public class ClassesPanel extends JPanel {
     }
 
     private void initialize(){
-        this.setLayout( new BorderLayout() ) ;
+        MigLayout mgl = new MigLayout(
+                "",
+                "[grow][grow][grow,fill]",
+                "[min!]20[grow,fill]"
+        );
+        this.setLayout( mgl ) ;
     }
 
     private void addComponent(){
-        this.add( getUpPanel() , BorderLayout.NORTH ) ;
-        this.add( getRightPanel() , BorderLayout.EAST ) ;
-        this.add( getCenterPanel() , BorderLayout.CENTER ) ;
-        this.add( getDownPanel() , BorderLayout.SOUTH ) ;
+        this.add(getUpPanel(), "span");
+//        this.add( getRightPanel()) ;
+//        this.add( getDownPanel()) ;
+
+//        this.add( getCenterPanel()) ;
+            this.getCenterPanel();
     }
 
     private JPanel getUpPanel(){
@@ -52,7 +61,7 @@ public class ClassesPanel extends JPanel {
     }
 
 
-    private JPanel getCenterPanel(){
+    private void getCenterPanel(){
         JPanel panelCenter0 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 0 ) ) ;
         JPanel panelCenter = new JPanel( new GridLayout( 1 , 3 ) ) ;
         UIManager.put( "TabbedPane.tabWidth", 32 );
@@ -62,26 +71,30 @@ public class ClassesPanel extends JPanel {
             classTab.setFont( UiConsts.FONT_NORMAL ) ;
             classTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 150 ) ;
             classTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 150 ) ;
+            this.add(classTab);
             homeworkTab = new JTabbedPane( ) ;
             homeworkTab.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT ) ;
             homeworkTab.setTabPlacement( JTabbedPane.LEFT ) ;
             homeworkTab.setFont( UiConsts.FONT_NORMAL );
             homeworkTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 150 ) ;
             homeworkTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 150 ) ;
-
+            this.add(homeworkTab);
             String colnames[] = { "文件名" , "提交确认" } ;
             DefaultTableModel tmodel = new DefaultTableModel( ) ;
             tmodel.setColumnIdentifiers( colnames );
-            fileTable = new JTable( tmodel ) ;
-            fileTable.getTableHeader().setResizingAllowed(true) ;
-            fileTable.setRowHeight(30) ;
-            scro_file = new JScrollPane( fileTable ) ;
-            String ts[] = {"?" , "?" } ;
-            tmodel.addRow( ts );
+//            fileTable = new JTable( tmodel ) ;
+//            fileTable.getTableHeader().setResizingAllowed(true) ;
+//            fileTable.setRowHeight(30) ;
+//            scro_file = new JScrollPane( fileTable ) ;
+            JTextArea jtatest = new JTextArea("占位jtextarea \n 汪元森好可爱！！！\n 写屎山就不可爱了！！！！！");
+            jtatest.setPreferredSize(new Dimension(800, 600));
+//            String ts[] = {"?" , "?" } ;
+//            tmodel.addRow( ts );
+            this.add(jtatest, "growx");
 
-        panelCenter.add( classTab ) ;
-        panelCenter0.add( panelCenter ) ;
-        return panelCenter0 ;
+//        panelCenter.add( classTab ) ;
+//        panelCenter0.add( panelCenter ) ;
+//        return panelCenter0 ;
     }
 
     private JPanel getDownPanel(){
