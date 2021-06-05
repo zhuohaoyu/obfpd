@@ -17,6 +17,7 @@ public class App {
     public static HomePanel homePanel ;
     public static ClassesPanel classesPanel ;
     public static SettingsPanel settingsPanel ;
+    public static ForumPanel forumPanel;
 
     public static void main( String[] args ){
         EventQueue.invokeLater( ()->{
@@ -63,6 +64,7 @@ public class App {
         testPanel = new TestPanel() ;
         homePanel = new HomePanel() ;
         classesPanel = new ClassesPanel() ;
+        forumPanel = new ForumPanel();
         settingsPanel = new SettingsPanel() ;
 
 

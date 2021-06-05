@@ -14,6 +14,7 @@ public class ToolbarPanel extends JPanel{
     private static JButton buttonHome ;
     private static JButton buttonClasses ;
     private static JButton buttonDownloadCenter ;
+    private static JButton buttonForum;
     private static JButton buttonSettings ;
 
     public ToolbarPanel(){
@@ -47,9 +48,15 @@ public class ToolbarPanel extends JPanel{
         buttonDownloadCenter = new JButton() ;
         buttonDownloadCenter.setPreferredSize( buttonPreferredSize ) ;
         buttonDownloadCenter.setBorderPainted( false );
+
+        buttonForum = new JButton() ;
+        buttonForum.setPreferredSize( buttonPreferredSize ) ;
+        buttonForum.setBorderPainted( false );
+
         panelUp.add( buttonHome ) ;
         panelUp.add( buttonClasses ) ;
         panelUp.add( buttonDownloadCenter ) ;
+        panelUp.add( buttonForum );
 
         buttonSettings = new JButton() ;
         buttonSettings.setPreferredSize( buttonPreferredSize ) ;
@@ -65,7 +72,7 @@ public class ToolbarPanel extends JPanel{
             buttonHome.setSelected( true ) ;
             buttonClasses.setSelected( false ) ;
             buttonSettings.setSelected( false ) ;
-
+            buttonForum.setSelected( false );
             App.mainPanelCenter.removeAll();
             App.homePanel.setContent() ;
             App.mainPanelCenter.add( App.homePanel , BorderLayout.CENTER );
@@ -75,6 +82,7 @@ public class ToolbarPanel extends JPanel{
             buttonHome.setSelected( false ) ;
             buttonClasses.setSelected( true ) ;
             buttonSettings.setSelected( false ) ;
+            buttonForum.setSelected( false );
             App.mainPanelCenter.removeAll();
             App.classesPanel.setContent() ;
             App.mainPanelCenter.add( App.classesPanel , BorderLayout.CENTER );
@@ -85,6 +93,17 @@ public class ToolbarPanel extends JPanel{
             buttonHome.setSelected( false ) ;
             buttonClasses.setSelected( false ) ;
             buttonSettings.setSelected( true ) ;
+            buttonForum.setSelected( false );
+            App.mainPanelCenter.removeAll() ;
+            App.mainPanelCenter.add( App.settingsPanel , BorderLayout.CENTER ) ;
+            SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+        });
+
+        buttonForum.addActionListener( e-> {
+            buttonHome.setSelected( false ) ;
+            buttonClasses.setSelected( false ) ;
+            buttonSettings.setSelected( false ) ;
+            buttonForum.setSelected( true );
             App.mainPanelCenter.removeAll() ;
             App.mainPanelCenter.add( App.settingsPanel , BorderLayout.CENTER ) ;
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
