@@ -19,7 +19,7 @@ public class UiConsts {
     public final static int INF_WIDTH = 10000 ;
 
 
-    public final static int MAIN_H_GAP = 25 ;
+    public final static int MAIN_H_GAP = 20 ;
     public final static int MAIN_EDGE_GAP = 15 ;
     public final static Font FONT_TITLE0 = new Font( "微软雅黑" , 1 , 40 ) ;
     public final static Font FONT_TITLE2 = new Font( "微软雅黑" , 0 , 20 ) ;
