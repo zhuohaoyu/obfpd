@@ -57,7 +57,6 @@ public class ClassesPanel extends JPanel {
         JPanel panelCenter = new JPanel( new GridLayout( 1 , 3 ) ) ;
         UIManager.put( "TabbedPane.tabWidth", 32 );
             classTab = new JTabbedPane() ;
-            classTab.setPreferredSize( new Dimension( 700  , 420 ));
             classTab.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT ) ;
             classTab.setTabPlacement( JTabbedPane.LEFT ) ;
             classTab.setFont( UiConsts.FONT_NORMAL ) ;
