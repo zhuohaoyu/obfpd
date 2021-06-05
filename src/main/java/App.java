@@ -6,12 +6,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
+import main.java.client.OBEManager;
 import main.java.ui.* ;
 import net.miginfocom.swing.MigLayout;
 
 public class App {  //
     public static boolean islogin ;
     public static String username ;
+    public static String password ;
     public static JFrame frame ;
     public static JPanel mainPanelCenter , mainToolPanel ;
 
@@ -22,6 +24,7 @@ public class App {  //
     public static SettingsPanel settingsPanel ;
     public static ForumPanel forumPanel;
 
+    public static OBEManager student;
 
     public static void main( String[] args ){
         EventQueue.invokeLater( ()->{
@@ -102,6 +105,11 @@ public class App {  //
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         System.err.println(jtaid.getText() + "  " + jtapw.getText());
+                        username = jtaid.getText();
+                        password = jtapw.getText();
+                        student.setInfo(username, password);
+                        islogin = student.doLogin();
+                        if (islogin == true) dispose();
                     }
                 });
                 jbcancle.addActionListener(new ActionListener() {
@@ -124,6 +132,7 @@ public class App {  //
 
     App(){
         islogin = false;
+        student = new OBEManager();
         initialize() ;
         new Login().login();
         if (islogin == false) System.exit(0);

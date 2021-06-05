@@ -21,6 +21,11 @@ public class OBEManager {
     String Password;
     HashMap<String, OBECourse> courses;
 
+    public OBEManager() {
+        LoginWorker = new OBELoginWorker();
+        courses = new HashMap<>();
+    }
+
     public OBEManager(String username, String password) {
         Username = username;
         Password = password;
@@ -28,12 +33,19 @@ public class OBEManager {
         courses = new HashMap<>();
     }
 
-    public void doLogin() {
+    public void setInfo(String username, String password) {
+        Username = username;
+        Password = password;
+    }
+
+    public boolean doLogin() {
         try {
             Cookie = LoginWorker.getCookie(Username, Password);
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     public void uploadHomework(String path, String courseID, int homeworkID) {
@@ -95,7 +107,7 @@ public class OBEManager {
         }
     }
 
-
+/*
     public static void main(String args[]) {
         OBEManager manager = new OBEManager("2019201409", "keaiwangyuansen");
         manager.doLogin();
@@ -107,4 +119,5 @@ public class OBEManager {
 //        manager.doLogin();
 //        manager.getContent();
     }
+ */
 }
