@@ -218,7 +218,7 @@ public class Crawler {
                     }
                 }
             }
-//            osw.close();
+            osw.close();
             return true;
         }
         catch (Exception e) {
