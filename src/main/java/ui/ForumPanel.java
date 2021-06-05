@@ -24,7 +24,7 @@ public class ForumPanel extends JPanel {
         JPanel panelUp0 = new JPanel(new FlowLayout( FlowLayout.LEADING , UiConsts.MAIN_H_GAP , 15 ) ) ;
         JPanel panelUp = new JPanel( new GridLayout( 2 , 1 ) ) ;
 
-        JLabel lableTitle = new JLabel( "设置" ) ;
+        JLabel lableTitle = new JLabel( "论坛" ) ;
         lableTitle.setFont( UiConsts.FONT_TITLE0 ) ;
         panelUp.add( lableTitle ) ;
 
