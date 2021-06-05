@@ -7,14 +7,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class Crawler {
+public class Crawler implements Runnable {
+    private int SleepTime;
     private DataBase db;
     private Map <String, String> cookie;
-    public Crawler() {
-        db = new DataBase();
+    public Crawler(int __SleepTime) {
+        db = new DataBase(":data:test.db");
+        SleepTime = __SleepTime;
     }
     public boolean getCourses(Map <String, String> ck) {
         try {
@@ -121,7 +122,6 @@ public class Crawler {
                     } // get homework attachment
 
                     if (HomeworkName != null && HomeworkDDL != null) {
-//                        db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
                         osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
                     }
                 }
@@ -134,105 +134,123 @@ public class Crawler {
             return false;
         }
     }
-    public boolean crawlHomeworks(Map <String, String> ck, String CourseID) {
-        try {
-            String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
-            FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
-            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
-            Map<String, String> isVis = new HashMap<String, String>();
-            int id = 0;
-            while (true) {
-                Document document = null;
-                Elements content = null;
-                try {
-                    id += 1;
-                    url = url.replace("/p/" + Integer.toString(id - 1) + ".html", "/p/" + Integer.toString(id) + ".html");
-                    document = Jsoup.connect(url).cookies(ck).get();
-                    content = document.getElementsByClass("panel panel-default");
-                    for (Element page : content) {
-                        String buf = page.toString();
-                        if (isVis.containsKey(buf)) throw new Exception("visit same page.");
-                        else isVis.put(buf, "Exist");
-                    }
-                } catch (Exception e) {
-                    break;
-                }
-                for (Element hw : content) {
-                    Elements detail = hw.getElementsByClass("accordion-toggle title homework-title");
-                    String HomeworkName = "";
-                    String HomeworkDDL = "";
-                    String HomeworkST = "";
-                    String HomeworkHno = "";
-                    String HomeworkContent = "";
-                    String HomeworkAtt = "";
-                    for (Element hn : detail) {
-                        HomeworkName = hn.toString().split(">")[1].split("<")[0];
-                    } // get homework name
-
-                    detail = hw.getElementsByClass("panel-body out collapse");
-                    for (Element ddl : detail) {
-                        String[] buf = ddl.toString().split("<span id=\"deadline-");
-                        buf = buf[1].split("<");
-                        buf = buf[0].split(">");
-                        HomeworkDDL = buf[1];
-                    } // get homework deadline
-
-                    detail = hw.getElementsByClass("time pull-right");
-                    for (Element st : detail) {
-                        HomeworkST = st.toString().split("</small>")[0].split(">")[1];
-                    } // get homework start time
-
-                    detail = hw.getElementsByClass("accordion-toggle title homework-title");
-                    for (Element st : detail) {
-                        HomeworkHno = st.toString().split("id=\"hno-")[1].split("\"")[0];
-                    } // get homework hno
-
-                    detail = hw.getElementsByClass("content");
-                    for (Element ct : detail) {
-                        String[] buf = ct.toString().split("</p></span>");
-                        buf = buf[0].split("<span class=\"content\"><p>");
-                        if (buf.length > 1) {
-                            HomeworkContent = buf[1];
-                            while (true) {
-                                int l = HomeworkContent.indexOf('<');
-                                int r = HomeworkContent.indexOf('>');
-                                if (l == -1 || r == -1) break;
-                                HomeworkContent = HomeworkContent.substring(0, l) + HomeworkContent.substring(r + 1, HomeworkContent.length());
-                            }
-                        }
-                    } // get homework content
-
-                    detail = hw.getElementsByClass("table");
-                    for (Element at : detail) {
-                        String[] buf = at.toString().split("value=\"");
-                        if (buf.length < 4) continue;
-                        String fname = buf[1].split("\"")[0];
-                        String fno = buf[2].split("\"")[0];
-                        String submit = buf[3].split("\"")[0];
-                        HomeworkAtt = fname + "," + fno + "," + submit;
-                    } // get homework attachment
-
-                    if (HomeworkName != "" && HomeworkDDL != "") {
-                        db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
-                        osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
-                    }
-                }
-            }
-//            osw.close();
-            return true;
+    class MultithreadCrawlHomeworks implements Runnable {
+        Map <String, String> ck;
+        String CourseID;
+        public MultithreadCrawlHomeworks(Map <String, String> __ck, String __CourseID) {
+            ck = __ck;
+            CourseID = __CourseID;
         }
-        catch (Exception e) {
-            System.err.println("Exception: " + e);
-            return false;
+        public void run() {
+            Set<String> homework = new HashSet<String>();
+            List<String> oldhw = db.getCourseHomework(CourseID);
+            for (String old : oldhw) {
+                homework.add(old);
+            }
+            try {
+                String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
+                FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
+                OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+                Map<String, String> isVis = new HashMap<String, String>();
+                int id = 0;
+                while (true) {
+                    Document document = null;
+                    Elements content = null;
+                    try {
+                        id += 1;
+                        url = url.replace("/p/" + Integer.toString(id - 1) + ".html", "/p/" + Integer.toString(id) + ".html");
+                        document = Jsoup.connect(url).cookies(ck).get();
+                        content = document.getElementsByClass("panel panel-default");
+                        for (Element page : content) {
+                            String buf = page.toString();
+                            if (isVis.containsKey(buf)) throw new Exception("visit same page.");
+                            else isVis.put(buf, "Exist");
+                        }
+                    } catch (Exception e) {
+                        break;
+                    }
+                    for (Element hw : content) {
+                        Elements detail = hw.getElementsByClass("accordion-toggle title homework-title");
+                        String HomeworkName = "";
+                        String HomeworkDDL = "";
+                        String HomeworkST = "";
+                        String HomeworkHno = "";
+                        String HomeworkContent = "";
+                        String HomeworkAtt = "";
+                        for (Element hn : detail) {
+                            HomeworkName = hn.toString().split(">")[1].split("<")[0];
+                        } // get homework name
+
+                        detail = hw.getElementsByClass("panel-body out collapse");
+                        for (Element ddl : detail) {
+                            String[] buf = ddl.toString().split("<span id=\"deadline-");
+                            buf = buf[1].split("<");
+                            buf = buf[0].split(">");
+                            HomeworkDDL = buf[1];
+                        } // get homework deadline
+
+                        detail = hw.getElementsByClass("time pull-right");
+                        for (Element st : detail) {
+                            HomeworkST = st.toString().split("</small>")[0].split(">")[1];
+                        } // get homework start time
+
+                        detail = hw.getElementsByClass("accordion-toggle title homework-title");
+                        for (Element st : detail) {
+                            HomeworkHno = st.toString().split("id=\"hno-")[1].split("\"")[0];
+                        } // get homework hno
+
+                        detail = hw.getElementsByClass("content");
+                        for (Element ct : detail) {
+                            String[] buf = ct.toString().split("</p></span>");
+                            buf = buf[0].split("<span class=\"content\"><p>");
+                            if (buf.length > 1) {
+                                HomeworkContent = buf[1];
+                                while (true) {
+                                    int l = HomeworkContent.indexOf('<');
+                                    int r = HomeworkContent.indexOf('>');
+                                    if (l == -1 || r == -1) break;
+                                    HomeworkContent = HomeworkContent.substring(0, l) + HomeworkContent.substring(r + 1, HomeworkContent.length());
+                                }
+                            }
+                        } // get homework content
+
+                        detail = hw.getElementsByClass("table");
+                        for (Element at : detail) {
+                            String[] buf = at.toString().split("value=\"");
+                            if (buf.length < 4) continue;
+                            String fname = buf[1].split("\"")[0];
+                            String fno = buf[2].split("\"")[0];
+                            String submit = buf[3].split("\"")[0];
+                            HomeworkAtt = fname + "," + fno + "," + submit;
+                        } // get homework attachment
+
+                        if (HomeworkName != "" && HomeworkDDL != "") {
+                            if (homework.contains(HomeworkHno)) {
+                                homework.remove(HomeworkHno);
+                            }
+                            db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
+                            osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
+                        }
+                    }
+                }
+                for (String old : homework) {
+                    System.err.println("Delete homework: " + old);
+                    db.deleteHomework(old, CourseID);
+                }
+                osw.close();
+            }
+            catch (Exception e) {
+                System.err.println("Exception: " + e);
+            }
         }
     }
     public boolean downloadDocument(Map <String, String> ck, String path, String FileName, String fno, String submit) {
         try {
             String url = "http://obe.ruc.edu.cn/index/common/documentDownload.html";
             Map<String, String> data = new HashMap<>();
-            data.put("fname", FileName);
+//            data.put("fname", FileName);
             data.put("fno", fno);
-            data.put("submit", submit);
+//            data.put("submit", submit);
             Connection.Response content = Jsoup.connect("http://obe.ruc.edu.cn/index/common/documentDownload.html")
                     .timeout(60000)
                     .ignoreContentType(true)
@@ -305,6 +323,8 @@ public class Crawler {
     }
     public boolean reCrawl(Map <String, String> ck) {
         try {
+            FileOutputStream fos = new FileOutputStream("./data/course.txt");
+            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
             String url = "http://obe.ruc.edu.cn/index/course/index.html";
             Document document = Jsoup.connect(url).cookies(ck).get();
             Elements content = document.getElementsByClass("thumbnail col-lg-2 col-md-2 col-sm-2 col-xs-2 block1 ellipsis");
@@ -316,8 +336,10 @@ public class Crawler {
                 String CourseTeacher = buf[2].split(">")[3].split("<")[0];
                 String CourseID = buf[1].split(".html")[0].split("/")[5];
                 db.addCourse(CourseID, CourseName, CourseTeacher);
-                crawlHomeworks(ck, CourseID);
+                new Thread(new MultithreadCrawlHomeworks(ck, CourseID)).run();
+                osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
             }
+            osw.close();
             return true;
         }
         catch (IOException e) {
@@ -325,24 +347,36 @@ public class Crawler {
             return false;
         }
     }
-    static public void main(String[] argv) {
+
+    @Override
+    public void run() {
         Login login = new Login();
-        String usernumber = "2019201408";
-        String password = "algorithm";
+        boolean flag = true;
+        String line = null;
         Map <String, String> ck = null;
-        try {
-            ck = login.getCookie(usernumber, password);
-//            String CourseID = "2021rpfugnl2pxin";
-            Crawler crawler = new Crawler();
-//            crawler.getCourses(ck);
-//            crawler.getHomeworks(ck, CourseID);
-//            crawler.getDocuments(ck, CourseID, "./data/documents/");
-            crawler.reCrawl(ck);
+        Account account = new Account();
+        for (String usernumber : account.student.keySet()) {
+            flag = false;
+            try {
+                String password = account.student.get(usernumber);
+                ck = login.getCookie(usernumber, password);
+            }
+            catch (IOException e) {
+                flag = true;
+            }
+            if (!flag) break;
         }
-        catch (IOException e) {
-            System.err.println("IOException: " + e);
+        while (true) {
+            this.reCrawl(ck);
+            try {
+                Thread.sleep(SleepTime);
+            }
+            catch (Exception e) { }
         }
     }
 
+    static public void main(String[] argv) {
+        new Thread(new Crawler(5 * 60 * 1000)).run();
+    }
 }
 
