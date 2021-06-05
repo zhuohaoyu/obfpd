@@ -34,19 +34,20 @@ public class MyWebSocketServer extends WebSocketServer{
 
     @Override
     public void onMessage(WebSocket ws, String msg) {
-        System.err.println("receive message: "+msg);
+        System.err.println("Receive Message: "+msg);
         for (WebSocket tws : reflct.keySet()) {
             if (tws.hashCode() != ws.hashCode())
                 tws.send(msg);
         }
-        System.err.println("HASH="+ws.hashCode());
-
         if(ws.isClosed()) {
-        } else if (ws.isClosing()) {
+        }
+        else if (ws.isClosing()) {
             System.err.println("ws closing...");
-        } else if (ws.isConnecting()) {
+        }
+        else if (ws.isConnecting()) {
             System.err.println("ws opening...");
-        } else if(ws.isOpen()) {
+        }
+        else if(ws.isOpen()) {
             System.err.println("ws opened...");
             System.err.println(msg);
         }

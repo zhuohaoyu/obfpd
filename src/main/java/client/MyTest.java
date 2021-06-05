@@ -1,5 +1,6 @@
 package main.java.client;
 
+import com.alibaba.fastjson.JSONObject;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
@@ -22,15 +23,13 @@ public class MyTest {
             while (!client.getReadyState().equals(WebSocket.READYSTATE.OPEN)) {
                 Thread.sleep(1);
             }
-            System.err.println(client);
-            System.err.println("connect:" + client.isClosed());
-            client.send("orzyzh");
+            JSONObject jsonobj = new JSONObject();
+            jsonobj.put("task", "Connect");
+            client.send(jsonobj.toString());
         }
         catch (Exception e) {
-            System.out.println("hahaha: " + e);
+            System.err.println(e);
         }
-        System.err.println("connect:" + client.isClosed() + "  " + client.getReadyState().equals(WebSocket.READYSTATE.OPEN));
-        System.err.println(client.isClosed());
         while (true) {
             if (client.isClosed()) {
                 try {
@@ -38,9 +37,11 @@ public class MyTest {
                     while (!client.getReadyState().equals(WebSocket.READYSTATE.OPEN)) {
                         Thread.sleep(1);
                     }
-                    client.send("reconnect successfully");
+                    JSONObject jsonobj = new JSONObject();
+                    jsonobj.put("task", "Reconnect");
+                    client.send(jsonobj.toString());
                 } catch (Exception e) {
-                    System.err.println("onClose: " + e);
+                    System.err.println("onReconnect: " + e);
                 }
             }
             try {
@@ -48,6 +49,5 @@ public class MyTest {
             }
             catch (Exception e) {  }
         }
-//        client.send("reconnect");
     }
 }

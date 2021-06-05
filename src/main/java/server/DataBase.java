@@ -32,7 +32,7 @@ public class DataBase {
         db.close();
         */
     }
- 
+
     /* @brief   内部函数 通过课程ID获取课程名
      */
     public String getCourseName(String courseID) throws SQLException {
