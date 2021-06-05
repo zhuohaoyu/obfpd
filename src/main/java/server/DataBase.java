@@ -32,7 +32,7 @@ public class DataBase {
         db.close();
         */
     }
-
+ 
     /* @brief   内部函数 通过课程ID获取课程名
      */
     public String getCourseName(String courseID) throws SQLException {
@@ -60,7 +60,7 @@ public class DataBase {
         return homeworkName;
     }
 
-    /* @brief  获取 "yyyy-MM-dd HH:mm:ss" 格式的当前时间
+    /* @brief  获取 "yyyy-MM-dd HH:mm:ss" 格式的当前时间 | 现在不确定时区有没有问题
      */
     public static String getCurTime() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
@@ -104,6 +104,63 @@ public class DataBase {
         return retMap;
     }
 
+    /* @brief   生成一个作业更新对应的Map
+     */
+    public Map<String, String> updateMap(String time, String courseID,
+                                         String homeworkID, String type,
+                                         String oldContent, String newContent) {
+        Map<String, String> retMap = new HashMap<>();
+        retMap.put("time", time);
+        retMap.put("course_id", courseID);
+        retMap.put("homework_id", homeworkID);
+        retMap.put("type", type);
+        retMap.put("old", oldContent);
+        retMap.put("new", newContent);
+        return retMap;
+    }
+
+    /* @brief   生成一个讨论帖对应的Map
+     * @param   见getRangePost方法
+     */
+    public Map<String, String> postMap(String id, String posterID, String time, 
+                                       String title, String courseID, String timeReply) {
+        Map<String, String> retMap = new HashMap<>();
+        retMap.put("id", id);
+        retMap.put("poster_id", posterID);
+        retMap.put("time", time);
+        retMap.put("title", title);
+        retMap.put("course_id", courseID);
+        retMap.put("time_reply", timeReply);
+        return retMap;
+    }
+
+    /* @brief   生成一条回复对应的Map
+     * @param   见getPostReply方法
+     */
+    public Map<String, String> replyMap(String id, String posterID, String time, 
+                                        String content, String postID) {
+        Map<String, String> retMap = new HashMap<>();
+        retMap.put("id", id);
+        retMap.put("poster_id", posterID);
+        retMap.put("time", time);
+        retMap.put("content", content);
+        retMap.put("post_id", postID);
+        return retMap;
+    }
+    
+    /* @brief   生成一个讨论帖查询对应的Map
+     * @param   见queryPost方法
+     */
+    public Map<String, String> queryPostMap(String title, String course, 
+                                            String teacher, String posterID) {
+        Map<String, String> retMap = new HashMap<>();
+        retMap.put("title", title);
+        retMap.put("course", course);
+        retMap.put("teacher", teacher);
+        retMap.put("poster_id", posterID);
+        return retMap;
+    }
+
     /* @brief   创建项目所需的所有表
      */
     public void initCourseTable() {
@@ -138,8 +195,8 @@ public class DataBase {
             
             sql = "CREATE TABLE UPDATES ("
                 + "    time            TEXT        NOT NULL,"
-                + "    course_name     TEXT        NOT NULL,"
-                + "    homework_name   TEXT        NOT NULL,"
+                + "    course_id       CHAR(16)    NOT NULL,"
+                + "    homework_id     INTEGER     NOT NULL,"
                 + "    type            TEXT        NOT NULL,"
                 + "    old             TEXT,"
                 + "    new             TEXT"
@@ -150,19 +207,22 @@ public class DataBase {
             System.out.println("Created table \"UPDATES\" successfully");
 
             sql = "CREATE TABLE POSTS ("
-                + "    id              INTEGER     PRIMARY KEY     NOT NULL,"
+                + "    id              INTEGER     PRIMARY KEY  AUTOINCREMENT,"
+                + "    poster_id       INTEGER     NOT NULL,"
                 + "    time            TEXT        NOT NULL,"
                 + "    title           TEXT        NOT NULL,"
                 + "    course_id       CHAR(16)    NOT NULL,"
+                + "    time_reply      TEXT        NOT NULL,"
                 + "    FOREIGN KEY (course_id) REFERENCES COURSES(id) ON UPDATE CASCADE"
                 + ")";
             st.executeUpdate(sql);
-            sql = "CREATE INDEX course_index2 on POSTS(course_id)";
-            st.executeUpdate(sql);
+            // sql = "CREATE INDEX course_index2 on POSTS(course_id)";
+            // st.executeUpdate(sql);
             System.out.println("Created table \"POSTS\" successfully");
             
             sql = "CREATE TABLE REPLIES ("
-                + "    id              INTEGER     PRIMARY KEY     NOT NULL,"
+                + "    id              INTEGER     PRIMARY KEY  AUTOINCREMENT,"
+                + "    poster_id       INTEGER     NOT NULL,"
                 + "    time            TEXT        NOT NULL,"
                 + "    content         TEXT        NOT NULL,"
                 + "    post_id         INTEGER     NOT NULL,"
@@ -197,7 +257,7 @@ public class DataBase {
             pst = c.prepareStatement("SELECT * FROM COURSES WHERE id = ? ");
             pst.setString(1, course.get("id"));
             rs = pst.executeQuery();
-            if(rs.next()) throw new SQLSyntaxErrorException("Course already exists" + course.get("name"));
+            if(rs.next()) throw new SQLSyntaxErrorException("Course already exists: " + course.get("name"));
             pst.close();
 
             pst = c.prepareStatement("INSERT INTO COURSES VALUES (?, ?, ?)");
@@ -272,18 +332,18 @@ public class DataBase {
                     pst.setString(4, homework.get("description"));
                     pst.setString(5, homework.get("attachment"));
                     pst.setString(6, homework.get("course_id"));
-                    pst.setString(7, homework.get("id"));
+                    pst.setInt(7, Integer.parseInt(homework.get("id")));
                     pst.executeUpdate();
                     pst.close();
                     
                     /* update to MessageQueue */
-                    String courseName = getCourseName(homework.get("course_id"));
+                    // String courseName = getCourseName(homework.get("course_id"));
                     
                     for(int i = 0; i < colList.size(); i += 1) {
                         pst = c.prepareStatement("INSERT INTO UPDATES VALUES (?, ?, ?, ?, ?, ?)");
                         pst.setString(1, getCurTime());
-                        pst.setString(2, courseName);
-                        pst.setString(3, homework.get("name"));
+                        pst.setString(2, homework.get("course_id"));
+                        pst.setInt(3, Integer.parseInt(homework.get("id")));
                         pst.setString(4, colList.get(i));
                         pst.setString(5, oldList.get(i));
                         pst.setString(6, newList.get(i));
@@ -294,7 +354,7 @@ public class DataBase {
             } else {
                 pst.close();
                 pst = c.prepareStatement("INSERT INTO HOMEWORKS VALUES (?, ?, ?, ?, ?, ?, ?)");
-                pst.setString(1, homework.get("id"));
+                pst.setInt(1, Integer.parseInt(homework.get("id")));
                 pst.setString(2, homework.get("name"));
                 pst.setString(3, homework.get("time_pull"));
                 pst.setString(4, homework.get("time_ddl"));
@@ -304,11 +364,10 @@ public class DataBase {
                 pst.executeUpdate();
                 pst.close();
                 
-                String courseName = getCourseName(homework.get("course_id"));
                 pst = c.prepareStatement("INSERT INTO UPDATES VALUES (?, ?, ?, ?, ?, ?)");
                 pst.setString(1, getCurTime());
-                pst.setString(2, courseName);
-                pst.setString(3, homework.get("name"));
+                pst.setString(2, homework.get("course_id"));
+                pst.setInt(3, Integer.parseInt(homework.get("id")));
                 pst.setString(4, "new");
                 pst.setString(5, "");
                 pst.setString(6, "");
@@ -378,8 +437,11 @@ public class DataBase {
 
     /* @brief   查询满足指定条件的课程
      * @param   一个Map, key是查询域, value是查询内容
-     *          可选查询域为教师名"teacher", 或课程名"name"
-     *          查询内容为结果对应域的子串。信息缺省则传入空串
+     *          可选检索内容为:
+     *            "teacher"     教师名
+     *            "name"        课程名
+     *          查询内容为结果对应域的子串。
+     *          信息缺省则传入空串。
      * @return  一个List, 包含所有符合要求的课程ID
      *          空List也可能代表查询出错
      */
@@ -388,8 +450,8 @@ public class DataBase {
             ArrayList<String> ret = new ArrayList<>();
 
             pst = c.prepareStatement("SELECT id     FROM COURSES "
-                    + "WHERE name    LIKE ? "
-                    + "AND   teacher LIKE ? ");
+                                   + "WHERE name    LIKE ? "
+                                   + "AND   teacher LIKE ? ");
 
             pst.setString(1, "%" + query.get("name") + "%");
             pst.setString(2, "%" + query.get("teacher") + "%");
@@ -450,8 +512,8 @@ public class DataBase {
         try {
             ArrayList<String> ret = new ArrayList<>();
             pst = c.prepareStatement("SELECT id     FROM HOMEWORKS "
-                    + "WHERE course_id = ? "
-                    + "AND   time_ddl BETWEEN ? AND ? ");
+                                   + "WHERE course_id = ? "
+                                   + "AND   time_ddl BETWEEN ? AND ? ");
             pst.setString(1, courseID);
             pst.setString(2, startTime);
             pst.setString(3, endTime);
@@ -469,8 +531,8 @@ public class DataBase {
         return new ArrayList<>();
     }
 
-    /* @brief   获取某个时刻开始的, 某个课程集合内的作业更新。
-     * @param   时间区间, 以及课程集合。
+    /* @brief   获取某个时刻开始到现在的, 某个课程集合内的作业更新。
+     * @param   时间节点, 以及课程集合。
      *          List内部是所有需要查询的课程的id。
      * @return  返回一个List, 包含所有查询结果。
      *          每个查询结果是一个map: key, value即更新信息。
@@ -485,22 +547,289 @@ public class DataBase {
      *                    为"delete"则说明删除一条作业
      *          其余修改项含义见作业信息的键值
      */    
-
-    /*
     public List<Map<String, String>> getUpdate(String time, List<String> courses) {
-        List<Map<String, String>> ret = new ArrayList<>();
-        // 还没做。按需调用这个函数即可
-        return ret;
+        try {
+            List<Map<String, String>> ret = new ArrayList<>();
+            StringBuilder sb = new StringBuilder("SELECT * FROM UPDATES WHERE time BETWEEN ? AND ? ");
+            sb.append("AND course_id in ( ");
+            for(int i = 0; i < courses.size(); i += 1) {
+                if(i != 0) sb.append(", ");
+                sb.append(courses.get(i));
+            }
+            sb.append(")");
+            pst = c.prepareStatement(sb.toString());
+            pst.setString(1, time);
+            pst.setString(2, getCurTime());
+            rs = pst.executeQuery();
+            while(rs.next()) {
+                ret.add(updateMap(rs.getString("time"), 
+                                  getCourseName(rs.getString("course_id")), 
+                                  getHomeworkName(rs.getString("homework_id"), rs.getString("course_id")),
+                                  rs.getString("type"),
+                                  rs.getString("old"), 
+                                  rs.getString("new"))
+                    );
+            }
+            rs.close();
+            pst.close();
+            return ret;
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            // e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
-    */
+
+    /* @brief   删除数据库中某个时刻以前的作业更新。
+     * @param   时间节点
+     */
+    public void clearUpdate(String time) {
+        try {
+            pst = c.prepareStatement("DELETE FROM UPDATES WHERE time BETWEEN ? AND ? ");
+            pst.setString(1, "2000-01-01 00:00:00"); // 不确定时间格式是否对齐
+            pst.setString(2, time);
+            pst.executeUpdate();
+            pst.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            // e.printStackTrace();
+        }
+    }
 
     // 下面是有关评论功能的
-    // public void newPost(String title, String content, String courseID);
-    // public void newReply(String content, int postID);
-    // public List<Map<String, String>> getRangePost(int first, int last);
-    // public List<Map<String, String>> getRangeReply(int first, int last, int postID);
-    // public List<Map<String, String>> queryPost(Map<String, String> query);
+    
+    /* @brief   添加一个讨论帖。
+     * @param   标题，内容，对应课程编号，发布者编号
+     * @return  是否添加成功
+     */
+    public boolean newPost(String title, String content, String courseID, Integer posterID) {
+        try {
+            // TX_BEGIN
+            st = c.createStatement();
+            st.executeUpdate("BEGIN");
+            st.close();
 
+            pst = c.prepareStatement("INSERT INTO POSTS "
+                                + "(poster_id, time, title, course_id, time_reply) "
+                                + "VALUES (?, ?, ?, ?, ?)");
+            pst.setInt(1, posterID);
+            pst.setString(2, getCurTime());
+            pst.setString(3, title);
+            pst.setString(4, courseID);
+            pst.setString(5, getCurTime());
+            pst.executeUpdate();
+            pst.close();
+
+            st = c.createStatement();
+            st.executeUpdate("select last_insert_rowid() from POSTS");
+            rs = st.executeQuery(null);
+            rs.next();
+            Integer postID = rs.getInt(1);
+            rs.close();
+            st.close();
+            if(postID == 0) throw new SQLSyntaxErrorException("Add new post failed.");
+            
+            pst = c.prepareStatement("INSERT INTO REPLIES (poster_id, time, content, post_id)"
+                                + "VALUES (?, ?, ?, ?)");
+            pst.setInt(1, posterID);
+            pst.setString(2, getCurTime());
+            pst.setString(3, content);
+            pst.setInt(4, postID);
+            pst.executeUpdate();
+            pst.close();
+
+            // TX_END
+            st = c.createStatement();
+            st.executeUpdate("COMMIT");
+            st.close();
+
+            return true;
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            // e.printStackTrace();
+        }
+        return false;
+    }
+
+    /* @brief   添加一条回复。
+     * @param   内容，讨论帖编号
+     * @return  是否添加成功
+     */
+    public boolean newReply(String content, int postID, int posterID) {
+        try {
+            // TX_BEGIN
+            st = c.createStatement();
+            st.executeUpdate("BEGIN");
+            st.close();
+
+            pst = c.prepareStatement("INSERT INTO REPLIES (poster_id, time, content, post_id)"
+                                    + "VALUES (?, ?, ?, ?)");
+            pst.setInt(1, posterID);
+            pst.setString(2, getCurTime());
+            pst.setString(3, content);
+            pst.setInt(4, postID);
+            pst.executeUpdate();
+            pst.close();
+
+            pst = c.prepareStatement("UPDATE POSTS SET time_reply = ? WHERE post_id = ? ");
+            pst.setString(1, getCurTime());
+            pst.setInt(2, postID);
+            pst.executeUpdate();
+            pst.close();
+
+            // TX_END
+            st = c.createStatement();
+            st.executeUpdate("COMMIT");
+            st.close();
+
+            return true;
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            // e.printStackTrace();
+        }
+        return false;
+    }
+
+    /* @brief   获取第 [first, last] 新的讨论帖。
+     * @return  返回一个List, 包含所有查询结果。
+     *          如果last超过课程总数，不会抛出异常。
+     *          每个查询结果是一个map: key, value即更新信息。
+     *          键值包含:
+     *            讨论帖编号    "id"
+     *            发布者编号    "poster_id"
+     *            发布时间      "time"
+     *            标题          "title"
+     *            课程编号      "course_id" 
+     *            最近回复时间  "time_reply"
+     */
+    public List<Map<String, String>> getRangePost(int first, int last) {
+        try {
+            List<Map<String, String>> ret = new ArrayList<>();
+
+            st = c.createStatement();
+            st.executeUpdate("select count(*) from POSTS");
+            rs = st.executeQuery(null);
+            rs.next();
+            Integer totalPost = rs.getInt(1);
+            rs.close();
+            st.close();
+
+            pst = c.prepareStatement("SELECT * FROM POSTS WHERE id BETWEEN ? AND ?");
+            pst.setInt(1, totalPost + 1 - first);
+            pst.setInt(2, totalPost + 1 - last);
+            rs = pst.executeQuery();
+            while(rs.next()) {
+                ret.add(postMap(rs.getString("id"), 
+                                rs.getString("poster_id"), 
+                                rs.getString("time"),
+                                rs.getString("title"),
+                                rs.getString("course_id"),
+                                rs.getString("time_reply")
+                    ));
+            }
+            rs.close();
+            pst.close();
+            return ret;
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            // e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /* @brief   获取某个讨论帖的所有回复。
+     * @return  返回一个List, 包含所有查询结果。
+     *          每个查询结果是一个map: key, value即更新信息。
+     *          键值包含:
+     *            回复编号    "id"
+     *            发布者编号  "poster_id"
+     *            发布时间    "time"
+     *            内容        "content"
+     *            讨论帖编号  "post_id"   
+     */
+    public List<Map<String, String>> getPostReply(int postID) {
+        try {
+            List<Map<String, String>> ret = new ArrayList<>();
+
+            pst = c.prepareStatement("SELECT * FROM REPLIES WHERE post_id = ?");
+            pst.setInt(1, postID);
+            rs = pst.executeQuery();
+            while(rs.next()) {
+                ret.add(replyMap(rs.getString("id"), 
+                                 rs.getString("poster_id"), 
+                                 rs.getString("time"),
+                                 rs.getString("content"),
+                                 rs.getString("post_id"))
+                    );
+            }
+            rs.close();
+            pst.close();
+            return ret;
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            // e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /* @brief   查询满足指定条件的讨论帖。
+     * @param   一个Map, key是查询域, value是查询内容
+     *          可选检索内容为:
+     *            标题          "title"
+     *            教师名称      "teacher"
+     *            课程名称      "course"        
+     *            发布者编号    "poster_id"
+     *          除发布者编号外，查询内容为结果对应域的子串。
+     *          信息缺省则传入空串。
+     * @return  一个List, 包含所有符合要求的课程ID
+     *          空List也可能代表查询出错
+     */
+    public List<Map<String, String>> queryPost(Map<String, String> query) {
+        try {
+            ArrayList<Map<String, String>> ret = new ArrayList<>();
+            String sql = "SELECT    *      FROM POSTS "
+                       + "WHERE     poster_id BETWEEN ? AND ? "
+                       + "AND       title LIKE ? "
+                       + "AND       course_id IN "
+                       + "(  SELECT id      FROM COURSES "
+                       + "   WHERE  name    LIKE ? "
+                       + "   AND    teacher LIKE ? )";
+            
+            pst = c.prepareStatement(sql);
+            
+            if(query.containsKey("poster_id")) {
+                pst.setInt(1, Integer.parseInt(query.get("poster_id")));
+                pst.setInt(2, Integer.parseInt(query.get("poster_id")));
+            } else {
+                pst.setInt(1, 0);
+                pst.setInt(2, 2147483647);
+            }
+            pst.setString(3, "%" + query.get("title") + "%");
+            pst.setString(4, "%" + query.get("course") + "%");
+            pst.setString(5, "%" + query.get("teacher") + "%");
+            rs = pst.executeQuery();
+            while(rs.next()) {
+                ret.add(postMap(rs.getString("id"), 
+                                rs.getString("poster_id"), 
+                                rs.getString("time"),
+                                rs.getString("title"),
+                                rs.getString("course_id"),
+                                rs.getString("time_reply")
+                    ));
+            }
+
+            rs.close();
+            pst.close();
+            return ret;
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+            // e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    /* @brief   关闭查询
+     */
     public void close() {
         try {
             c.close();
@@ -510,12 +839,12 @@ public class DataBase {
         }
     }
 
-    /* @param dbPath:数据库文件的路径
+    /* @param   数据库文件的路径
      */
     public DataBase(String dbPath) {
         try {
             Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite" + dbPath);
+            c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
             initCourseTable(); // ...
             System.out.println("Opened database successfully");
         } catch (Exception e) {
