@@ -24,9 +24,6 @@ public class MyWebSocketServer extends WebSocketServer{
         reflct.remove(ws);
     }
 
-    /**
-     * 错误发生时调用。
-     */
     @Override
     public void onError(WebSocket ws, Exception e) {
         System.err.println("------------------onError-------------------");
