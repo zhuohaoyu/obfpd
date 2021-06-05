@@ -41,6 +41,8 @@ public class OBEManager {
             while(m.find()) {
                 String courseID = m.group(1);
                 String courseName = m.group(2);
+                System.out.println(courseName);
+
                 OBECourse curcourse = new OBECourse(courseID, courseName);
                 curcourse.getAllHomework(Cookie);
                 curcourse.getAllAttachment(Cookie);

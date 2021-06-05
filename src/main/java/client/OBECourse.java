@@ -74,14 +74,14 @@ public class OBECourse {
                 sub = cur.getElementsByClass("unfinished");
                 for(Element s: sub) {
                     curhw.status = 1;
-//                    System.out.println(s);
                 }
                 sub = cur.getElementsByClass("tabProduct");
                 for(Element s: sub) {
                     curhw.scoring += s.text() + "\n";
+
                 }
 //                System.out.println(curhw);
-//                homework.put(curhw.id, curhw);
+                homework.put(curhw.id, curhw);
             }
 
         } catch (Exception e) {
@@ -104,7 +104,7 @@ public class OBECourse {
                     for(int i = 1; i <= pageNum; ++i) {
                         getPagedHomework(Cookie, i);
                     }
-                    System.out.println("pagenum = " + recordNum + ", actual = " + homework.size());
+                    System.out.println("Homework cnt = " + recordNum + ", actual = " + homework.size());
                 }
                 else {
                     System.out.println("FAILED");
@@ -117,8 +117,74 @@ public class OBECourse {
             e.printStackTrace();
         }
     }
-    public void getAllAttachment(Map<String, String> Cookie) {
 
+    public void getPagedAttachment(Map<String, String> Cookie, int pageNum) {
+        try {
+            String coursehwurl = "http://obe.ruc.edu.cn/document/index/cno/" + CourseID + "/p/" + pageNum + ".html";
+            Document document = Jsoup.connect(coursehwurl).cookies(Cookie).get();
+            Elements content = document.getElementsByClass("table table-striped");
+
+            String docFnameStr = "<input type=\"hidden\" name=\"fname\" value=\"(.*)\">";
+            Pattern docFnamePat = Pattern.compile(docFnameStr);
+
+            String docNoStr = "<input type=\"hidden\" name=\"fno\" value=\"(.*)\">";
+            Pattern docNoPat = Pattern.compile(docNoStr);
+
+            for(Element cur: content) {
+//                System.out.println("@@@" + cur);
+                Elements elms = cur.getElementsByTag("form");
+                for(Element i: elms) {
+                    OBEAttachment curAtt = new OBEAttachment();
+//                    System.out.println("@@@" + i);
+                    Matcher m = docFnamePat.matcher(i.toString());
+
+                    if(m.find()) {
+//                        System.out.println("###" + m.group(1));
+                        curAtt.name = m.group(1);
+                    }
+                    m = docNoPat.matcher(i.toString());
+                    if(m.find()) {
+                        curAtt.id = Integer.parseInt(m.group(1));
+//                        System.out.println("###" + m.group(1));
+                    }
+                    attachment.put(curAtt.id, curAtt);
+                }
+//                Elements sub = cur.getElementsByClass("time pull-right");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public void getAllAttachment(Map<String, String> Cookie) {
+        try{
+            String courseDocUrl = "http://obe.ruc.edu.cn/index/document/index/cno/" + CourseID + ".html";
+            Document courseDocMain = Jsoup.connect(courseDocUrl).cookies(Cookie).get();
+            String docMainCont = courseDocMain.body().toString();
+            if(!docMainCont.contains("老师好像什么都木有传耶~")) {
+                String pageNumStr = "(.*) 条记录 1/(.*) 页";
+                Pattern pageNumPat = Pattern.compile(pageNumStr);
+                Matcher m = pageNumPat.matcher(docMainCont);
+
+                if(m.find()) {
+                    int recordNum = Integer.parseInt(m.group(1).strip());
+                    int pageNum = Integer.parseInt(m.group(2).strip());
+                    for(int i = 1; i <= pageNum; ++i) {
+                        getPagedAttachment(Cookie, i);
+                    }
+                    System.out.println("Attachment cnt = " + recordNum + ", actual = " + attachment.size());
+                }
+                else {
+                    System.out.println("FAILED");
+                }
+            }
+            else {
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
     OBECourse(String courseid, String coursename) {
         CourseID = courseid;
