@@ -17,7 +17,7 @@ public class MyWebSocketClient extends WebSocketClient{
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
-        System.err.println("Succ");
+        System.err.println("Connect Successfully");
     }
 
     @Override
@@ -30,12 +30,12 @@ public class MyWebSocketClient extends WebSocketClient{
 
     @Override
     public void onClose(int i, String s, boolean b) {
-        System.err.println("linking close");
+        System.err.println("Linking Close");
     }
 
     @Override
     public void onError(Exception e){
         e.printStackTrace();
-        System.err.println("error");
+        System.err.println("Connect Error");
     }
 }
