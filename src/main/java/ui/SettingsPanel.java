@@ -29,7 +29,7 @@ public class SettingsPanel extends JPanel {
         panelUp.add( lableTitle ) ;
 
         JSeparator sepline = new JSeparator() ;
-        sepline.setPreferredSize( new Dimension( 700 , 20 ) ) ;
+        sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
         panelUp.add( sepline ) ;
         panelUp0.add( panelUp ) ;
         return panelUp0 ;

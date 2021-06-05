@@ -31,7 +31,7 @@ public class HomePanel extends Panel {
     }
 
     private JPanel getUpPanel(){
-        JPanel panelUp0 = new JPanel(new FlowLayout( FlowLayout.LEADING , UiConsts.MAIN_H_GAP , 15 ) ) ;
+        JPanel panelUp0 = new JPanel(new FlowLayout( FlowLayout.LEADING , UiConsts.MAIN_H_GAP , UiConsts.MAIN_EDGE_GAP  ) ) ;
         JPanel panelUp = new JPanel( new GridLayout( 3 , 1 ) ) ;
 
         lableTitle = new JLabel( ) ;
@@ -43,7 +43,7 @@ public class HomePanel extends Panel {
         panelUp.add( lableTime ) ;
 
         JSeparator sepline = new JSeparator() ;
-        sepline.setPreferredSize( new Dimension( 700 , 20 ) ) ;
+        sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
         panelUp.add( sepline ) ;
         panelUp0.add( panelUp ) ;
         return panelUp0 ;
@@ -88,7 +88,7 @@ public class HomePanel extends Panel {
 
     private JPanel getDownPanel(){
         JPanel panelDown = new JPanel( new GridLayout( 1 , 2 ) ) ;
-        JPanel panelGrid1 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 15 ) ) ;
+        JPanel panelGrid1 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , UiConsts.MAIN_EDGE_GAP ) ) ;
             JButton openOBE = new JButton() ;
             openOBE.setText( "在浏览器中打开..." ) ;
             openOBE.setOpaque( true ) ;
