@@ -1,8 +1,11 @@
 package main.java.client;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,12 +20,14 @@ public class OBEManager {
     String Username;
     String Password;
     HashMap<String, OBECourse> courses;
+
     public OBEManager(String username, String password) {
         Username = username;
         Password = password;
         LoginWorker = new OBELoginWorker();
         courses = new HashMap<>();
     }
+
     public void doLogin() {
         try {
             Cookie = LoginWorker.getCookie(Username, Password);
@@ -30,6 +35,43 @@ public class OBEManager {
             e.printStackTrace();
         }
     }
+
+    public void uploadHomework(String path, String courseID, int homeworkID) {
+        File uploadFile = new File(path);
+        try {
+            FileInputStream fis = new FileInputStream(uploadFile);
+            Connection.Response response =
+                    Jsoup.connect("http://obe.ruc.edu.cn/index/homework/upload.html")
+                    .ignoreContentType(true)
+                    .ignoreHttpErrors(true)
+                    .cookies(Cookie)
+                    .data("cno", courseID)
+                    .data("hno", String.valueOf(homeworkID))
+                    .data("upload", uploadFile.getName(), fis)
+                    .method(Connection.Method.POST)
+                    .execute();
+            System.out.println(response.body());
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteHomework(String courseID, int homeworkID) {
+        try {
+            Connection.Response response =
+                    Jsoup.connect("http://obe.ruc.edu.cn/index/homework/deleteHomework.html")
+                            .ignoreContentType(true)
+                            .cookies(Cookie)
+                            .data("cno", courseID)
+                            .data("hno", String.valueOf(homeworkID))
+                            .method(Connection.Method.POST)
+                            .execute();
+            System.out.println(response.body());
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getContent() {
         try{
             String url = "http://obe.ruc.edu.cn/index/home/index.html";
@@ -52,9 +94,17 @@ public class OBEManager {
             e.printStackTrace();
         }
     }
+
+
     public static void main(String args[]) {
         OBEManager manager = new OBEManager("2019201409", "keaiwangyuansen");
         manager.doLogin();
         manager.getContent();
+
+//        manager.uploadHomework("C:\\Users\\zhuoh\\Desktop\\Docs\\EDA_homework\\baseline.pdf", "20193oxjr00h583s", 2054);
+//        manager.deleteHomework("20193oxjr00h583s", 2054);
+
+//        manager.doLogin();
+//        manager.getContent();
     }
 }
