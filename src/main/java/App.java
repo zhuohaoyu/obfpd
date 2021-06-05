@@ -6,7 +6,7 @@ import java.awt.* ;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import main.java.ui.* ;
 
-public class App {
+public class App {  //
     public static boolean islogin ;
     public static String username ;
     public static JFrame frame ;
