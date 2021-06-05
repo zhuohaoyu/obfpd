@@ -1,17 +1,68 @@
-package main.java.server;
-
 import java.sql.*;
 import java.util.*;
+import java.text.SimpleDateFormat;
 
-/* 数据库的更新都具有一定鲁棒性，不需要担心元素重复插入的问题
- * 所有的返回值都只返回ID。你那边爬下来的数据应该是ID唯一映射到其他信息
- * 想到什么新功能随时和我这边说
- */
 public class DataBase {
     Connection c = null;
     Statement st = null;
     PreparedStatement pst = null;
     ResultSet rs = null;
+
+    public static void main(String[] args) {
+        /*
+        瞎测的，差不多都work
+        var db = new DataBase(???);
+        db.initCourseTable();
+        db.addCourse(db.courseMap("01", "class1", "fpd"));
+        db.addCourse(db.courseMap("02", "class2", "fpd"));
+        db.addCourse(db.courseMap("03", "ass3", "pdf"));
+        var res = db.queryCourse(db.queryCourseMap("as", "pdf"));
+        System.out.println("Query Succeeded");
+        for(var x: res) System.out.println(x);
+        db.updateHomework("1001", "class1的作业1", "2021-06-04 20:11", "2021-06-04 20:20", "略", "", "01");
+        db.updateHomework("1002", "class1的作业2", "2021-06-04 21:10", "2021-06-04 21:20", "略", "", "01");
+        var res = db.getCourseHomework("01");
+        System.out.println("Query Succeeded");
+        for(var x: res) System.out.println(x);
+        var res = db.queryDDLHomework("01", "2021-06-04 20:21", "9999-12-31 23:59");
+        System.out.println("Query Succeeded");
+        for(var x: res) System.out.println(x);
+        db.close();
+        */
+    }
+ 
+    /* @brief   内部函数 通过课程ID获取课程名
+     */
+    public String getCourseName(String courseID) throws SQLException {
+        pst = c.prepareStatement("SELECT name FROM COURSES WHERE id = ?");
+        pst.setString(1, courseID);
+        rs = pst.executeQuery();
+        rs.next();
+        String courseName = rs.getString("name");
+        rs.close();
+        pst.close();
+        return courseName;
+    }
+
+    /* @brief   内部函数 通过作业ID获取作业名
+     */
+    public String getHomeworkName(String homeworkID, String courseID) throws SQLException {
+        pst = c.prepareStatement("SELECT name FROM HOMEWORKS WHERE course_id = ? AND id = ?");
+        pst.setString(1, courseID);
+        pst.setString(2, homeworkID);
+        rs = pst.executeQuery();
+        rs.next();
+        String homeworkName = rs.getString("name");
+        rs.close();
+        pst.close();
+        return homeworkName;
+    }
+
+    /* @brief  获取 "yyyy-MM-dd HH:mm:ss" 格式的当前时间
+     */
+    public static String getCurTime() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
+    }
 
     /* @brief   生成一个课程对应的Map
      * @param   见addCourse方法
@@ -51,36 +102,75 @@ public class DataBase {
         return retMap;
     }
 
-    /* @brief   在没有表的时候创建新表
+    /* @brief   创建项目所需的所有表
      */
     public void initCourseTable() {
         try {
             String sql;
-            st = c.createStatement();
             /* sqlite 不支持 if not exists */
+            st = c.createStatement();
+            st.executeUpdate("PRAGMA foreign_keys = ON");
+            
             sql = "CREATE TABLE COURSES ("
-                    + "    id              CHAR(16)    PRIMARY KEY     NOT NULL,"
-                    + "    name            TEXT        NOT NULL,"
-                    + "    teacher         TEXT        NOT NULL"
-                    + ")";
+                + "    id              CHAR(16)    PRIMARY KEY     NOT NULL,"
+                + "    name            TEXT        NOT NULL,"
+                + "    teacher         TEXT        NOT NULL"
+                + ")";
             st.executeUpdate(sql);
             System.out.println("Created table \"COURSES\" successfully");
 
-            st.executeUpdate("PRAGMA foreign_keys = ON");
             sql = "CREATE TABLE HOMEWORKS ("
-                    + "    id              INTEGER     PRIMARY KEY     NOT NULL,"
-                    + "    name            TEXT        NOT NULL,"
-                    + "    time_pull       TEXT        NOT NULL,"
-                    + "    time_ddl        TEXT        NOT NULL,"
-                    + "    description     TEXT,"
-                    + "    attachment      TEXT,"
-                    + "    course_id       CHAR(16)    NOT NULL,"
-                    + "    FOREIGN KEY (course_id) REFERENCES COURSES(id) ON UPDATE CASCADE"
-                    + ")";
+                + "    id              INTEGER     PRIMARY KEY     NOT NULL,"
+                + "    name            TEXT        NOT NULL,"
+                + "    time_pull       TEXT        NOT NULL,"
+                + "    time_ddl        TEXT        NOT NULL,"
+                + "    description     TEXT,"
+                + "    attachment      TEXT,"
+                + "    course_id       CHAR(16)    NOT NULL,"
+                + "    FOREIGN KEY (course_id) REFERENCES COURSES(id) ON UPDATE CASCADE"
+                + ")";
             st.executeUpdate(sql);
             sql = "CREATE INDEX course_index on HOMEWORKS(course_id)";
             st.executeUpdate(sql);
             System.out.println("Created table \"HOMEWORKS\" successfully");
+            
+            sql = "CREATE TABLE UPDATES ("
+                + "    time            TEXT        NOT NULL,"
+                + "    course_name     TEXT        NOT NULL,"
+                + "    homework_name   TEXT        NOT NULL,"
+                + "    type            TEXT        NOT NULL,"
+                + "    old             TEXT,"
+                + "    new             TEXT"
+                + ")";
+            st.executeUpdate(sql);
+            sql = "CREATE INDEX time_index on UPDATES(time)";
+            st.executeUpdate(sql);
+            System.out.println("Created table \"UPDATES\" successfully");
+
+            sql = "CREATE TABLE POSTS ("
+                + "    id              INTEGER     PRIMARY KEY     NOT NULL,"
+                + "    time            TEXT        NOT NULL,"
+                + "    title           TEXT        NOT NULL,"
+                + "    course_id       CHAR(16)    NOT NULL,"
+                + "    FOREIGN KEY (course_id) REFERENCES COURSES(id) ON UPDATE CASCADE"
+                + ")";
+            st.executeUpdate(sql);
+            sql = "CREATE INDEX course_index2 on POSTS(course_id)";
+            st.executeUpdate(sql);
+            System.out.println("Created table \"POSTS\" successfully");
+            
+            sql = "CREATE TABLE REPLIES ("
+                + "    id              INTEGER     PRIMARY KEY     NOT NULL,"
+                + "    time            TEXT        NOT NULL,"
+                + "    content         TEXT        NOT NULL,"
+                + "    post_id         INTEGER     NOT NULL,"
+                + "    FOREIGN KEY (post_id) REFERENCES POSTS(id) ON DELETE CASCADE"
+                + ")";
+            st.executeUpdate(sql);
+            sql = "CREATE INDEX post_index on REPLIES(post_id)";
+            st.executeUpdate(sql);
+            System.out.println("Created table \"REPLIES\" successfully");
+
             st.close();
 
         } catch (Exception e) {
@@ -145,18 +235,26 @@ public class DataBase {
             pst.setString(1, homework.get("course_id"));
             pst.setString(2, homework.get("id"));
             rs = pst.executeQuery();
+            
+            // TX_BEGIN
+            st = c.createStatement();
+            st.executeUpdate("BEGIN");
+            st.close();
 
             if(rs.next()) {
-                int cnt = 0;
-                for(var entry: homework.entrySet()) {
+                ArrayList<String> colList = new ArrayList<>();
+                ArrayList<String> oldList = new ArrayList<>();
+                ArrayList<String> newList = new ArrayList<>();
+
+                for(var entry: homework.entrySet())
                     if(!entry.getValue().equals(rs.getString(entry.getKey()))) {
-                        /* update to MessageQueue */
-                        cnt += 1;
-                        System.out.println("Update: " + rs.getString("id") + "/" + rs.getString(entry.getKey()));
+                        colList.add(entry.getKey());
+                        oldList.add(rs.getString(entry.getKey()));
+                        newList.add(entry.getValue());
                     }
-                }
                 pst.close();
-                if (cnt != 0) {
+
+                if (!colList.isEmpty()) {
                     sql = "UPDATE HOMEWORKS SET "
                             + "name         = ?,"
                             + "time_pull    = ?,"
@@ -175,6 +273,21 @@ public class DataBase {
                     pst.setString(7, homework.get("id"));
                     pst.executeUpdate();
                     pst.close();
+                    
+                    /* update to MessageQueue */
+                    String courseName = getCourseName(homework.get("course_id"));
+                    
+                    for(int i = 0; i < colList.size(); i += 1) {
+                        pst = c.prepareStatement("INSERT INTO UPDATES VALUES (?, ?, ?, ?, ?, ?)");
+                        pst.setString(1, getCurTime());
+                        pst.setString(2, courseName);
+                        pst.setString(3, homework.get("name"));
+                        pst.setString(4, colList.get(i));
+                        pst.setString(5, oldList.get(i));
+                        pst.setString(6, newList.get(i));
+                        pst.executeUpdate();
+                        pst.close();
+                    }
                 }
             } else {
                 pst.close();
@@ -188,7 +301,24 @@ public class DataBase {
                 pst.setString(7, homework.get("course_id"));
                 pst.executeUpdate();
                 pst.close();
+                
+                String courseName = getCourseName(homework.get("course_id"));
+                pst = c.prepareStatement("INSERT INTO UPDATES VALUES (?, ?, ?, ?, ?, ?)");
+                pst.setString(1, getCurTime());
+                pst.setString(2, courseName);
+                pst.setString(3, homework.get("name"));
+                pst.setString(4, "new");
+                pst.setString(5, "");
+                pst.setString(6, "");
+                pst.executeUpdate();
+                pst.close();
             }
+
+            // TX_END            
+            st = c.createStatement();
+            st.executeUpdate("COMMIT");
+            st.close();
+
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             // e.printStackTrace();
@@ -203,18 +333,41 @@ public class DataBase {
     /* @brief   删除一条作业
      */
     public void deleteHomework(String homeworkID, String courseID) {
-        /* 如果实在不希望传courseID和我说一声 */
         try {
+            // TX_BEGIN
+            st = c.createStatement();
+            st.executeUpdate("BEGIN");
+            st.close();
+
+            String homeworkName = getHomeworkName(homeworkID, courseID);
+
             String sql;
             sql = "DELETE FROM HOMEWORKS "
-                    + "WHERE    course_id = ? "
-                    + "AND      id = ? ";
+                + "WHERE    course_id = ? "
+                + "AND      id = ? ";
             pst = c.prepareStatement(sql);
             pst.setString(1, courseID);
             pst.setString(2, homeworkID);
             pst.executeUpdate();
             pst.close();
+
             /* update to MessageQueue */
+            String courseName = getCourseName(courseID);
+            pst = c.prepareStatement("INSERT INTO UPDATES VALUES (?, ?, ?, ?, ?, ?)");
+            pst.setString(1, getCurTime());
+            pst.setString(2, courseName);
+            pst.setString(3, homeworkName);
+            pst.setString(4, "delete");
+            pst.setString(5, "");
+            pst.setString(6, "");
+            pst.executeUpdate();
+            pst.close();
+
+            // TX_END
+            st = c.createStatement();
+            st.executeUpdate("COMMIT");
+            st.close();
+
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
             // e.printStackTrace();
@@ -288,7 +441,7 @@ public class DataBase {
     /* @brief   获取某个课程中ddl在某个时间范围内的作业
      * @param   ddl的时间区间。时间点的格式为"YYYY-MM-DD HH:MM"
      *          当然，还需要courseID
-     * @return  返回一个List, a包含所有作业的ID
+     * @return  返回一个List, 包含所有作业的ID
      *          空List也可能代表查询出错
      */
     public List<String> queryDDLHomework(String courseID, String startTime, String endTime) {
@@ -314,6 +467,38 @@ public class DataBase {
         return new ArrayList<>();
     }
 
+    /* @brief   获取某个时刻开始的, 某个课程集合内的作业更新。
+     * @param   时间区间, 以及课程集合。
+     *          List内部是所有需要查询的课程的id。
+     * @return  返回一个List, 包含所有查询结果。
+     *          每个查询结果是一个map: key, value即更新信息。
+     *          键值包含:
+     *            修改时间 "time"
+     *            课程名称 "course_name"
+     *            作业名称 "homework_name"
+     *            修改类型 "type"
+     *            旧信息   "old"
+     *            新信息   "new"
+     *          其中"type"为"new"则说明新发布一条作业
+     *                    为"delete"则说明删除一条作业
+     *          其余修改项含义见作业信息的键值
+     */    
+
+    /*
+    public List<Map<String, String>> getUpdate(String time, List<String> courses) {
+        List<Map<String, String>> ret = new ArrayList<>();
+        // 还没做。按需调用这个函数即可
+        return ret;
+    }
+    */
+
+    // 下面是有关评论功能的
+    // public void newPost(String title, String content, String courseID);
+    // public void newReply(String content, int postID);
+    // public List<Map<String, String>> getRangePost(int first, int last);
+    // public List<Map<String, String>> getRangeReply(int first, int last, int postID);
+    // public List<Map<String, String>> queryPost(Map<String, String> query);
+
     public void close() {
         try {
             c.close();
@@ -323,11 +508,12 @@ public class DataBase {
         }
     }
 
-    /* 等会把指定数据库路径作为参数加上 */
-    public DataBase() {
+    /* @param dbPath:数据库文件的路径
+     */
+    public DataBase(String dbPath) {
         try {
             Class.forName("org.sqlite.JDBC");
-            c = DriverManager.getConnection("jdbc:sqlite:test.db");
+            c = DriverManager.getConnection("jdbc:sqlite" + dbPath);
             initCourseTable(); // ...
             System.out.println("Opened database successfully");
         } catch (Exception e) {
