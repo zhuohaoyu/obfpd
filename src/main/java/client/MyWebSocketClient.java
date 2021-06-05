@@ -2,6 +2,7 @@ package main.java.client;
 
 import java.net.URI;
 import org.apache.log4j.Logger;
+import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.handshake.ServerHandshake;

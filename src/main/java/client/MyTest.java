@@ -22,11 +22,10 @@ public class MyTest {
             while (!client.getReadyState().equals(WebSocket.READYSTATE.OPEN)) {
                 Thread.sleep(1);
             }
-            //连接成功,发送信息
             client.send("orzyzh");
         }
         catch (Exception e) {
-            System.out.println("hahaha");
+            System.out.println("hahaha: " + e);
         }
     }
 }
