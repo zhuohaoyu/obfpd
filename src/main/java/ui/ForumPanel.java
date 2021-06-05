@@ -17,22 +17,40 @@ public class ForumPanel extends JPanel {
     private class ReadMore implements ActionListener {
         JFrame Reply = null;
         String postID = null;
+        String title = null;
         List< Map<String, String> > reply;
-        public ReadMore(String __postID, List< Map<String, String> > __reply) {
+        public ReadMore(String __postID, List< Map<String, String> > __reply, String __title) {
             postID = __postID;
             reply = __reply;
+            title = __title;
         }
 
-        private JPanel createREPLY(Map <String, String> detail) {
-            JPanel jp = new JPanel();
-            return jp;
+        private JPanel createREPLY(Map <String, String> detail, boolean flag) {
+            JPanel panel = new JPanel();
+            panel.setLayout(new MigLayout(
+                    "insets 0,hidemode 3",
+                    "[grow,fill]para",
+                    "[grow,fill]"
+            ));
+            JTextArea jta = new JTextArea();
+            jta.setText(detail.get("content"));
+            jta.setLineWrap(true);
+            jta.setEnabled(false);
+            jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
+            JScrollPane jsp = new JScrollPane( jta );
+            panel.add(jsp, "cell 0 0");
+            if (flag)
+                panel.setPreferredSize(new Dimension(200, 90));
+            else
+                panel.setPreferredSize(new Dimension(200, 60));
+            return panel;
         }
 
         private void initialize() {
             Reply.setLayout( new MigLayout(
                     "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ",hidemode 3",
                     "[grow,fill]para",
-                    "[]10[]10[grow,fill]10[100]"
+                    "[]10[]10[]10[grow,fill]"
             ));
 
             /******** Title ********/
@@ -45,23 +63,87 @@ public class ForumPanel extends JPanel {
             }
 
             /******** Poster ********/
-//            {
-//                for (Map<String, String>detail : reply) {
-//                    Reply.add(createREPLY(detail), "cell 0 1");
-//                    break;
-//                }
-//            }
+            {
+                JPanel panelPoster = new JPanel();
+                panelPoster.setLayout( new MigLayout(
+                        "insets 0,hidemode 3",
+                        "[grow,fill]",
+                        "[grow,fill][]"
+                ));
+                JLabel user = new JLabel();
+                JLabel ptti = new JLabel();
+                for (Map<String, String>detail : reply) {
+                    panelPoster.add(createREPLY(detail, true), "cell 0 0");
+
+                    {
+                        JPanel panel = new JPanel();
+                        panel.setLayout( new MigLayout(
+                                "insets 0,hidemode 3",
+                                "[]20[]20",
+                                "[grow,fill]para"
+                        ));
+                        user.setText(detail.get("posterID"));
+                        ptti.setText(detail.get("time"));
+                        panel.add(user, "cell 0 0");
+                        panel.add(ptti, "cell 1 0");
+                        panelPoster.add(panel, "cell 0 1,align right,growx 0");
+                    }
+
+                    break;
+                }
+                panelPoster.setPreferredSize(new Dimension(200, 120));
+                Reply.add(panelPoster, "cell 0 1");
+            }
 
             /******** Reply ********/
-//            {
-//                int sum = 0;
-//                for (Map<String, String>detail : reply) {
-//                    sum += 1;
-//                    if (sum == 1) continue;
-//                    if (sum > 5) break;
-//                    Reply.add(createREPLY(detail), "cell 0 1");
-//                }
-//            }
+            {
+                int total = reply.size() - 1;
+                String buf = "[]";
+                for (int i = 1; i < total; ++i)
+                    buf = buf + "5[]";
+                JPanel panelReply = new JPanel();
+                panelReply.setLayout( new MigLayout(
+                        "insets 0,hidemode 3",
+                        "[grow,fill]",
+                        buf
+                ));
+                for (int i = 0; i <= total; ++i) {
+                    Map<String, String> detail = reply.get(i);
+                    if (i == 0) continue;
+
+                    JLabel user = new JLabel();
+                    JLabel ptti = new JLabel();
+                    JPanel panelPoster = new JPanel();
+                    panelPoster.setLayout( new MigLayout(
+                            "insets 0,hidemode 3",
+                            "[grow,fill]",
+                            "[grow,fill][]"
+                    ));
+                    panelPoster.add(createREPLY(detail, true), "cell 0 0");
+
+                    {
+                        JPanel panel = new JPanel();
+                        panel.setLayout( new MigLayout(
+                                "insets 0,hidemode 3",
+                                "[]20[]20",
+                                "[]"
+                        ));
+                        user.setText(detail.get("posterID"));
+                        ptti.setText(detail.get("time"));
+                        panel.add(user, "cell 0 0");
+                        panel.add(ptti, "cell 1 0");
+                        panelPoster.add(panel, "cell 0 1,align right,growx 0");
+                    }
+
+                    panelReply.add(panelPoster, "cell 0 " + Integer.toString(i - 1));
+                }
+                JScrollPane jsp = new JScrollPane(panelReply);
+                jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+                jsp.setBorder(null);
+                jsp.getVerticalScrollBar().setUnitIncrement(16);
+                jsp.setPreferredSize(new Dimension(200, 350));
+                Reply.add(jsp, "cell 0 2");
+            }
 
             /******** Send ********/
             {
@@ -76,7 +158,7 @@ public class ForumPanel extends JPanel {
                 jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
                 JScrollPane jsp = new JScrollPane( jta );
                 panelSend.add(jsp, "cell 0 0");
-                panelSend.setPreferredSize(new Dimension(200, 120));
+                panelSend.setPreferredSize(new Dimension(200, 90));
 
                 /******** Button ********/
                 {
@@ -99,13 +181,13 @@ public class ForumPanel extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Reply = new JFrame("Forum");
+            Reply = new JFrame(title);
             Reply.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             Reply.setVisible(true);
             Reply.setBounds( UiConsts.MAIN_WINDOW_X,
                     UiConsts.MAIN_WINDOW_Y,
                     UiConsts.MAIN_WINDOW_WIDTH,
-                    UiConsts.MAIN_WINDOW_HEIGHT ) ;
+                    UiConsts.MAIN_WINDOW_HEIGHT + 200 ) ;
             initialize();
         }
     }
@@ -138,15 +220,16 @@ public class ForumPanel extends JPanel {
         ReadMoreButton.setName("ReadMoreButton");
         panel.add(ReadMoreButton, "cell 0 1");
 
-        List< Map<String, String> > content = new LinkedList<>();
+        List< Map<String, String> > content = new ArrayList<>();
         Map<String, String> mp = new HashMap<String, String>();
         for (int i = 1; i <= 10; ++i) {
-            mp.put("content", "orzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorzorz");
+            mp = new HashMap<String, String>();
+            mp.put("content", "orz" + Integer.toString(i));
             mp.put("time", "2021-6-5 23:27:17");
-            mp.put("posterID", "2019201408");
+            mp.put("posterID", Integer.toString(i));
             content.add(mp);
         }
-        ReadMoreButton.addActionListener(new ReadMore(postID, content));
+        ReadMoreButton.addActionListener(new ReadMore(postID, content, title));
 
         return panel;
     }
