@@ -56,17 +56,6 @@ public class App {
 
         mainToolPanel = new JPanel( new BorderLayout() ) ;
         mainPanelCenter = new JPanel( new BorderLayout() ) ;
-//
-//        mainContentPanel = new JPanel( new BorderLayout() ) ;
-//            contentPanelHeader = new JPanel( new BorderLayout() ) ;
-//            JSeparator headerSep = new JSeparator( JSeparator.HORIZONTAL ) ;
-//            headerSep.setPreferredSize( new Dimension( 500, 11 ) ) ;
-//            contentPanelHeader.add( headerSep , BorderLayout.AFTER_LAST_LINE ) ;
-//            mainContentPanel.add( contentPanelHeader , BorderLayout.NORTH ) ;
-//
-//            contentPanelCenter = new JPanel( new BorderLayout() ) ;
-//            mainContentPanel.add( contentPanelCenter , BorderLayout.CENTER) ;
-
         mainPanel.add( mainToolPanel , BorderLayout.WEST ) ;
         mainPanel.add( mainPanelCenter , BorderLayout.CENTER ) ;
 

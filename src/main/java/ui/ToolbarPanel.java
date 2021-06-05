@@ -13,6 +13,7 @@ import java.awt.* ;
 public class ToolbarPanel extends JPanel{
     private static JButton buttonHome ;
     private static JButton buttonClasses ;
+    private static JButton buttonDownloadCenter ;
     private static JButton buttonSettings ;
 
     public ToolbarPanel(){
@@ -42,8 +43,13 @@ public class ToolbarPanel extends JPanel{
         buttonClasses = new JButton() ;
         buttonClasses.setPreferredSize( buttonPreferredSize ) ;
         buttonClasses.setBorderPainted( false );
+
+        buttonDownloadCenter = new JButton() ;
+        buttonDownloadCenter.setPreferredSize( buttonPreferredSize ) ;
+        buttonDownloadCenter.setBorderPainted( false );
         panelUp.add( buttonHome ) ;
         panelUp.add( buttonClasses ) ;
+        panelUp.add( buttonDownloadCenter ) ;
 
         buttonSettings = new JButton() ;
         buttonSettings.setPreferredSize( buttonPreferredSize ) ;
