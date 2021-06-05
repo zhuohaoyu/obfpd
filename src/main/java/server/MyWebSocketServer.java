@@ -39,8 +39,6 @@ public class MyWebSocketServer extends WebSocketServer{
             if (tws.hashCode() != ws.hashCode())
                 tws.send(msg);
         }
-        System.err.println("HASH="+ws.hashCode());
-
         if(ws.isClosed()) {
         }
         else if (ws.isClosing()) {
