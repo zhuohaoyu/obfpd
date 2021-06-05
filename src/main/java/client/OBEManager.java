@@ -38,14 +38,20 @@ public class OBEManager {
         Password = password;
     }
 
+    public boolean doTest() throws IOException {
+        Document document = Jsoup.connect(OBEConstants.OBE_URL).cookies(Cookie).get();
+        if (document.title().toString().equals(OBEConstants.SUCC_LOGIN)) return true;
+        else return false;
+    }
+
     public boolean doLogin() {
         try {
             Cookie = LoginWorker.getCookie(Username, Password);
+            return doTest();
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
-        return true;
     }
 
     public void uploadHomework(String path, String courseID, int homeworkID) {

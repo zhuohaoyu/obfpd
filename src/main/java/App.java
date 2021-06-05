@@ -10,7 +10,7 @@ import main.java.client.OBEManager;
 import main.java.ui.* ;
 import net.miginfocom.swing.MigLayout;
 
-public class App {  //
+public class App {
     public static boolean islogin ;
     public static String username ;
     public static String password ;
@@ -104,12 +104,14 @@ public class App {  //
                 jbok.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        System.err.println(jtaid.getText() + "  " + jtapw.getText());
                         username = jtaid.getText();
                         password = jtapw.getText();
                         student.setInfo(username, password);
                         islogin = student.doLogin();
                         if (islogin == true) dispose();
+                        else {
+                            JOptionPane.showMessageDialog(null,"账号或者密码错误！","登录失败", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 });
                 jbcancle.addActionListener(new ActionListener() {
@@ -168,10 +170,8 @@ public class App {  //
         forumPanel = new ForumPanel();
         settingsPanel = new SettingsPanel() ;
 
-
         mainToolPanel.add( toolbarPanel , BorderLayout.CENTER ) ;
         mainPanelCenter.add( homePanel , BorderLayout.CENTER ) ;
-
 
         frame.add( mainPanel ) ;
         mainPanel.updateUI();
