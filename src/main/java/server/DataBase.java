@@ -36,27 +36,27 @@ public class DataBase {
     /* @brief   内部函数 通过课程ID获取课程名
      */
     public String getCourseName(String courseID) throws SQLException {
-        pst = c.prepareStatement("SELECT name FROM COURSES WHERE id = ?");
-        pst.setString(1, courseID);
-        rs = pst.executeQuery();
-        rs.next();
-        String courseName = rs.getString("name");
-        rs.close();
-        pst.close();
+        var pst2 = c.prepareStatement("SELECT name FROM COURSES WHERE id = ?");
+        pst2.setString(1, courseID);
+        var rs2 = pst2.executeQuery();
+        rs2.next();
+        String courseName = rs2.getString("name");
+        rs2.close();
+        pst2.close();
         return courseName;
     }
 
     /* @brief   内部函数 通过作业ID获取作业名
      */
     public String getHomeworkName(String homeworkID, String courseID) throws SQLException {
-        pst = c.prepareStatement("SELECT name FROM HOMEWORKS WHERE course_id = ? AND id = ?");
-        pst.setString(1, courseID);
-        pst.setString(2, homeworkID);
-        rs = pst.executeQuery();
-        rs.next();
-        String homeworkName = rs.getString("name");
-        rs.close();
-        pst.close();
+        var pst2 = c.prepareStatement("SELECT name FROM HOMEWORKS WHERE course_id = ? AND id = ?");
+        pst2.setString(1, courseID);
+        pst2.setString(2, homeworkID);
+        var rs2 = pst2.executeQuery();
+        rs2.next();
+        String homeworkName = rs2.getString("name");
+        rs2.close();
+        pst2.close();
         return homeworkName;
     }
 
@@ -106,13 +106,13 @@ public class DataBase {
 
     /* @brief   生成一个作业更新对应的Map
      */
-    public Map<String, String> updateMap(String time, String courseID,
-                                         String homeworkID, String type,
+    public Map<String, String> updateMap(String time, String courseName,
+                                         String homeworkName, String type,
                                          String oldContent, String newContent) {
         Map<String, String> retMap = new HashMap<>();
         retMap.put("time", time);
-        retMap.put("course_id", courseID);
-        retMap.put("homework_id", homeworkID);
+        retMap.put("course_name", courseName);
+        retMap.put("homework_name", homeworkName);
         retMap.put("type", type);
         retMap.put("old", oldContent);
         retMap.put("new", newContent);
@@ -550,9 +550,14 @@ public class DataBase {
             sb.append("AND course_id in ( ");
             for(int i = 0; i < courses.size(); i += 1) {
                 if(i != 0) sb.append(", ");
+                sb.append("\'");
                 sb.append(courses.get(i));
+                sb.append("\'");
             }
             sb.append(")");
+
+            System.err.println(sb.toString());
+
             pst = c.prepareStatement(sb.toString());
             pst.setString(1, time);
             pst.setString(2, getCurTime());

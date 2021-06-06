@@ -19,8 +19,8 @@ public class Crawler implements Runnable {
     }
     public boolean getCourses(Map <String, String> ck) {
         try {
-            FileOutputStream fos = new FileOutputStream("./data/course.txt");
-            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+//            FileOutputStream fos = new FileOutputStream("./data/course.txt");
+//            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
             String url = "http://obe.ruc.edu.cn/index/course/index.html";
             Document document = Jsoup.connect(url).cookies(ck).get();
             Elements content = document.getElementsByClass("thumbnail col-lg-2 col-md-2 col-sm-2 col-xs-2 block1 ellipsis");
@@ -33,9 +33,9 @@ public class Crawler implements Runnable {
                 String CourseID = buf[1].split(".html")[0].split("/")[5];
 
                 db.addCourse(CourseID, CourseName, CourseTeacher);
-                osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
+//                osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
             }
-            osw.close();
+//            osw.close();
             return true;
         }
         catch (IOException e) {
@@ -46,8 +46,8 @@ public class Crawler implements Runnable {
     public boolean getHomeworks(Map <String, String> ck, String CourseID) {
         try {
             String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
-            FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
-            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+//            FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
+//            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
             Map<String, String> isVis = new HashMap<String, String>();
             int id = 0;
             while (true) {
@@ -122,14 +122,14 @@ public class Crawler implements Runnable {
                     } // get homework attachment
 
                     if (HomeworkName != null && HomeworkDDL != null) {
-                        osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
+//                        osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
                     }
                 }
             }
-            osw.close();
+//            osw.close();
             return true;
         }
-        catch (IOException e) {
+        catch (Exception e) {
             System.err.println("IOException: " + e);
             return false;
         }
@@ -149,8 +149,8 @@ public class Crawler implements Runnable {
             }
             try {
                 String url = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/0.html";
-                FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
-                OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+//                FileOutputStream fos = new FileOutputStream("./data/homeworks/" + CourseID + ".txt");
+//                OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
                 Map<String, String> isVis = new HashMap<String, String>();
                 int id = 0;
                 while (true) {
@@ -229,7 +229,7 @@ public class Crawler implements Runnable {
                                 homework.remove(HomeworkHno);
                             }
                             db.updateHomework(HomeworkHno, HomeworkName, HomeworkST, HomeworkDDL, HomeworkContent, HomeworkAtt, CourseID);
-                            osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
+//                            osw.write(HomeworkHno + "\t" + HomeworkName + "\t" + HomeworkST + "\t" + HomeworkDDL + "\t" + HomeworkContent + "\t" + HomeworkAtt + "\n");
                         }
                     }
                 }
@@ -237,7 +237,7 @@ public class Crawler implements Runnable {
                     System.err.println("Delete homework: " + old);
                     db.deleteHomework(old, CourseID);
                 }
-                osw.close();
+//                osw.close();
             }
             catch (Exception e) {
                 System.err.println("Exception: " + e);
@@ -323,8 +323,8 @@ public class Crawler implements Runnable {
     }
     public boolean reCrawl(Map <String, String> ck) {
         try {
-            FileOutputStream fos = new FileOutputStream("./data/course.txt");
-            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+//            FileOutputStream fos = new FileOutputStream("./data/course.txt");
+//            OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
             String url = "http://obe.ruc.edu.cn/index/course/index.html";
             Document document = Jsoup.connect(url).cookies(ck).get();
             Elements content = document.getElementsByClass("thumbnail col-lg-2 col-md-2 col-sm-2 col-xs-2 block1 ellipsis");
@@ -340,10 +340,10 @@ public class Crawler implements Runnable {
                 CourseTeacher = CourseTeacher.strip();
                 db.addCourse(CourseID, CourseName, CourseTeacher);
                 new Thread(new MultithreadCrawlHomeworks(ck, CourseID)).run();
-                osw.write(CourseID + "\t" + CourseName + ",\t" + CourseTeacher + "\t" + CourseUrl + "\n");
+//                osw.write(CourseID + "\t" + CourseName + ",\t" + CourseTeacher + "\t" + CourseUrl + "\n");
                 System.err.println(CourseID + "\t[" + CourseName + "]\t" + CourseTeacher);
             }
-            osw.close();
+//            osw.close();
             return true;
         }
         catch (IOException e) {

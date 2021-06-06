@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import main.java.App;
 import main.java.ui.ForumPanel;
 import org.apache.log4j.Logger;
 import org.java_websocket.WebSocket;
@@ -58,6 +59,20 @@ public class MyWebSocketClient extends WebSocketClient{
         }
         else if (jsonObject.get("Task").equals(ClientConstants.queryPOSTFinished)) {
             ForumPanel.isQueryPOSTFinished = true;
+        }
+        else if (jsonObject.get("Task").equals(ClientConstants.queryUPDATE)) {
+            int sum = Integer.parseInt(jsonObject.get("size").toString());
+            for (int i = 0; i < sum; ++i) {
+                Map<String, String> mp = new HashMap<String, String>();
+                mp.put("time", jsonObject.get("time" + Integer.toString(i)).toString());
+                mp.put("course_name", jsonObject.get("course_name" + Integer.toString(i)).toString());
+                mp.put("homework_name", jsonObject.get("homework_name" + Integer.toString(i)).toString());
+                mp.put("type", jsonObject.get("type" + Integer.toString(i)).toString());
+                mp.put("ole", jsonObject.get("old" + Integer.toString(i)).toString());
+                mp.put("new", jsonObject.get("new" + Integer.toString(i)).toString());
+                App.update.add(mp);
+            }
+            System.err.println(App.update);
         }
         if(msg.equals("over")){
             this.close();

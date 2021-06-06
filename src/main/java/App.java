@@ -4,7 +4,13 @@ import javax.swing.* ;
 import java.awt.* ;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.rmi.server.ExportException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Map;
 
+import com.alibaba.fastjson.JSONObject;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLaf;
@@ -12,6 +18,7 @@ import com.formdev.flatlaf.extras.FlatInspector;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatCyanLightIJTheme;
 import main.java.client.MyClient;
+import main.java.client.OBECourse;
 import main.java.client.OBEManager;
 import main.java.ui.* ;
 import net.miginfocom.swing.MigLayout;
@@ -33,6 +40,7 @@ public class App {
 
     public static OBEManager student;
     public static MyClient myclient;
+    public static ArrayList<Map<String, String>> update = new ArrayList<>();
 
     public static void main( String[] args ){
         EventQueue.invokeLater( ()->{
@@ -177,6 +185,45 @@ public class App {
         if (islogin == false) System.exit(0);
         myclient = new MyClient("username");
         addComponent() ;
+
+        try {
+            String ti;
+            File configFile = new File("config.txt");
+            if(!configFile.exists()) {
+                // set default
+                ti = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()).toString();
+            } else {
+                var fin = new BufferedReader(new FileReader("config.txt"));
+                ti = fin.readLine();
+            }
+            System.err.println("time = " + ti);
+            ArrayList<OBECourse> cl = student.getCourses();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("Task", "queryUPDATE");
+            jsonObject.put("Time", ti);
+            jsonObject.put("size", Integer.toString(cl.size()));
+            int sum = 0;
+            for (OBECourse c : cl) {
+                jsonObject.put(Integer.toString(sum), c.getCourseID());
+                sum += 1;
+            }
+            myclient.send(jsonObject);
+        }
+        catch (Exception e) { }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        var osw = new OutputStreamWriter(new FileOutputStream("./config.txt"), "UTF-8");
+                        osw.write(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
+                        osw.close();
+                        Thread.sleep(30 * 1000);
+                    }
+                    catch (Exception e) { }
+                }
+            }
+        }).start();
     }
 
     private void initialize(){

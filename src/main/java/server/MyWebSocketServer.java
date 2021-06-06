@@ -1,10 +1,7 @@
 package main.java.server;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.alibaba.fastjson.JSONObject;
 import main.java.ui.ForumPanel;
@@ -112,6 +109,32 @@ public class MyWebSocketServer extends WebSocketServer{
             ws.send(jsonObject.toString());
             System.err.println("queryREPLY: " + tmp.size());
         }
+        else if (jsonObject.get("Task").equals("queryUPDATE")) {
+            ArrayList <String> cl = new ArrayList<>();
+            String ti = jsonObject.get("Time").toString();
+            int sum = Integer.parseInt(jsonObject.get("size").toString());
+            for (int i = 0; i < sum; ++i) {
+                String cid = jsonObject.get(Integer.toString(i)).toString();
+                cl.add(cid);
+            }
+            var mp = db.getUpdate(ti, cl);
+            System.err.println("Broadcast size = " + mp.size());
+
+            jsonObject = new JSONObject();
+            jsonObject.put("Task", "queryUPDATE");
+            jsonObject.put("size", mp.size());
+            for (int i = 0; i < mp.size(); ++i) {
+                var detail = mp.get(i);
+                jsonObject.put("time" + Integer.toString(i), detail.get("time"));
+                jsonObject.put("course_name" + Integer.toString(i), detail.get("course_name"));
+                jsonObject.put("homework_name" + Integer.toString(i), detail.get("homework_name"));
+                jsonObject.put("type" + Integer.toString(i), detail.get("type"));
+                jsonObject.put("old" + Integer.toString(i), detail.get("old"));
+                jsonObject.put("new" + Integer.toString(i), detail.get("new"));
+            }
+            ws.send(jsonObject.toString());
+        }
+
         if(ws.isClosed()) {
         }
         else if (ws.isClosing()) {

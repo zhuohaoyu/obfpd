@@ -5,6 +5,7 @@ public interface ClientConstants {
     String createREPLY = "createREPLY";
     String queryPOST = "queryPOST";
     String queryREPLY = "queryREPLY";
+    String queryUPDATE = "queryUPDATE";
     String queryPOSTFinished = "queryPOSTFinished";
     String queryREPLYFinished = "queryREPLYFinished";
 }

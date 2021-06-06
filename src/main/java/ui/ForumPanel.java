@@ -609,7 +609,7 @@ public class ForumPanel extends JPanel {
             Map<String, String> detail = post.get(i);
             panelContent.add(createPOST(detail.get("Title"),
                     detail.get("userID"),
-                    Integer.toString(i)),
+                    detail.get("postID")),
                     "cell 0 " + Integer.toString(total - i));
         }
         if (total == -1) {
