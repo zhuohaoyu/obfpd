@@ -3,6 +3,7 @@ package main.java.ui;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.ui.FlatButtonUI;
 import com.formdev.flatlaf.ui.FlatRoundBorder;
 import main.java.App;
@@ -18,6 +19,7 @@ public class ToolbarPanel extends JPanel{
     private static JButton buttonDownloadCenter ;
     private static JButton buttonForum;
     private static JButton buttonSettings ;
+    private static JButton buttonForumSearch;
 
     public ToolbarPanel(){
         initialize() ;
@@ -53,36 +55,62 @@ public class ToolbarPanel extends JPanel{
         Dimension buttonPreferredSize = new Dimension( UiConsts.TOOLBAR_BUTTON_WIDTH , UiConsts.TOOLBAR_BUTTON_HEIGHT ) ;
 
         buttonHome = new JButton() ;
+        FlatSVGIcon homeIcon = new FlatSVGIcon("client/toolbar_home.svg");
+        buttonHome.setIcon(homeIcon);
         buttonHome.setPreferredSize( buttonPreferredSize ) ;
+        buttonHome.setOpaque(false);
+        buttonHome.setContentAreaFilled( false );
         buttonHome.setBorderPainted( false ) ;
 
         buttonClasses = new JButton() ;
-
-        ImageIcon classIcon = getScaledImageIcon("./resources/homework.png", 48, 48);
-        buttonClasses.setIcon(classIcon);
+        FlatSVGIcon coursesIcon = new FlatSVGIcon("client/toolbar_courses.svg");
+        buttonClasses.setIcon(coursesIcon);
+        buttonClasses.setOpaque(false);
+        buttonClasses.setContentAreaFilled( false );
         buttonClasses.setPreferredSize( buttonPreferredSize ) ;
         buttonClasses.setBorderPainted( false );
 
         buttonDownloadCenter = new JButton() ;
+        FlatSVGIcon downloadsIcon = new FlatSVGIcon("client/toolbar_downloads.svg");
+        buttonDownloadCenter.setIcon(downloadsIcon);
+        buttonDownloadCenter.setOpaque(false);
+        buttonDownloadCenter.setContentAreaFilled( false );
         buttonDownloadCenter.setPreferredSize( buttonPreferredSize ) ;
         buttonDownloadCenter.setBorderPainted( false );
 
         buttonForum = new JButton() ;
+        FlatSVGIcon forumIcon = new FlatSVGIcon("client/toolbar_forum.svg");
+        buttonForum.setIcon(forumIcon);
+        buttonForum.setPreferredSize( buttonPreferredSize ) ;
+        buttonForum.setContentAreaFilled( false );
         buttonForum.setPreferredSize( buttonPreferredSize ) ;
         buttonForum.setBorderPainted( false );
+
+        buttonForumSearch = new JButton() ;
+        FlatSVGIcon forumSearchIcon = new FlatSVGIcon("client/toolbar_search.svg");
+        buttonForumSearch.setIcon(forumSearchIcon);
+        buttonForumSearch.setPreferredSize( buttonPreferredSize ) ;
+        buttonForumSearch.setContentAreaFilled( false );
+        buttonForumSearch.setPreferredSize( buttonPreferredSize ) ;
+        buttonForumSearch.setBorderPainted( false );
+
+        buttonSettings = new JButton() ;
+        FlatSVGIcon settingsIcon = new FlatSVGIcon("client/toolbar_settings.svg");
+        buttonSettings.setIcon(settingsIcon);
+        buttonSettings.setPreferredSize( buttonPreferredSize ) ;
+        buttonSettings.setContentAreaFilled( false );
+        buttonSettings.setPreferredSize( buttonPreferredSize ) ;
+        buttonSettings.setBorderPainted( false ) ;
 
         panelUp.add( buttonHome ) ;
         panelUp.add( buttonClasses ) ;
         panelUp.add( buttonDownloadCenter ) ;
         panelUp.add( buttonForum );
+        panelUp.add( buttonForumSearch );
+        panelUp.add( buttonSettings) ;
 
-        buttonSettings = new JButton() ;
-        buttonSettings.setPreferredSize( buttonPreferredSize ) ;
-        buttonSettings.setBorderPainted( false ) ;
-
-        panelDown.add( buttonSettings , BorderLayout.SOUTH ) ;
         this.add( panelUp ) ;
-        this.add( panelDown ) ;
+//        this.add( panelDown ) ;
     }
 
     private void addListener(){

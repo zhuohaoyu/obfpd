@@ -9,6 +9,8 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatInspector;
+import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatCyanLightIJTheme;
 import main.java.client.MyClient;
 import main.java.client.OBEManager;
 import main.java.ui.* ;
@@ -42,19 +44,6 @@ public class App {
             }
         } ) ;
 
-    }
-
-    public static void updateTheme() {
-        try {
-            UIManager.setLookAndFeel(new FlatDarculaLaf());
-
-//            SwingUtilities.invokeLater(() -> mainPanelCenter.updateUI());
-//            SwingUtilities.invokeLater(() -> mainPanelCenter.updateUI());
-//            SwingUtilities.invokeLater(() -> frame.repaint());
-            FlatLaf.updateUI();
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -92,6 +81,7 @@ public class App {
                 ));
                 JLabel label = new JLabel("学号：");
                 jtaid = new JTextField();
+                jtaid.putClientProperty( "JComponent.roundRect", true );
                 panelID.add(label, "cell 0 0");
                 panelID.add(jtaid, "cell 1 0");
                 add(panelID, "cell 0 1");
@@ -106,6 +96,7 @@ public class App {
                 ));
                 JLabel label = new JLabel("密码：");
                 jtapw = new JPasswordField ();
+                jtapw.putClientProperty( "JComponent.roundRect", true );
                 panelPassword.add(label, "cell 0 0");
                 panelPassword.add(jtapw, "cell 1 0");
                 add(panelPassword, "cell 0 2");
@@ -119,7 +110,9 @@ public class App {
                         "[grow,fill]"
                 ));
                 JButton jbok = new JButton("确 定");
+                jbok.putClientProperty( "JButton.buttonType", "roundRect" );
                 JButton jbcancle = new JButton("取 消");
+                jbcancle.putClientProperty( "JButton.buttonType", "roundRect" );
 
                 jbok.addActionListener(new ActionListener() {
                     @Override
@@ -180,7 +173,7 @@ public class App {
 
     private void initialize(){
         try {
-            UIManager.setLookAndFeel( new FlatIntelliJLaf() ) ;
+            UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
             UIManager.put( "TabbedPane.tabAlignment" , "leading" ) ;
         } catch ( Exception e ){
             System.err.println( "set L&F failed" ) ;

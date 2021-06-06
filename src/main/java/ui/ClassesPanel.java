@@ -3,6 +3,7 @@ package main.java.ui;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatCyanLightIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatSolarizedDarkIJTheme;
 import com.kitfox.svg.app.beans.SVGIcon;
@@ -182,7 +183,7 @@ public class ClassesPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    UIManager.setLookAndFeel( new FlatCyanLightIJTheme() ) ;
+                    UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
 //                    SwingUtilities.invokeLater(() -> App.frame.repaint());
                     FlatLaf.updateUI();
                 } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
@@ -243,9 +244,6 @@ public class ClassesPanel extends JPanel {
                 FlatSVGIcon checkSVGIcon = new FlatSVGIcon("client/check.svg");
                 FlatSVGIcon errorSVGIcon = new FlatSVGIcon("client/error.svg");
 
-                FlatSVGIcon fsi = new FlatSVGIcon("client/check.svg");
-                ImageIcon checkedIcon = getScaledImageIcon("./resources/check.png", 28, 28);
-                ImageIcon errorIcon = getScaledImageIcon("./resources/error.png", 28, 28);
 //                homeworkTab.setTabLayoutPolicy(JTabbedPane.LEFT);
                 for(int i = 0; i < curHws.size(); ++i) {
                     OBEHomework curh = curHws.get(i);
