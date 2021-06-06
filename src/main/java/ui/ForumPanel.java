@@ -15,6 +15,8 @@ public class ForumPanel extends JPanel {
     JLabel tabPlacementLabel = null;
     JPanel panelTitle = null;
     JPanel panelContent = null;
+    JScrollPane jsPanel = null;
+    public static List< Map<String, String> > post = new ArrayList<>();
 
     private class ReadMore implements ActionListener {
         JFrame Reply = null;
@@ -290,6 +292,7 @@ public class ForumPanel extends JPanel {
                             jsonObject.put("userID", App.username);
                             App.myclient.send(jsonObject);
                             NewPost.dispose();
+                            ReFresh();
                         }
                     });
                     jbcancle.addActionListener(new ActionListener() {
@@ -303,32 +306,6 @@ public class ForumPanel extends JPanel {
                     panelContent.add(panelButton, "cell 0 3,align right,growx 0");
                 }
                 NewPost.add(panelContent, "cell 0 1");
-/*
-                {
-                    JPanel panelPassword = new JPanel();
-                    panelPassword.setLayout(new MigLayout(
-                            "insets 0,hidemode 3",
-                            "[][grow,fill]para",
-                            "[grow,fill]"
-                    ));
-                    JLabel label = new JLabel("密码：");
-                    jtapw = new JPasswordField ();
-                    panelPassword.add(label, "cell 0 0");
-                    panelPassword.add(jtapw, "cell 1 0");
-                    add(panelPassword, "cell 0 2");
-                }
-
-                {
-                    JPanel panelButton = new JPanel();
-                    panelButton.setLayout(new MigLayout(
-                            "insets 0,hidemode 3",
-                            "[]10[]",
-                            "[grow,fill]"
-                    ));
-                    JButton jbok = new JButton("确 定");
-                    JButton jbcancle = new JButton("取 消");
-                }
-*/
             }
         }
 
@@ -345,8 +322,69 @@ public class ForumPanel extends JPanel {
         }
     }
 
+    public void ReFresh() {
+        initialize();
+        App.mainPanelCenter.add( App.forumPanel , BorderLayout.CENTER ) ;
+        SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+    }
+
     public ForumPanel(){
+        setName("this");
+        setLayout( new MigLayout(
+                "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ", hidemode 3",
+                "[grow,fill]para",
+                "[][]"
+        ));
+        tabPlacementLabel = new JLabel();
+
+        panelTitle = new JPanel();
+        panelTitle.setName("panel1");
+        panelTitle.setLayout(new MigLayout(
+                "insets 0,hidemode 3",
+                "[grow, fill]para",
+                "[grow, fill]para"));
+
+        JPanel panelTitle = new JPanel();
+        panelTitle.setLayout( new MigLayout(
+                "insets 0, hidemode 3",
+                "[][grow,fill]para[]20[]",
+                "[]"
+        ));
+        tabPlacementLabel.setText("论坛");
+        tabPlacementLabel.setFont(UiConsts.FONT_TITLE0);
+        JSeparator sepline = new JSeparator() ;
+        sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
+        panelTitle.add(tabPlacementLabel, "cell 0 0");
+
+        JButton jbrefresh = new JButton();
+        jbrefresh.setText("刷 新");
+        jbrefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ReFresh();
+            }
+        });
+        panelTitle.add(jbrefresh, "cell 2 0");
+
+        JButton jbnew = new JButton();
+        jbnew.setText("分享新鲜事");
+        jbnew.addActionListener(new NewPost());
+        panelTitle.add(jbnew, "cell 3 0");
+
+        add(panelTitle, "cell 0 0");
         initialize() ;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(1 * 1000);
+                        ReFresh();
+                    }
+                    catch (Exception e) { }
+                }
+            }
+        }).start();
     }
 
     private JPanel createPOST(String title, String user, String postID) {
@@ -387,61 +425,42 @@ public class ForumPanel extends JPanel {
         return panel;
     }
 
-    private void initialize(){
-        tabPlacementLabel = new JLabel();
+    public void initialize(){
+        if (jsPanel != null) {
+            remove(panelContent);
+            remove(jsPanel);
+        }
+        System.err.println("running initialize.");
 
-        setName("this");
-        setLayout( new MigLayout(
-                "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ", hidemode 3",
-                "[grow,fill]para",
-                "[][]"
-        ));
-
-        panelTitle = new JPanel();
-        panelTitle.setName("panel1");
-        panelTitle.setLayout(new MigLayout(
-                "insets 0,hidemode 3",
-                "[grow, fill]para",
-                "[grow, fill]para"));
-
-        JPanel panelTitle = new JPanel();
-        panelTitle.setLayout( new MigLayout(
-                "insets 0, hidemode 3",
-                "[][grow,fill]para[]",
-                "[]"
-        ));
-        tabPlacementLabel.setText("论坛");
-        tabPlacementLabel.setFont(UiConsts.FONT_TITLE0);
-        JSeparator sepline = new JSeparator() ;
-        sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
-        panelTitle.add(tabPlacementLabel, "cell 0 0");
-
-        JButton jbnew = new JButton();
-        jbnew.setText("分享新鲜事");
-        jbnew.addActionListener(new NewPost());
-        panelTitle.add(jbnew, "cell 2 0");
-
-        add(panelTitle, "cell 0 0");
-
+        String buf = "[]";
+        int total = post.size() - 1;
+        for (int i = 1; i <= total; ++i)
+            buf = buf + "15[]";
         panelContent = new JPanel();
-        panelContent.setName("panel");
         panelContent.setLayout(new MigLayout(
                 "insets 0,hidemode 3",
                 // columns
                 "[grow,fill]para",
                 // rows
-                "[]15[]15[]15[]15[]"));
-
-        for (int i = 1; i <= 5; ++i) {
-            panelContent.add(createPOST("flkjaskldjfikljashdkjlfhasjkldfhjklashdfjklahsdjklfhjklashdfjklhasdjklfhjklasehdfjklhskl",
-                    "lkfasjsdkljfaklsdjflasdkjfklasjdfljasdlfjkaslkdjflkasd",
-                    "test"),
-                    "cell 0 " + Integer.toString(i));
+                buf));
+        System.err.println("size of post: " + post.size());
+        for (int i = total; i >= 0; --i) {
+            Map<String, String> detail = post.get(i);
+            panelContent.add(createPOST(detail.get("Title"),
+                    detail.get("User"),
+                    detail.get("postID")),
+                    "cell 0 " + Integer.toString(total - i));
         }
-        JScrollPane jsp = new JScrollPane(panelContent);
-        jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        jsp.setBorder(null);
-        jsp.getVerticalScrollBar().setUnitIncrement(16);
-        add(jsp, "cell 0 1");
+        if (total == -1) {
+            JLabel label = new JLabel();
+            label.setText("暂时没有帖子");
+            label.setFont(UiConsts.FONT_TITLE2);
+            panelContent.add(label, "cell 0 0");
+        }
+        jsPanel = new JScrollPane(panelContent);
+        jsPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        jsPanel.setBorder(null);
+        jsPanel.getVerticalScrollBar().setUnitIncrement(16);
+        add(jsPanel, "cell 0 1");
     }
 }

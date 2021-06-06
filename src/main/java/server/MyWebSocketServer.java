@@ -11,11 +11,11 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 public class MyWebSocketServer extends WebSocketServer{
-    Map<WebSocket, Integer> reflct = null;
+    Map<WebSocket, String> reflct = null;
 
     public MyWebSocketServer(int port) {
         super(new InetSocketAddress(port));
-        reflct = new HashMap<WebSocket, Integer>();
+        reflct = new HashMap<WebSocket, String>();
     }
 
     @Override
@@ -35,9 +35,15 @@ public class MyWebSocketServer extends WebSocketServer{
     @Override
     public void onMessage(WebSocket ws, String msg) {
         System.err.println("Receive Message: "+msg);
-        for (WebSocket tws : reflct.keySet()) {
-            if (tws.hashCode() != ws.hashCode())
-                tws.send(msg);
+        JSONObject jsonObject = JSONObject.parseObject(msg);
+        if (jsonObject.get("Task").equals("Connect")) {
+            reflct.put(ws, jsonObject.get("userID").toString());
+            ws.send(msg);
+        }
+        else if (jsonObject.get("Task").equals("createPOST")) {
+            for (WebSocket tws : reflct.keySet()) {
+                    tws.send(msg);
+            }
         }
         if(ws.isClosed()) {
         }
@@ -57,7 +63,7 @@ public class MyWebSocketServer extends WebSocketServer{
     public void onOpen(WebSocket ws, ClientHandshake shake) {
         System.err.println("HASH="+ws.hashCode());
         System.err.println("-----------------onOpen--------------------"+ws.isOpen()+"--"+ws.getReadyState()+"--"+ws.getAttachment());
-        reflct.put(ws, 1024);
+
         for(Iterator<String> it=shake.iterateHttpFields();it.hasNext();) {
             String key = it.next();
             System.err.println(key+":"+shake.getFieldValue(key));

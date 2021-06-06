@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 
 public class MyClient {
     public WebSocketClient client;
+    public String user;
     public class ReConntect implements Runnable {
         @Override
         public void run() {
@@ -39,7 +40,8 @@ public class MyClient {
         System.err.println("Send JSONObject: " + msg.toString());
         client.send(msg.toString());
     }
-    public MyClient() {
+    public MyClient(String __user) {
+        user = __user;
         try {
             client = new MyWebSocketClient(new URI("ws://localhost:8090"),new Draft_6455());
         } catch (URISyntaxException e) {
@@ -53,6 +55,7 @@ public class MyClient {
             }
             JSONObject jsonobj = new JSONObject();
             jsonobj.put("Task", "Connect");
+            jsonobj.put("userID", user);
             client.send(jsonobj.toString());
         }
         catch (Exception e) {

@@ -2,8 +2,11 @@ package main.java.client;
 
 import java.net.URI;
 import java.rmi.server.ExportException;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import main.java.ui.ForumPanel;
 import org.apache.log4j.Logger;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
@@ -26,6 +29,14 @@ public class MyWebSocketClient extends WebSocketClient{
         System.err.println("receive message: " + msg);
         JSONObject jsonObject = JSONObject.parseObject(msg);
         System.err.println(jsonObject.get("Task"));
+        if (jsonObject.get("Task").equals(ClientConstants.createPOST)) {
+            Map<String, String> mp = new HashMap<>();
+            mp.put("Title", jsonObject.get("Title").toString());
+            mp.put("Content", jsonObject.get("Content").toString());
+            mp.put("postID", "jsonObject.get(\"postID\").toString()");
+            ForumPanel.post.add(mp);
+            System.err.println("list: " + ForumPanel.post + "  size = " + ForumPanel.post.size());
+        }
         if(msg.equals("over")){
             this.close();
         }

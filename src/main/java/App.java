@@ -152,11 +152,11 @@ public class App {
     App(){
         islogin = false;
         student = new OBEManager();
-        myclient = new MyClient();
         initialize() ;
-//        new Login().login();
-        islogin = true;
+        new Login().login();
+//        islogin = true;
         if (islogin == false) System.exit(0);
+        myclient = new MyClient("username");
         addComponent() ;
     }
 
