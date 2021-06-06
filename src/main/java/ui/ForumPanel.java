@@ -323,9 +323,9 @@ public class ForumPanel extends JPanel {
     }
 
     public void ReFresh() {
-        initialize();
-        App.mainPanelCenter.add( App.forumPanel , BorderLayout.CENTER ) ;
-        SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+//        initialize();
+//        App.mainPanelCenter.add( App.forumPanel , BorderLayout.CENTER ) ;
+//        SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
     }
 
     public ForumPanel(){
