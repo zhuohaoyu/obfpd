@@ -24,6 +24,10 @@ public class OBEHomework {
         return localPath;
     }
 
+    public void setStatus(int s) {
+        status = s;
+    }
+
     public void setLocalPath(String s) {
         localPath = s;
     }

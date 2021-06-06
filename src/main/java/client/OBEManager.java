@@ -1,5 +1,6 @@
 package main.java.client;
 
+import com.alibaba.fastjson.JSONObject;
 import com.kitfox.svg.Use;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -66,7 +67,7 @@ public class OBEManager {
         }
     }
 
-    public void uploadHomework(String path, String courseID, int homeworkID) {
+    public Boolean uploadHomework(String path, String courseID, int homeworkID) {
         File uploadFile = new File(path);
         try {
             FileInputStream fis = new FileInputStream(uploadFile);
@@ -80,13 +81,23 @@ public class OBEManager {
                     .data("upload", uploadFile.getName(), fis)
                     .method(Connection.Method.POST)
                     .execute();
+            JSONObject jo = JSONObject.parseObject(response.body());
+            System.out.println(jo.get("status"));
             System.out.println(response.body());
+            String res = jo.get("status").toString();
+            if(res.equals("1")) {
+                return true;
+            }
+            else {
+                return false;
+            }
         } catch(Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
-    public void deleteHomework(String courseID, int homeworkID) {
+    public Boolean deleteHomework(String courseID, int homeworkID) {
         try {
             Connection.Response response =
                     Jsoup.connect("http://obe.ruc.edu.cn/index/homework/deleteHomework.html")
@@ -96,10 +107,20 @@ public class OBEManager {
                             .data("hno", String.valueOf(homeworkID))
                             .method(Connection.Method.POST)
                             .execute();
+            JSONObject jo = JSONObject.parseObject(response.body());
+            System.out.println(jo.get("status"));
             System.out.println(response.body());
+            String res = jo.get("status").toString();
+            if(res.equals("1")) {
+                return true;
+            }
+            else {
+                return false;
+            }
         } catch(Exception e) {
             e.printStackTrace();
         }
+        return false;
     }
 
     public void getContent() {
@@ -158,17 +179,19 @@ public class OBEManager {
         }
     }
 
-/*
+
     public static void main(String args[]) {
         OBEManager manager = new OBEManager("2019201409", "keaiwangyuansen");
         manager.doLogin();
-        manager.getContent();
+//        manager.getContent();
 
-//        manager.uploadHomework("C:\\Users\\zhuoh\\Desktop\\Docs\\EDA_homework\\baseline.pdf", "20193oxjr00h583s", 2054);
-//        manager.deleteHomework("20193oxjr00h583s", 2054);
+        manager.uploadHomework("C:\\Users\\zhuoh\\Desktop\\Docs\\EDA_homework\\baseline.pdf", "20193oxjr00h583s", 2054);
+        manager.uploadHomework("C:\\Users\\zhuoh\\Desktop\\Docs\\EDA_homework\\baseline.pdf", "20193oxjr00h583s", 2054);
+        manager.deleteHomework("20193oxjr00h583s", 2054);
+        manager.deleteHomework("20193oxjr00h583s", 2054);
 
 //        manager.doLogin();
 //        manager.getContent();
     }
- */
+
 }

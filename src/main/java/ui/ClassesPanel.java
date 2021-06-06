@@ -48,6 +48,8 @@ public class ClassesPanel extends JPanel {
     OBECourse currentSelectedCourse;
     OBEHomework currentSelectedHomework;
     boolean classTabinit , homeworkTabinit ;
+    private static final FlatSVGIcon checkSVGIcon = new FlatSVGIcon("client/check.svg");
+    private static final FlatSVGIcon errorSVGIcon = new FlatSVGIcon("client/error.svg");
     public ClassesPanel(){
         this.student = App.student;
         initialize() ;
@@ -198,7 +200,7 @@ public class ClassesPanel extends JPanel {
         fis.close();
     }
 
-    private void packSelectedItems(String path) {
+    private String packSelectedItems(String path) {
         TableModel mdl = fileTable.getModel();
         int rowCount = mdl.getRowCount();
         ZipOutputStream zos = null ;
@@ -231,7 +233,6 @@ public class ClassesPanel extends JPanel {
         }
 
         try{
-
             FileOutputStream fos = new FileOutputStream(dataPath.toString());
             zos = new ZipOutputStream(fos);
             for(int i = 0; i < rowCount; ++i) {
@@ -246,15 +247,16 @@ public class ClassesPanel extends JPanel {
                 }
                 zos.close();
                 fos.close();
-            } catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
+        return dataPath.toString();
     }
 
-    private void getHomeworkDetailPanel() {
+    private void resetHomeworkDetailPanel() {
 
         homeworkDetailPane.setVisible(false);
+        homeworkDetailPane.removeAll();
         JLabel homeworkTitle = new JLabel( currentSelectedHomework.getTitle()) ;
         homeworkTitle.setFont( UiConsts.FONT_TITLE1 ) ;
         homeworkDetailPane.add(homeworkTitle, "span,wrap,wmin 100");
@@ -307,22 +309,66 @@ public class ClassesPanel extends JPanel {
 
         JScrollPane jsp = new JScrollPane(fileTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         homeworkDetailPane.add(jsp, "span,growx,growy,wmin 100");
-//        JList
-//        homeworkDetailPane.
 
-        System.out.println(l1.getSize().height + ", " + l1.getSize().width);
-        JButton jb1 = new JButton("更新提交");
-        jb1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                (new Runnable() {
-                    @Override
-                    public void run() {
-                        packSelectedItems("");
-                    }
-                }).run();
-            }
-        });
+        if(currentSelectedHomework.getStatus() == 1) {
+            JButton jb1 = new JButton("提交作业");
+            jb1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    (new Runnable() {
+                        @Override
+                        public void run() {
+                            String packed = packSelectedItems("");
+                            Boolean ret = App.student.uploadHomework(packed, currentSelectedCourse.getCourseID(), currentSelectedHomework.getId());
+                            System.out.println("RES:" + ret.toString());
+                            if(ret) {
+                                System.out.println("UPLOAD SUCCESS");
+                                currentSelectedHomework.setStatus(0);
+                                System.out.println(currentSelectedHomework.getDescription());
+                                System.out.println(currentSelectedHomework.getDeadLine());
+                                homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
+                                resetHomeworkDetailPanel();
+                            }
+                        }
+                    }).run();
+                }
+            });
+            homeworkDetailPane.add(jb1);
+        }
+        else {
+            JButton jb1 = new JButton("重新提交");
+            jb1.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    (new Runnable() {
+                        @Override
+                        public void run() {
+                            String packed = packSelectedItems("");
+                            App.student.deleteHomework(currentSelectedCourse.getCourseID(), currentSelectedHomework.getId());
+                            Boolean ret = App.student.uploadHomework(packed, currentSelectedCourse.getCourseID(), currentSelectedHomework.getId());
+                            currentSelectedHomework.setStatus(0);
+                            System.out.println("RES:" + ret.toString());
+                            if(ret) {
+                                System.out.println("UPLOAD SUCCESS");
+                                currentSelectedHomework.setStatus(0);
+                                System.out.println(currentSelectedHomework.getDescription());
+                                System.out.println(currentSelectedHomework.getDeadLine());
+                                homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
+                                resetHomeworkDetailPanel();
+//                                SwingUtilities.invokeLater(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//
+//                                    }
+//                                });
+                            }
+                        }
+                    }).run();
+                }
+            });
+            homeworkDetailPane.add(jb1);
+        }
+
         JButton jb2 = new JButton("下载附件");
         jb2.addActionListener(new ActionListener() {
             @Override
@@ -335,8 +381,9 @@ public class ClassesPanel extends JPanel {
                 });
             }
         });
-        homeworkDetailPane.add(jb1);
+
         homeworkDetailPane.add(jb2,"wrap");
+        homeworkDetailPane.setVisible(true);
     }
 
     public void setContent(){
@@ -379,8 +426,7 @@ public class ClassesPanel extends JPanel {
                 homeworkTab.removeAll();
                 homeworkTabinit = true;
                 classTab.setComponentAt(chosedClassId, homeworkTab);
-                FlatSVGIcon checkSVGIcon = new FlatSVGIcon("client/check.svg");
-                FlatSVGIcon errorSVGIcon = new FlatSVGIcon("client/error.svg");
+
 
 //                homeworkTab.setTabLayoutPolicy(JTabbedPane.LEFT);
                 for(int i = 0; i < curHws.size(); ++i) {
@@ -411,9 +457,8 @@ public class ClassesPanel extends JPanel {
                     chosedHomework = homeworkTab.getTitleAt(chosedHomeworkId);
                     currentSelectedHomework = currentSelectedCourse.getHomework().get(chosedHomeworkId);
                     System.out.println(chosedHomework) ;
-                    homeworkDetailPane.setVisible(false);
-                    homeworkDetailPane.removeAll();
-                    getHomeworkDetailPanel();
+
+                    resetHomeworkDetailPanel();
 //                    homeworkDetailPane.add(getHomeworkDetailPanel());
 //                    homeworkDetailPane.setPreferredSize(new Dimension(800, 600));
                     homeworkDetailPane.setVisible(true);
