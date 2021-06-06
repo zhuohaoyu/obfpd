@@ -19,8 +19,8 @@ public class OBECourse {
     String CourseName;
     OBEPerson teacher;
     ArrayList<OBEPerson> ta;
-    HashMap<String, OBEHomework> homework;
-    HashMap<String, OBEAttachment> attachment;
+    ArrayList<OBEHomework> homework;
+    ArrayList<OBEAttachment> attachment;
 
     public String getCourseID() {
         return CourseID;
@@ -38,11 +38,11 @@ public class OBECourse {
         return ta;
     }
 
-    public HashMap<String, OBEHomework> getHomework() {
+    public ArrayList<OBEHomework> getHomework() {
         return homework;
     }
 
-    public HashMap<String, OBEAttachment> getAttachment() {
+    public ArrayList<OBEAttachment> getAttachment() {
         return attachment;
     }
 
@@ -112,7 +112,7 @@ public class OBECourse {
                 if(curhw.description == null || curhw.description.length() < 1) {
                     curhw.description = "没有作业描述";
                 }
-                homework.put(curhw.title, curhw);
+                homework.add(curhw);
             }
 
         } catch (Exception e) {
@@ -178,7 +178,7 @@ public class OBECourse {
                         curAtt.id = Integer.parseInt(m.group(1));
 //                        System.out.println("###" + m.group(1));
                     }
-                    attachment.put(curAtt.name, curAtt);
+                    attachment.add(curAtt);
                 }
 //                Elements sub = cur.getElementsByClass("time pull-right");
             }
@@ -220,7 +220,7 @@ public class OBECourse {
     OBECourse(String courseid, String coursename) {
         CourseID = courseid;
         CourseName = coursename;
-        homework = new HashMap<>();
-        attachment = new HashMap<>();
+        homework = new ArrayList<>();
+        attachment = new ArrayList<>();
     }
 }
