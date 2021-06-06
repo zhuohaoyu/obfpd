@@ -1,5 +1,6 @@
 package main.java.ui;
 
+import com.kitfox.svg.app.beans.SVGIcon;
 import main.java.App;
 import main.java.client.OBECourse;
 import main.java.client.OBEHomework;
@@ -181,11 +182,20 @@ public class ClassesPanel extends JPanel {
                 homeworkTab.removeAll();
                 homeworkTabinit = true;
                 classTab.setComponentAt(chosedClassId, homeworkTab);
-                ImageIcon icon = new ImageIcon("images/middle.gif","this is a caption");
-
+                ImageIcon checkedIcon = new ImageIcon("./resources/check.png");
+                ImageIcon errorIcon = new ImageIcon("./resources/error.png");
+//                homeworkTab.setTabLayoutPolicy(JTabbedPane.LEFT_ALIGNMENT);
                 for(HashMap.Entry<String, OBEHomework> ent: curHws.entrySet()) {
-                    homeworkTab.add(ent.getValue().getTitle(), null);
+                    OBEHomework curh = ent.getValue();
+                    if(curh.getStatus() == 1) {
+                        homeworkTab.addTab(curh.getTitle(), errorIcon, null);
+                    }
+                    else {
+                        homeworkTab.addTab(curh.getTitle(), checkedIcon, null);
+                    }
+//                    homeworkTab.addTab(ent.getValue().getTitle(), checkedIcon, null);
                 }
+//                homeworkTab.setIconAt(1, checkedIcon);
             }
         });
 
