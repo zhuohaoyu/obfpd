@@ -2,6 +2,7 @@ package main.java.ui;
 
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.ui.FlatButtonUI;
 import com.formdev.flatlaf.ui.FlatRoundBorder;
 import main.java.App;
@@ -95,6 +96,7 @@ public class ToolbarPanel extends JPanel{
             App.homePanel.setContent() ;
             App.mainPanelCenter.add( App.homePanel , BorderLayout.CENTER );
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+            FlatLaf.updateUI();
         } );
         buttonClasses.addActionListener( e -> {
             App.isForum = false;
@@ -106,6 +108,7 @@ public class ToolbarPanel extends JPanel{
             App.classesPanel.setContent() ;
             App.mainPanelCenter.add( App.classesPanel , BorderLayout.CENTER );
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+            FlatLaf.updateUI();
         } );
 
         buttonSettings.addActionListener( e-> {
@@ -117,6 +120,7 @@ public class ToolbarPanel extends JPanel{
             App.mainPanelCenter.removeAll() ;
             App.mainPanelCenter.add( App.settingsPanel , BorderLayout.CENTER ) ;
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+            FlatLaf.updateUI();
         });
 
         buttonForum.addActionListener( e-> {
@@ -129,6 +133,7 @@ public class ToolbarPanel extends JPanel{
             App.forumPanel.initialize();
             App.mainPanelCenter.add( App.forumPanel , BorderLayout.CENTER ) ;
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+            FlatLaf.updateUI();
         });
     }
 

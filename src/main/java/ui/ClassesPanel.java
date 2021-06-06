@@ -3,6 +3,8 @@ package main.java.ui;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import com.formdev.flatlaf.intellijthemes.FlatCyanLightIJTheme;
+import com.formdev.flatlaf.intellijthemes.FlatSolarizedDarkIJTheme;
 import com.kitfox.svg.app.beans.SVGIcon;
 import main.java.App;
 import main.java.client.OBECourse;
@@ -176,6 +178,18 @@ public class ClassesPanel extends JPanel {
             }
         });
         JButton jb2 = new JButton("真可爱");
+        jb2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    UIManager.setLookAndFeel( new FlatCyanLightIJTheme() ) ;
+//                    SwingUtilities.invokeLater(() -> App.frame.repaint());
+                    FlatLaf.updateUI();
+                } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
+                    unsupportedLookAndFeelException.printStackTrace();
+                }
+            }
+        });
         homeworkDetailPane.add(jb1);
         homeworkDetailPane.add(jb2,"wrap");
 //        ret.add(new JLabel(currentSelectedHomework.getDescription()), "wrap");
