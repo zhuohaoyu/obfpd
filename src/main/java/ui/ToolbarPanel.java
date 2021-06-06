@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.plaf.ButtonUI;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.* ;
+import java.awt.image.BufferedImage;
 
 public class ToolbarPanel extends JPanel{
     private static JButton buttonHome ;
@@ -31,6 +32,19 @@ public class ToolbarPanel extends JPanel{
         this.setLayout( new GridLayout( 2 , 1 ) ) ;
     }
 
+    private ImageIcon getScaledImageIcon(String path, int w, int h){
+        ImageIcon classIcon = new ImageIcon(path);
+        Image srcImg = classIcon.getImage();
+        BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = resizedImg.createGraphics();
+
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.drawImage(srcImg, 0, 0, w, h, null);
+        g2.dispose();
+        ImageIcon resizedClassIcon = new ImageIcon(resizedImg);
+        return resizedClassIcon;
+    }
+
     private void addButton(){
         JPanel panelUp = new JPanel( new FlowLayout( FlowLayout.CENTER ,  0 , 0 ) ) ;
         JPanel panelDown = new JPanel( new BorderLayout() ) ;
@@ -42,6 +56,9 @@ public class ToolbarPanel extends JPanel{
         buttonHome.setBorderPainted( false ) ;
 
         buttonClasses = new JButton() ;
+
+        ImageIcon classIcon = getScaledImageIcon("./resources/homework.png", 48, 48);
+        buttonClasses.setIcon(classIcon);
         buttonClasses.setPreferredSize( buttonPreferredSize ) ;
         buttonClasses.setBorderPainted( false );
 
