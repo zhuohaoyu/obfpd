@@ -126,6 +126,7 @@ public class App {
                                 student.setInfo(username, password);
                                 islogin = student.doLogin();
                                 student.getContent();
+                                student.createDataFolders("");
                                 System.out.println( "????" ) ;
                                 try {
                                     SwingUtilities.invokeAndWait(new Runnable() {
