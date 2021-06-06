@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -209,15 +210,28 @@ public class ClassesPanel extends JPanel {
         String zipFileName = App.student.getUsername() + "-" + fixedHwName + ".zip";
 
         if(path == null || path.length() < 1) {
-
-            dataPath = Paths.get(System.getProperty("user.dir"), "OBFPDdata", zipFileName);
+            dataPath = Paths.get(System.getProperty("user.dir"), "OBFPDdata", "submit", zipFileName);
+            Path submitDir = Paths.get(System.getProperty("user.dir"), "OBFPDdata", "submit");
+            try{
+                Files.createDirectories(submitDir);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             System.out.println(dataPath);
         }
         else {
-            dataPath = Paths.get(path, "OBFPDdata", zipFileName);
+            dataPath = Paths.get(path, "OBFPDdata", "submit", zipFileName);
+            Path submitDir = Paths.get(path, "OBFPDdata", "submit");
+            try{
+                Files.createDirectories(submitDir);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             System.out.println(dataPath);
         }
+
         try{
+
             FileOutputStream fos = new FileOutputStream(dataPath.toString());
             zos = new ZipOutputStream(fos);
             for(int i = 0; i < rowCount; ++i) {
