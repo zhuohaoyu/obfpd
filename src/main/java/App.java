@@ -141,7 +141,7 @@ public class App {
 
                 panelButton.add(jbok, "cell 0 0");
                 panelButton.add(jbcancle, "cell 1 0");
-                add(panelButton, "cell 0 3,align right,growx 0");
+                add(panelButton, "cell 0 3,align center,growx 0");
             }
         }
 
