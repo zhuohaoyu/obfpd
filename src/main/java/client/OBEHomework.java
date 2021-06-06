@@ -16,7 +16,18 @@ public class OBEHomework {
     // 作业编号
     int id;
     // 所有附件
+    String localPath;
+    // 本地数据目录
     ArrayList<OBEAttachment> attachments;
+
+    public String getLocalPath() {
+        return localPath;
+    }
+
+    public void setLocalPath(String s) {
+        localPath = s;
+    }
+
     public String getPublishTime() {
         return publishTime;
     }
