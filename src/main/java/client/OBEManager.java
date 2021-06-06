@@ -1,5 +1,6 @@
 package main.java.client;
 
+import com.kitfox.svg.Use;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -7,6 +8,9 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +24,10 @@ public class OBEManager {
     String Username;
     String Password;
     ArrayList<OBECourse> courses;
+
+    public String getUsername() {
+        return Username;
+    }
 
     public ArrayList<OBECourse> getCourses() {
         return courses;
@@ -111,6 +119,39 @@ public class OBEManager {
                 curcourse.getAllHomework(Cookie);
                 curcourse.getAllAttachment(Cookie);
                 courses.add(curcourse);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createDataFolders(String path) {
+        System.out.println(System.getProperty("user.dir"));
+        Path dataPath = null;
+        Pattern illegalFilePat = Pattern.compile("[\\\\/:*?\"<>| ]");
+
+        if(path == null || path.length() < 1) {
+            dataPath = Paths.get(System.getProperty("user.dir"), "OBFPDdata", Username);
+            System.out.println(dataPath);
+        }
+        else {
+            dataPath = Paths.get(path, "OBFPDdata", Username);
+            System.out.println(dataPath);
+        }
+        try{
+            for(int i = 0; i < courses.size(); ++i) {
+                OBECourse curCourse = courses.get(i);
+                String fixedCourseName = illegalFilePat.matcher(curCourse.getCourseName()).replaceAll("");
+                Path coursePath = Paths.get(dataPath.toString(), fixedCourseName);
+                Path coursePathCreate = Files.createDirectories(coursePath);
+
+                for(int j = 0; j < curCourse.homework.size(); ++j) {
+                    OBEHomework curHomework = curCourse.homework.get(j);
+                    String fixedHwName = illegalFilePat.matcher(curHomework.getTitle()).replaceAll("");
+                    Path hwPath = Paths.get(coursePathCreate.toString(), fixedHwName);
+                    Path hwPathCreate = Files.createDirectories(hwPath);
+                    curHomework.setLocalPath(hwPathCreate.toString());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
