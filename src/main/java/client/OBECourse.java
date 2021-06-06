@@ -109,6 +109,9 @@ public class OBECourse {
 
                 }
 //                System.out.println(curhw);
+                if(curhw.description == null || curhw.description.length() < 1) {
+                    curhw.description = "没有作业描述";
+                }
                 homework.put(curhw.title, curhw);
             }
 

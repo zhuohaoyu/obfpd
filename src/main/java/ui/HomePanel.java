@@ -118,11 +118,11 @@ public class HomePanel extends Panel {
         Calendar cal = new GregorianCalendar() ;
         int hour = cal.get( Calendar.HOUR_OF_DAY ) ;
         if( hour <= 5 ) nowT = "夜深了" ;
-        else if( hour <= 8 ) nowT = "早上好" ;
-        else if( hour <= 11 ) nowT = "上午好" ;
+        else if( hour <= 7 ) nowT = "早上好" ;
+        else if( hour <= 10 ) nowT = "上午好" ;
         else if( hour <= 13 ) nowT = "中午好" ;
-        else if( hour <= 18 ) nowT = "下午好" ;
-        else if( hour <= 23 ) nowT = "晚上好" ;
+        else if( hour <= 17 ) nowT = "下午好" ;
+        else if( hour <= 22 ) nowT = "晚上好" ;
         else if( hour <= 24 ) nowT = "夜深了" ;
 
         lableTitle.setText( nowT + ( App.islogin ? ", " + App.username : "" ) ) ;

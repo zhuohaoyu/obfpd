@@ -22,9 +22,10 @@ public class UiConsts {
     public final static int MAIN_H_GAP = 20 ;
     public final static int MAIN_EDGE_GAP = 15 ;
     public final static Font FONT_TITLE0 = new Font( "微软雅黑" , 1 , 40 ) ;
+    public final static Font FONT_TITLE1 = new Font( "微软雅黑" , 1 , 28 ) ;
     public final static Font FONT_TITLE2 = new Font( "微软雅黑" , 0 , 20 ) ;
-    public final static Font FONT_NORMAL_BOLD = new Font( "汉仪晨妹子W" , 1 , 18 ) ;
-    public final static Font FONT_NORMAL = new Font( "汉仪晨妹子W" , 0 , 20 ) ;
+    public final static Font FONT_NORMAL_BOLD = new Font( "微软雅黑" , 1 , 18 ) ;
+    public final static Font FONT_NORMAL = new Font( "微软雅黑" , 0 , 20 ) ;
 
     public final static Color LIMEGREEN = new Color( 50 , 205 , 50 ) ;
     public final static Color MIMOSAYELLOW = new Color( 230 , 217 , 51 ) ;
