@@ -12,6 +12,7 @@ import main.java.ui.* ;
 import net.miginfocom.swing.MigLayout;
 
 public class App {
+    public static boolean isForum = false;
     public static boolean islogin ;
     public static String username ;
     public static String password ;
