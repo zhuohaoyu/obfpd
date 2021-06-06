@@ -19,22 +19,22 @@ public class OBEManager {
 
     String Username;
     String Password;
-    HashMap<String, OBECourse> courses;
+    ArrayList<OBECourse> courses;
 
-    public HashMap<String, OBECourse> getCourses() {
+    public ArrayList<OBECourse> getCourses() {
         return courses;
     }
 
     public OBEManager() {
         LoginWorker = new OBELoginWorker();
-        courses = new HashMap<>();
+        courses = new ArrayList<>();
     }
 
     public OBEManager(String username, String password) {
         Username = username;
         Password = password;
         LoginWorker = new OBELoginWorker();
-        courses = new HashMap<>();
+        courses = new ArrayList<>();
     }
 
     public void setInfo(String username, String password) {
@@ -110,7 +110,7 @@ public class OBEManager {
                 OBECourse curcourse = new OBECourse(courseID, courseName);
                 curcourse.getAllHomework(Cookie);
                 curcourse.getAllAttachment(Cookie);
-                courses.put(curcourse.CourseName, curcourse);
+                courses.add(curcourse);
             }
         } catch (Exception e) {
             e.printStackTrace();
