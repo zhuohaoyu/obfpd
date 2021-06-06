@@ -1,7 +1,14 @@
 package main.java.ui;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class SettingsPanel extends JPanel {
     public SettingsPanel(){
@@ -11,13 +18,17 @@ public class SettingsPanel extends JPanel {
     }
 
     void initialize(){
-        this.setLayout( new BorderLayout() ) ;
+        this.setLayout( new MigLayout(
+                "",
+                "[grow,fill]",
+                "[min!]20[grow,fill]"
+        ) ) ;
     }
 
     void addComponent(){
-        this.add( getUpPanel() , BorderLayout.NORTH ) ;
-        this.add( getCenterPanel() , BorderLayout.CENTER ) ;
-        this.add( getDownPanel() , BorderLayout.SOUTH ) ;
+        this.add( getUpPanel() , "wrap" ) ;
+        this.add( getCenterPanel() , "grow" ) ;
+//        this.add( getDownPanel() , BorderLayout.SOUTH ) ;
     }
 
     private JPanel getUpPanel(){
@@ -37,7 +48,38 @@ public class SettingsPanel extends JPanel {
 
     private JPanel getCenterPanel(){
         JPanel panelCenter = new JPanel() ;
-
+        JButton jb1 = new JButton("夜间模式");
+        jb1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    UIManager.setLookAndFeel( new FlatDarculaLaf() ) ;
+                    FlatLaf.updateUI();
+                } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
+                    unsupportedLookAndFeelException.printStackTrace();
+                }
+            }
+        });
+        JButton jb2 = new JButton("日间模式");
+        jb2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
+//                    SwingUtilities.invokeLater(() -> App.frame.repaint());
+                    FlatLaf.updateUI();
+                } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
+                    unsupportedLookAndFeelException.printStackTrace();
+                }
+            }
+        });
+        panelCenter.setLayout(new MigLayout(
+                "",
+                "[grow,shrink,fill][grow,shrink,fill]",
+                "[]"
+        ));
+        panelCenter.add(jb1, "growx");
+        panelCenter.add(jb2, "growx,wrap");
         return panelCenter ;
     }
 
