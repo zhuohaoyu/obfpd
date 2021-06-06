@@ -3,14 +3,17 @@ package main.java.server;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import main.java.ui.ForumPanel;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 public class MyWebSocketServer extends WebSocketServer{
+    static final int POST_MAX = 100000000;
     Map<WebSocket, String> reflct = null;
 
     public MyWebSocketServer(int port) {
@@ -34,16 +37,80 @@ public class MyWebSocketServer extends WebSocketServer{
 
     @Override
     public void onMessage(WebSocket ws, String msg) {
+        DataBase db = new DataBase("test.db");
         System.err.println("Receive Message: "+msg);
         JSONObject jsonObject = JSONObject.parseObject(msg);
+
+        System.err.println("ENTERING ON MESSAGE___________");
+
         if (jsonObject.get("Task").equals("Connect")) {
+            jsonObject = new JSONObject();
             reflct.put(ws, jsonObject.get("userID").toString());
             ws.send(msg);
         }
         else if (jsonObject.get("Task").equals("createPOST")) {
-            for (WebSocket tws : reflct.keySet()) {
-                    tws.send(msg);
+
+            System.err.println("CALLING CREATE POST#1____________");
+
+            String title = jsonObject.get("Title").toString();
+            String topic = jsonObject.get("topic").toString();
+            String userID = jsonObject.get("userID").toString();
+            String content = jsonObject.get("content").toString();
+
+            System.err.println("CALLING CREATE POST#2____________");
+
+            boolean flag = db.newPost(title, content, topic, Integer.parseInt(userID));
+            if (flag == false) {
+                JSONObject fail = new JSONObject();
+                fail.put("Task", "CreatePostFail");
+                ws.send(fail.toString());
             }
+        }
+        else if (jsonObject.get("Task").equals("queryPOST")) {
+            List<Map<String, String> > tmp = db.getRangePost(1, POST_MAX);
+            for (Map<String, String> detail : tmp) {
+                jsonObject = new JSONObject();
+                jsonObject.put("Task", "queryPOST");
+                jsonObject.put("postID", detail.get("id"));
+                jsonObject.put("Title", detail.get("title"));
+                jsonObject.put("userID", detail.get("poster_id"));
+                ws.send(jsonObject.toString());
+            }
+            jsonObject = new JSONObject();
+            jsonObject.put("Task", "queryPOSTFinished");
+            ws.send(jsonObject.toString());
+            System.err.println("queryPOST: " + tmp.size());
+        }
+        else if (jsonObject.get("Task").equals("createREPLY")) {
+            String postID = jsonObject.get("postID").toString();
+            String userID = jsonObject.get("userID").toString();
+            String content = jsonObject.get("content").toString();
+
+            System.err.println("CALLING CREATE reply-----");
+
+            boolean flag = db.newReply(content, Integer.parseInt(postID), Integer.parseInt(userID));
+            if (flag == false) {
+                JSONObject fail = new JSONObject();
+                fail.put("Task", "CreatePostFail");
+                ws.send(fail.toString());
+            }
+        }
+        else if (jsonObject.get("Task").equals("queryREPLY")) {
+            String postID = jsonObject.get("postID").toString();
+            List<Map<String, String> > tmp = db.getPostReply(Integer.parseInt(postID));
+            for (Map<String, String> detail : tmp) {
+                jsonObject = new JSONObject();
+                jsonObject.put("Task", "queryREPLY");
+                jsonObject.put("postID", detail.get("post_id"));
+                jsonObject.put("content", detail.get("content"));
+                jsonObject.put("posterID", detail.get("poster_id"));
+                jsonObject.put("time", detail.get("time"));
+                ws.send(jsonObject.toString());
+            }
+            jsonObject = new JSONObject();
+            jsonObject.put("Task", "queryREPLYFinished");
+            ws.send(jsonObject.toString());
+            System.err.println("queryREPLY: " + tmp.size());
         }
         if(ws.isClosed()) {
         }
@@ -57,6 +124,7 @@ public class MyWebSocketServer extends WebSocketServer{
             System.err.println("ws opened...");
             System.err.println(msg);
         }
+        db.close();
     }
 
     @Override

@@ -32,10 +32,32 @@ public class MyWebSocketClient extends WebSocketClient{
         if (jsonObject.get("Task").equals(ClientConstants.createPOST)) {
             Map<String, String> mp = new HashMap<>();
             mp.put("Title", jsonObject.get("Title").toString());
-            mp.put("Content", jsonObject.get("Content").toString());
-            mp.put("postID", "jsonObject.get(\"postID\").toString()");
+            mp.put("userID", jsonObject.get("userID").toString());
+            mp.put("postID", jsonObject.get("postID").toString());
             ForumPanel.post.add(mp);
             System.err.println("list: " + ForumPanel.post + "  size = " + ForumPanel.post.size());
+        }
+        else if (jsonObject.get("Task").equals(ClientConstants.queryPOST)) {
+            Map<String, String> mp = new HashMap<>();
+            mp.put("Title", jsonObject.get("Title").toString());
+            mp.put("userID", jsonObject.get("userID").toString());
+            mp.put("postID", jsonObject.get("postID").toString());
+            ForumPanel.post.add(mp);
+            System.err.println("list: " + ForumPanel.post + "  size = " + ForumPanel.post.size());
+        }
+        else if (jsonObject.get("Task").equals(ClientConstants.queryREPLY)) {
+            Map<String, String> mp = new HashMap<>();
+            mp.put("content", jsonObject.get("content").toString());
+            mp.put("time", jsonObject.get("time").toString());
+            mp.put("posterID", jsonObject.get("posterID").toString());
+            mp.put("postID", jsonObject.get("postID").toString());
+            ForumPanel.reply.add(mp);
+        }
+        else if (jsonObject.get("Task").equals(ClientConstants.queryREPLYFinished)) {
+            ForumPanel.isQueryREPLYFinished = true;
+        }
+        else if (jsonObject.get("Task").equals(ClientConstants.queryPOSTFinished)) {
+            ForumPanel.isQueryPOSTFinished = true;
         }
         if(msg.equals("over")){
             this.close();

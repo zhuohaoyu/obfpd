@@ -32,7 +32,7 @@ public class DataBase {
         db.close();
         */
     }
- 
+
     /* @brief   内部函数 通过课程ID获取课程名
      */
     public String getCourseName(String courseID) throws SQLException {
@@ -122,14 +122,14 @@ public class DataBase {
     /* @brief   生成一个讨论帖对应的Map
      * @param   见getRangePost方法
      */
-    public Map<String, String> postMap(String id, String posterID, String time, 
-                                       String title, String courseID, String timeReply) {
+    public Map<String, String> postMap(String id, String posterID, String time,
+                                       String title, String topic, String timeReply) {
         Map<String, String> retMap = new HashMap<>();
         retMap.put("id", id);
         retMap.put("poster_id", posterID);
         retMap.put("time", time);
         retMap.put("title", title);
-        retMap.put("course_id", courseID);
+        retMap.put("topic", topic);
         retMap.put("time_reply", timeReply);
         return retMap;
     }
@@ -137,7 +137,7 @@ public class DataBase {
     /* @brief   生成一条回复对应的Map
      * @param   见getPostReply方法
      */
-    public Map<String, String> replyMap(String id, String posterID, String time, 
+    public Map<String, String> replyMap(String id, String posterID, String time,
                                         String content, String postID) {
         Map<String, String> retMap = new HashMap<>();
         retMap.put("id", id);
@@ -147,16 +147,15 @@ public class DataBase {
         retMap.put("post_id", postID);
         return retMap;
     }
-    
+
     /* @brief   生成一个讨论帖查询对应的Map
      * @param   见queryPost方法
      */
-    public Map<String, String> queryPostMap(String title, String course, 
-                                            String teacher, String posterID) {
+    public Map<String, String> queryPostMap(String title, String topic,
+                                            String posterID) {
         Map<String, String> retMap = new HashMap<>();
         retMap.put("title", title);
-        retMap.put("course", course);
-        retMap.put("teacher", teacher);
+        retMap.put("topic", topic);
         retMap.put("poster_id", posterID);
         return retMap;
     }
@@ -169,65 +168,62 @@ public class DataBase {
             /* sqlite 不支持 if not exists */
             st = c.createStatement();
             st.executeUpdate("PRAGMA foreign_keys = ON");
-            
+
             sql = "CREATE TABLE COURSES ("
-                + "    id              CHAR(16)    PRIMARY KEY     NOT NULL,"
-                + "    name            TEXT        NOT NULL,"
-                + "    teacher         TEXT        NOT NULL"
-                + ")";
+                    + "    id              CHAR(16)    PRIMARY KEY     NOT NULL,"
+                    + "    name            TEXT        NOT NULL,"
+                    + "    teacher         TEXT        NOT NULL"
+                    + ")";
             st.executeUpdate(sql);
             System.out.println("Created table \"COURSES\" successfully");
 
             sql = "CREATE TABLE HOMEWORKS ("
-                + "    id              INTEGER     PRIMARY KEY     NOT NULL,"
-                + "    name            TEXT        NOT NULL,"
-                + "    time_pull       TEXT        NOT NULL,"
-                + "    time_ddl        TEXT        NOT NULL,"
-                + "    description     TEXT,"
-                + "    attachment      TEXT,"
-                + "    course_id       CHAR(16)    NOT NULL,"
-                + "    FOREIGN KEY (course_id) REFERENCES COURSES(id) ON UPDATE CASCADE"
-                + ")";
+                    + "    id              INTEGER     PRIMARY KEY     NOT NULL,"
+                    + "    name            TEXT        NOT NULL,"
+                    + "    time_pull       TEXT        NOT NULL,"
+                    + "    time_ddl        TEXT        NOT NULL,"
+                    + "    description     TEXT,"
+                    + "    attachment      TEXT,"
+                    + "    course_id       CHAR(16)    NOT NULL,"
+                    + "    FOREIGN KEY (course_id) REFERENCES COURSES(id) ON UPDATE CASCADE"
+                    + ")";
             st.executeUpdate(sql);
             sql = "CREATE INDEX course_index on HOMEWORKS(course_id)";
             st.executeUpdate(sql);
             System.out.println("Created table \"HOMEWORKS\" successfully");
-            
+
             sql = "CREATE TABLE UPDATES ("
-                + "    time            TEXT        NOT NULL,"
-                + "    course_id       CHAR(16)    NOT NULL,"
-                + "    homework_id     INTEGER     NOT NULL,"
-                + "    type            TEXT        NOT NULL,"
-                + "    old             TEXT,"
-                + "    new             TEXT"
-                + ")";
+                    + "    time            TEXT        NOT NULL,"
+                    + "    course_id       CHAR(16)    NOT NULL,"
+                    + "    homework_id     INTEGER     NOT NULL,"
+                    + "    type            TEXT        NOT NULL,"
+                    + "    old             TEXT,"
+                    + "    new             TEXT"
+                    + ")";
             st.executeUpdate(sql);
             sql = "CREATE INDEX time_index on UPDATES(time)";
             st.executeUpdate(sql);
             System.out.println("Created table \"UPDATES\" successfully");
 
             sql = "CREATE TABLE POSTS ("
-                + "    id              INTEGER     PRIMARY KEY  AUTOINCREMENT,"
-                + "    poster_id       INTEGER     NOT NULL,"
-                + "    time            TEXT        NOT NULL,"
-                + "    title           TEXT        NOT NULL,"
-                + "    course_id       CHAR(16)    NOT NULL,"
-                + "    time_reply      TEXT        NOT NULL,"
-                + "    FOREIGN KEY (course_id) REFERENCES COURSES(id) ON UPDATE CASCADE"
-                + ")";
+                    + "    id              INTEGER     PRIMARY KEY  AUTOINCREMENT,"
+                    + "    poster_id       INTEGER     NOT NULL,"
+                    + "    time            TEXT        NOT NULL,"
+                    + "    title           TEXT        NOT NULL,"
+                    + "    topic           TEXT,"
+                    + "    time_reply      TEXT        NOT NULL"
+                    + ")";
             st.executeUpdate(sql);
-            // sql = "CREATE INDEX course_index2 on POSTS(course_id)";
-            // st.executeUpdate(sql);
             System.out.println("Created table \"POSTS\" successfully");
-            
+
             sql = "CREATE TABLE REPLIES ("
-                + "    id              INTEGER     PRIMARY KEY  AUTOINCREMENT,"
-                + "    poster_id       INTEGER     NOT NULL,"
-                + "    time            TEXT        NOT NULL,"
-                + "    content         TEXT        NOT NULL,"
-                + "    post_id         INTEGER     NOT NULL,"
-                + "    FOREIGN KEY (post_id) REFERENCES POSTS(id) ON DELETE CASCADE"
-                + ")";
+                    + "    id              INTEGER     PRIMARY KEY  AUTOINCREMENT,"
+                    + "    poster_id       INTEGER     NOT NULL,"
+                    + "    time            TEXT        NOT NULL,"
+                    + "    content         TEXT        NOT NULL,"
+                    + "    post_id         INTEGER     NOT NULL,"
+                    + "    FOREIGN KEY (post_id) REFERENCES POSTS(id) ON DELETE CASCADE"
+                    + ")";
             st.executeUpdate(sql);
             sql = "CREATE INDEX post_index on REPLIES(post_id)";
             st.executeUpdate(sql);
@@ -268,7 +264,7 @@ public class DataBase {
             pst.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
     }
     public void addCourse(String id, String name, String teacher) {
@@ -297,7 +293,7 @@ public class DataBase {
             pst.setString(1, homework.get("course_id"));
             pst.setString(2, homework.get("id"));
             rs = pst.executeQuery();
-            
+
             // TX_BEGIN
             st = c.createStatement();
             st.executeUpdate("BEGIN");
@@ -335,10 +331,10 @@ public class DataBase {
                     pst.setInt(7, Integer.parseInt(homework.get("id")));
                     pst.executeUpdate();
                     pst.close();
-                    
+
                     /* update to MessageQueue */
                     // String courseName = getCourseName(homework.get("course_id"));
-                    
+
                     for(int i = 0; i < colList.size(); i += 1) {
                         pst = c.prepareStatement("INSERT INTO UPDATES VALUES (?, ?, ?, ?, ?, ?)");
                         pst.setString(1, getCurTime());
@@ -363,7 +359,7 @@ public class DataBase {
                 pst.setString(7, homework.get("course_id"));
                 pst.executeUpdate();
                 pst.close();
-                
+
                 pst = c.prepareStatement("INSERT INTO UPDATES VALUES (?, ?, ?, ?, ?, ?)");
                 pst.setString(1, getCurTime());
                 pst.setString(2, homework.get("course_id"));
@@ -375,14 +371,14 @@ public class DataBase {
                 pst.close();
             }
 
-            // TX_END            
+            // TX_END
             st = c.createStatement();
             st.executeUpdate("COMMIT");
             st.close();
 
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
     }
     public void updateHomework(String id, String name, String timePull,
@@ -404,8 +400,8 @@ public class DataBase {
 
             String sql;
             sql = "DELETE FROM HOMEWORKS "
-                + "WHERE    course_id = ? "
-                + "AND      id = ? ";
+                    + "WHERE    course_id = ? "
+                    + "AND      id = ? ";
             pst = c.prepareStatement(sql);
             pst.setString(1, courseID);
             pst.setString(2, homeworkID);
@@ -431,7 +427,7 @@ public class DataBase {
 
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
@@ -450,8 +446,8 @@ public class DataBase {
             ArrayList<String> ret = new ArrayList<>();
 
             pst = c.prepareStatement("SELECT id     FROM COURSES "
-                                   + "WHERE name    LIKE ? "
-                                   + "AND   teacher LIKE ? ");
+                    + "WHERE name    LIKE ? "
+                    + "AND   teacher LIKE ? ");
 
             pst.setString(1, "%" + query.get("name") + "%");
             pst.setString(2, "%" + query.get("teacher") + "%");
@@ -464,7 +460,7 @@ public class DataBase {
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -497,7 +493,7 @@ public class DataBase {
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -512,8 +508,8 @@ public class DataBase {
         try {
             ArrayList<String> ret = new ArrayList<>();
             pst = c.prepareStatement("SELECT id     FROM HOMEWORKS "
-                                   + "WHERE course_id = ? "
-                                   + "AND   time_ddl BETWEEN ? AND ? ");
+                    + "WHERE course_id = ? "
+                    + "AND   time_ddl BETWEEN ? AND ? ");
             pst.setString(1, courseID);
             pst.setString(2, startTime);
             pst.setString(3, endTime);
@@ -526,7 +522,7 @@ public class DataBase {
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -546,7 +542,7 @@ public class DataBase {
      *          其中"type"为"new"则说明新发布一条作业
      *                    为"delete"则说明删除一条作业
      *          其余修改项含义见作业信息的键值
-     */    
+     */
     public List<Map<String, String>> getUpdate(String time, List<String> courses) {
         try {
             List<Map<String, String>> ret = new ArrayList<>();
@@ -562,20 +558,20 @@ public class DataBase {
             pst.setString(2, getCurTime());
             rs = pst.executeQuery();
             while(rs.next()) {
-                ret.add(updateMap(rs.getString("time"), 
-                                  getCourseName(rs.getString("course_id")), 
-                                  getHomeworkName(rs.getString("homework_id"), rs.getString("course_id")),
-                                  rs.getString("type"),
-                                  rs.getString("old"), 
-                                  rs.getString("new"))
-                    );
+                ret.add(updateMap(rs.getString("time"),
+                        getCourseName(rs.getString("course_id")),
+                        getHomeworkName(rs.getString("homework_id"), rs.getString("course_id")),
+                        rs.getString("type"),
+                        rs.getString("old"),
+                        rs.getString("new"))
+                );
             }
             rs.close();
             pst.close();
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -592,51 +588,71 @@ public class DataBase {
             pst.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
     }
 
     // 下面是有关评论功能的
-    
+
     /* @brief   添加一个讨论帖。
-     * @param   标题，内容，对应课程编号，发布者编号
+     * @param   标题，内容，話題，发布者编号
      * @return  是否添加成功
      */
-    public boolean newPost(String title, String content, String courseID, Integer posterID) {
+    public boolean newPost(String title, String content, String topic, Integer posterID) {
+        System.err.println("Now create post #-1 : title = " + title);
         try {
             // TX_BEGIN
             st = c.createStatement();
             st.executeUpdate("BEGIN");
             st.close();
 
+            // System.err.println("Now create post #0 : courseName = " + courseName);
+
+            /*
+            pst = c.prepareStatement("SELECT * FROM COURSES WHERE id = ? ");
+            pst.setString(1, courseName);
+            rs = pst.executeQuery();
+            if(!rs.next()) throw new SQLSyntaxErrorException("Add new post failed: Invalid course name.");
+            String courseID = rs.getString("id");
+            rs.close();
+            pst.close();
+            */
+
+            System.err.println("Now create post #1 : title = " + title);
+
             pst = c.prepareStatement("INSERT INTO POSTS "
-                                + "(poster_id, time, title, course_id, time_reply) "
-                                + "VALUES (?, ?, ?, ?, ?)");
+                    + "(poster_id, time, title, topic, time_reply) "
+                    + "VALUES (?, ?, ?, ?, ?)");
             pst.setInt(1, posterID);
             pst.setString(2, getCurTime());
             pst.setString(3, title);
-            pst.setString(4, courseID);
+            pst.setString(4, topic);
             pst.setString(5, getCurTime());
             pst.executeUpdate();
             pst.close();
 
+            // System.err.println("Now create post #2: title = " + title);
+
             st = c.createStatement();
-            st.executeUpdate("select last_insert_rowid() from POSTS");
-            rs = st.executeQuery(null);
+            rs = st.executeQuery("select last_insert_rowid() from POSTS");
             rs.next();
             Integer postID = rs.getInt(1);
             rs.close();
             st.close();
             if(postID == 0) throw new SQLSyntaxErrorException("Add new post failed.");
-            
+
+            // System.err.println("Now create post #3: title = " + title);
+
             pst = c.prepareStatement("INSERT INTO REPLIES (poster_id, time, content, post_id)"
-                                + "VALUES (?, ?, ?, ?)");
+                    + "VALUES (?, ?, ?, ?)");
             pst.setInt(1, posterID);
             pst.setString(2, getCurTime());
             pst.setString(3, content);
             pst.setInt(4, postID);
             pst.executeUpdate();
             pst.close();
+
+            // System.err.println("Now create post #4: title = " + title);
 
             // TX_END
             st = c.createStatement();
@@ -646,7 +662,7 @@ public class DataBase {
             return true;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return false;
     }
@@ -663,7 +679,7 @@ public class DataBase {
             st.close();
 
             pst = c.prepareStatement("INSERT INTO REPLIES (poster_id, time, content, post_id)"
-                                    + "VALUES (?, ?, ?, ?)");
+                    + "VALUES (?, ?, ?, ?)");
             pst.setInt(1, posterID);
             pst.setString(2, getCurTime());
             pst.setString(3, content);
@@ -671,7 +687,7 @@ public class DataBase {
             pst.executeUpdate();
             pst.close();
 
-            pst = c.prepareStatement("UPDATE POSTS SET time_reply = ? WHERE post_id = ? ");
+            pst = c.prepareStatement("UPDATE POSTS SET time_reply = ? WHERE id = ? ");
             pst.setString(1, getCurTime());
             pst.setInt(2, postID);
             pst.executeUpdate();
@@ -685,12 +701,12 @@ public class DataBase {
             return true;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return false;
     }
 
-    /* @brief   获取第 [first, last] 新的讨论帖。
+    /* @brief   获取第 [first, last] 新的讨论帖(1-indexed)。
      * @return  返回一个List, 包含所有查询结果。
      *          如果last超过课程总数，不会抛出异常。
      *          每个查询结果是一个map: key, value即更新信息。
@@ -699,7 +715,7 @@ public class DataBase {
      *            发布者编号    "poster_id"
      *            发布时间      "time"
      *            标题          "title"
-     *            课程编号      "course_id" 
+     *            話題名稱      "topic"
      *            最近回复时间  "time_reply"
      */
     public List<Map<String, String>> getRangePost(int first, int last) {
@@ -707,32 +723,32 @@ public class DataBase {
             List<Map<String, String>> ret = new ArrayList<>();
 
             st = c.createStatement();
-            st.executeUpdate("select count(*) from POSTS");
-            rs = st.executeQuery(null);
+            rs = st.executeQuery("select count(*) from POSTS");
             rs.next();
             Integer totalPost = rs.getInt(1);
             rs.close();
             st.close();
 
             pst = c.prepareStatement("SELECT * FROM POSTS WHERE id BETWEEN ? AND ?");
-            pst.setInt(1, totalPost + 1 - first);
-            pst.setInt(2, totalPost + 1 - last);
+            pst.setInt(1, totalPost + 1 - last);
+            pst.setInt(2, totalPost + 1 - first);
             rs = pst.executeQuery();
             while(rs.next()) {
-                ret.add(postMap(rs.getString("id"), 
-                                rs.getString("poster_id"), 
-                                rs.getString("time"),
-                                rs.getString("title"),
-                                rs.getString("course_id"),
-                                rs.getString("time_reply")
-                    ));
+                ret.add(postMap(rs.getString("id"),
+                        rs.getString("poster_id"),
+                        rs.getString("time"),
+                        rs.getString("title"),
+                        rs.getString("topic"),
+                        rs.getString("time_reply")
+                ));
+                System.out.println("id="+(rs.getString("id")) + "/" + totalPost.toString());
             }
             rs.close();
             pst.close();
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -745,7 +761,7 @@ public class DataBase {
      *            发布者编号  "poster_id"
      *            发布时间    "time"
      *            内容        "content"
-     *            讨论帖编号  "post_id"   
+     *            讨论帖编号  "post_id"
      */
     public List<Map<String, String>> getPostReply(int postID) {
         try {
@@ -755,19 +771,19 @@ public class DataBase {
             pst.setInt(1, postID);
             rs = pst.executeQuery();
             while(rs.next()) {
-                ret.add(replyMap(rs.getString("id"), 
-                                 rs.getString("poster_id"), 
-                                 rs.getString("time"),
-                                 rs.getString("content"),
-                                 rs.getString("post_id"))
-                    );
+                ret.add(replyMap(rs.getString("id"),
+                        rs.getString("poster_id"),
+                        rs.getString("time"),
+                        rs.getString("content"),
+                        rs.getString("post_id"))
+                );
             }
             rs.close();
             pst.close();
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -776,8 +792,7 @@ public class DataBase {
      * @param   一个Map, key是查询域, value是查询内容
      *          可选检索内容为:
      *            标题          "title"
-     *            教师名称      "teacher"
-     *            课程名称      "course"        
+     *            話題         "topic"
      *            发布者编号    "poster_id"
      *          除发布者编号外，查询内容为结果对应域的子串。
      *          信息缺省则传入空串。
@@ -788,15 +803,12 @@ public class DataBase {
         try {
             ArrayList<Map<String, String>> ret = new ArrayList<>();
             String sql = "SELECT    *      FROM POSTS "
-                       + "WHERE     poster_id BETWEEN ? AND ? "
-                       + "AND       title LIKE ? "
-                       + "AND       course_id IN "
-                       + "(  SELECT id      FROM COURSES "
-                       + "   WHERE  name    LIKE ? "
-                       + "   AND    teacher LIKE ? )";
-            
+                    + "WHERE     poster_id BETWEEN ? AND ? "
+                    + "AND       title LIKE ? "
+                    + "AND       topic = ?";
+
             pst = c.prepareStatement(sql);
-            
+
             if(query.containsKey("poster_id")) {
                 pst.setInt(1, Integer.parseInt(query.get("poster_id")));
                 pst.setInt(2, Integer.parseInt(query.get("poster_id")));
@@ -805,17 +817,16 @@ public class DataBase {
                 pst.setInt(2, 2147483647);
             }
             pst.setString(3, "%" + query.get("title") + "%");
-            pst.setString(4, "%" + query.get("course") + "%");
-            pst.setString(5, "%" + query.get("teacher") + "%");
+            pst.setString(4, query.get("topic"));
             rs = pst.executeQuery();
             while(rs.next()) {
-                ret.add(postMap(rs.getString("id"), 
-                                rs.getString("poster_id"), 
-                                rs.getString("time"),
-                                rs.getString("title"),
-                                rs.getString("course_id"),
-                                rs.getString("time_reply")
-                    ));
+                ret.add(postMap(rs.getString("id"),
+                        rs.getString("poster_id"),
+                        rs.getString("time"),
+                        rs.getString("title"),
+                        rs.getString("topic"),
+                        rs.getString("time_reply")
+                ));
             }
 
             rs.close();
@@ -823,7 +834,7 @@ public class DataBase {
             return ret;
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
         return new ArrayList<>();
     }
@@ -835,7 +846,7 @@ public class DataBase {
             c.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
-            // e.printStackTrace();
+            e.printStackTrace();
         }
     }
 

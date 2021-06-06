@@ -14,7 +14,7 @@ public class Crawler implements Runnable {
     private DataBase db;
     private Map <String, String> cookie;
     public Crawler(int __SleepTime) {
-        db = new DataBase(":data:test.db");
+        db = new DataBase("test.db");
         SleepTime = __SleepTime;
     }
     public boolean getCourses(Map <String, String> ck) {
@@ -335,9 +335,13 @@ public class Crawler implements Runnable {
                 String CourseName = buf[2].split(">")[1].split("<")[0];
                 String CourseTeacher = buf[2].split(">")[3].split("<")[0];
                 String CourseID = buf[1].split(".html")[0].split("/")[5];
+                CourseID = CourseID.strip();
+                CourseName = CourseName.strip();
+                CourseTeacher = CourseTeacher.strip();
                 db.addCourse(CourseID, CourseName, CourseTeacher);
                 new Thread(new MultithreadCrawlHomeworks(ck, CourseID)).run();
-                osw.write(CourseID + "\t" + CourseName + "\t" + CourseTeacher + "\t" + CourseUrl + "\n");
+                osw.write(CourseID + "\t" + CourseName + ",\t" + CourseTeacher + "\t" + CourseUrl + "\n");
+                System.err.println(CourseID + "\t[" + CourseName + "]\t" + CourseTeacher);
             }
             osw.close();
             return true;
