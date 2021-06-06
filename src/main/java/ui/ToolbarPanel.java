@@ -69,6 +69,7 @@ public class ToolbarPanel extends JPanel{
 
     private void addListener(){
         buttonHome.addActionListener( e -> {
+            App.isForum = false;
             buttonHome.setSelected( true ) ;
             buttonClasses.setSelected( false ) ;
             buttonSettings.setSelected( false ) ;
@@ -79,6 +80,7 @@ public class ToolbarPanel extends JPanel{
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
         } );
         buttonClasses.addActionListener( e -> {
+            App.isForum = false;
             buttonHome.setSelected( false ) ;
             buttonClasses.setSelected( true ) ;
             buttonSettings.setSelected( false ) ;
@@ -90,6 +92,7 @@ public class ToolbarPanel extends JPanel{
         } );
 
         buttonSettings.addActionListener( e-> {
+            App.isForum = false;
             buttonHome.setSelected( false ) ;
             buttonClasses.setSelected( false ) ;
             buttonSettings.setSelected( true ) ;
@@ -100,6 +103,7 @@ public class ToolbarPanel extends JPanel{
         });
 
         buttonForum.addActionListener( e-> {
+            App.isForum = true;
             buttonHome.setSelected( false ) ;
             buttonClasses.setSelected( false ) ;
             buttonSettings.setSelected( false ) ;
