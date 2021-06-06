@@ -118,6 +118,12 @@ public class App {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         System.out.println( "????" ) ;
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                jbok.setEnabled(false);
+                            }
+                        });
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -135,6 +141,7 @@ public class App {
                                             if (islogin == true) dispose();
                                             else {
                                                 JOptionPane.showMessageDialog(null, "账号或者密码错误！", "登录失败", JOptionPane.ERROR_MESSAGE);
+                                                jbok.setEnabled(true);
                                             }
                                         }
                                     });
