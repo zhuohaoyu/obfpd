@@ -112,6 +112,7 @@ public class App {
                                 password = jtapw.getText();
                                 student.setInfo(username, password);
                                 islogin = student.doLogin();
+                                student.getContent();
                                 System.out.println( "????" ) ;
                                 try {
                                     SwingUtilities.invokeAndWait(new Runnable() {

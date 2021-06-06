@@ -21,6 +21,10 @@ public class OBEManager {
     String Password;
     HashMap<String, OBECourse> courses;
 
+    public HashMap<String, OBECourse> getCourses() {
+        return courses;
+    }
+
     public OBEManager() {
         LoginWorker = new OBELoginWorker();
         courses = new HashMap<>();
@@ -106,7 +110,7 @@ public class OBEManager {
                 OBECourse curcourse = new OBECourse(courseID, courseName);
                 curcourse.getAllHomework(Cookie);
                 curcourse.getAllAttachment(Cookie);
-                courses.put(curcourse.CourseID, curcourse);
+                courses.put(curcourse.CourseName, curcourse);
             }
         } catch (Exception e) {
             e.printStackTrace();

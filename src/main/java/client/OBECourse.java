@@ -12,12 +12,40 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OBECourse {
+
+
+
     String CourseID;
     String CourseName;
     OBEPerson teacher;
     ArrayList<OBEPerson> ta;
-    HashMap<Integer, OBEHomework> homework;
-    HashMap<Integer, OBEAttachment> attachment;
+    HashMap<String, OBEHomework> homework;
+    HashMap<String, OBEAttachment> attachment;
+
+    public String getCourseID() {
+        return CourseID;
+    }
+
+    public String getCourseName() {
+        return CourseName;
+    }
+
+    public OBEPerson getTeacher() {
+        return teacher;
+    }
+
+    public ArrayList<OBEPerson> getTa() {
+        return ta;
+    }
+
+    public HashMap<String, OBEHomework> getHomework() {
+        return homework;
+    }
+
+    public HashMap<String, OBEAttachment> getAttachment() {
+        return attachment;
+    }
+
     public void getPagedHomework(Map<String, String> Cookie, int pageNum) {
         try {
             String coursehwurl = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + "/p/" + pageNum + ".html";
@@ -81,7 +109,7 @@ public class OBECourse {
 
                 }
 //                System.out.println(curhw);
-                homework.put(curhw.id, curhw);
+                homework.put(curhw.title, curhw);
             }
 
         } catch (Exception e) {
@@ -147,7 +175,7 @@ public class OBECourse {
                         curAtt.id = Integer.parseInt(m.group(1));
 //                        System.out.println("###" + m.group(1));
                     }
-                    attachment.put(curAtt.id, curAtt);
+                    attachment.put(curAtt.name, curAtt);
                 }
 //                Elements sub = cur.getElementsByClass("time pull-right");
             }
