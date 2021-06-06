@@ -104,14 +104,28 @@ public class App {
                 jbok.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        username = jtaid.getText();
-                        password = jtapw.getText();
-                        student.setInfo(username, password);
-                        islogin = student.doLogin();
-                        if (islogin == true) dispose();
-                        else {
-                            JOptionPane.showMessageDialog(null,"账号或者密码错误！","登录失败", JOptionPane.ERROR_MESSAGE);
-                        }
+                        System.out.println( "????" ) ;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                username = jtaid.getText();
+                                password = jtapw.getText();
+                                student.setInfo(username, password);
+                                islogin = student.doLogin();
+                                System.out.println( "????" ) ;
+                                try {
+                                    SwingUtilities.invokeAndWait(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (islogin == true) dispose();
+                                            else {
+                                                JOptionPane.showMessageDialog(null, "账号或者密码错误！", "登录失败", JOptionPane.ERROR_MESSAGE);
+                                            }
+                                        }
+                                    });
+                                } catch ( Exception ae ){ ae.printStackTrace(); System.exit(1);}
+                            }
+                        }).start(); ;
                     }
                 });
                 jbcancle.addActionListener(new ActionListener() {
