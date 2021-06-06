@@ -6,6 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.extras.FlatInspector;
 import main.java.client.MyClient;
 import main.java.client.OBEManager;
 import main.java.ui.* ;
@@ -40,6 +43,20 @@ public class App {
         } ) ;
 
     }
+
+    public static void updateTheme() {
+        try {
+            UIManager.setLookAndFeel(new FlatDarculaLaf());
+
+//            SwingUtilities.invokeLater(() -> mainPanelCenter.updateUI());
+//            SwingUtilities.invokeLater(() -> mainPanelCenter.updateUI());
+//            SwingUtilities.invokeLater(() -> frame.repaint());
+            FlatLaf.updateUI();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public class Login extends JDialog {
         public JTextField jtaid = null;
@@ -163,7 +180,8 @@ public class App {
 
     private void initialize(){
         try {
-            UIManager.setLookAndFeel( new FlatDarculaLaf() ) ;
+            UIManager.setLookAndFeel( new FlatIntelliJLaf() ) ;
+            UIManager.put( "TabbedPane.tabAlignment" , "leading" ) ;
         } catch ( Exception e ){
             System.err.println( "set L&F failed" ) ;
             e.printStackTrace() ;

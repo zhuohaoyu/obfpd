@@ -1,5 +1,7 @@
 package main.java.ui;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.kitfox.svg.app.beans.SVGIcon;
 import main.java.App;
@@ -13,6 +15,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -159,6 +163,18 @@ public class ClassesPanel extends JPanel {
         homeworkDetailPane.setVisible(true);
         System.out.println(l1.getSize().height + ", " + l1.getSize().width);
         JButton jb1 = new JButton("汪元森");
+        jb1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    UIManager.setLookAndFeel( new FlatDarculaLaf() ) ;
+//                    SwingUtilities.invokeLater(() -> App.frame.repaint());
+                    FlatLaf.updateUI();
+                } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
+                    unsupportedLookAndFeelException.printStackTrace();
+                }
+            }
+        });
         JButton jb2 = new JButton("真可爱");
         homeworkDetailPane.add(jb1);
         homeworkDetailPane.add(jb2,"wrap");
