@@ -22,7 +22,7 @@ public class MyClient {
                             Thread.sleep(1);
                         }
                         JSONObject jsonobj = new JSONObject();
-                        jsonobj.put("task", "Reconnect");
+                        jsonobj.put("Task", "Reconnect");
                         client.send(jsonobj.toString());
                     } catch (Exception e) {
                         System.err.println("onReconnect: " + e);
@@ -35,10 +35,8 @@ public class MyClient {
             }
         }
     }
-    public void send(String msg) {
-        client.send(msg);
-    }
     public void send(JSONObject msg) {
+        System.err.println("Send JSONObject: " + msg.toString());
         client.send(msg.toString());
     }
     public MyClient() {
@@ -54,7 +52,7 @@ public class MyClient {
                 Thread.sleep(1);
             }
             JSONObject jsonobj = new JSONObject();
-            jsonobj.put("task", "Connect");
+            jsonobj.put("Task", "Connect");
             client.send(jsonobj.toString());
         }
         catch (Exception e) {

@@ -154,11 +154,10 @@ public class App {
         student = new OBEManager();
         myclient = new MyClient();
         initialize() ;
-        new Login().login();
-//        islogin = true;
+//        new Login().login();
+        islogin = true;
         if (islogin == false) System.exit(0);
         addComponent() ;
-        myclient.send("Login Successfully!");
     }
 
     private void initialize(){

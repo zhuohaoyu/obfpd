@@ -1,5 +1,7 @@
 package main.java.ui;
 
+import com.alibaba.fastjson.JSONObject;
+import main.java.App;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -280,7 +282,14 @@ public class ForumPanel extends JPanel {
                     jbok.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("Task", "createPOST");
+                            jsonObject.put("Title", jtftitile.getText());
+                            jsonObject.put("Course", jtfcourse.getText());
+                            jsonObject.put("Content", jtacontent.getText());
+                            jsonObject.put("userID", App.username);
+                            App.myclient.send(jsonObject);
+                            NewPost.dispose();
                         }
                     });
                     jbcancle.addActionListener(new ActionListener() {

@@ -3,6 +3,7 @@ package main.java.client;
 import java.net.URI;
 import java.rmi.server.ExportException;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.log4j.Logger;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
@@ -23,6 +24,8 @@ public class MyWebSocketClient extends WebSocketClient{
     @Override
     public void onMessage(String msg) {
         System.err.println("receive message: " + msg);
+        JSONObject jsonObject = JSONObject.parseObject(msg);
+        System.err.println(jsonObject.get("Task"));
         if(msg.equals("over")){
             this.close();
         }
