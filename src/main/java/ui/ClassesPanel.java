@@ -1,5 +1,6 @@
 package main.java.ui;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.kitfox.svg.app.beans.SVGIcon;
 import main.java.App;
 import main.java.client.OBECourse;
@@ -12,6 +13,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,6 +75,18 @@ public class ClassesPanel extends JPanel {
         return panelUp0 ;
     }
 
+    private ImageIcon getScaledImageIcon(String path, int w, int h){
+        ImageIcon classIcon = new ImageIcon(path);
+        Image srcImg = classIcon.getImage();
+        BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = resizedImg.createGraphics();
+
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.drawImage(srcImg, 0, 0, w, h, null);
+        g2.dispose();
+        ImageIcon resizedClassIcon = new ImageIcon(resizedImg);
+        return resizedClassIcon;
+    }
 
     private void getCenterPanel(){
         JPanel panelCenter0 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 0 ) ) ;
@@ -81,16 +96,16 @@ public class ClassesPanel extends JPanel {
             classTab = new JTabbedPane() ;
             classTab.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT ) ;
             classTab.setTabPlacement( JTabbedPane.LEFT ) ;
-            classTab.setFont( UiConsts.FONT_NORMAL ) ;
+            classTab.setFont( UiConsts.FONT_MENU ) ;
             classTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 200 ) ;
             classTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 200 ) ;
             this.add(classTab);
             homeworkTab = new JTabbedPane( ) ;
             homeworkTab.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT ) ;
             homeworkTab.setTabPlacement( JTabbedPane.LEFT ) ;
-            homeworkTab.setFont( UiConsts.FONT_NORMAL );
-            homeworkTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 200 ) ;
-            homeworkTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 200 ) ;
+            homeworkTab.setFont( UiConsts.FONT_MENU2 );
+            homeworkTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 240 ) ;
+            homeworkTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 240 ) ;
             this.add(homeworkTab);
         }
         homeworkDetailPane = new JPanel();
@@ -98,7 +113,7 @@ public class ClassesPanel extends JPanel {
                 new MigLayout(
                         "ltr,insets 0,hidemode 0",
                         "[fill,grow,shrink]",
-                        "[][fill,grow][]"
+                        "[][][][fill,grow][]"
                 )
         );
         homeworkDetailPane.setVisible(true);
@@ -123,6 +138,14 @@ public class ClassesPanel extends JPanel {
         JLabel homeworkTitle = new JLabel( currentSelectedHomework.getTitle()) ;
         homeworkTitle.setFont( UiConsts.FONT_TITLE1 ) ;
         homeworkDetailPane.add(homeworkTitle, "span,wrap,wmin 100");
+
+        JLabel homeworkDDL = new JLabel( "截止时间：" + currentSelectedHomework.getDeadLine()) ;
+        homeworkDDL.setFont( UiConsts.FONT_TITLE3 ) ;
+        homeworkDetailPane.add(homeworkDDL, "span,wrap,wmin 100");
+
+        JLabel homeworkPublishTime = new JLabel( "布置时间："+ currentSelectedHomework.getPublishTime()) ;
+        homeworkPublishTime.setFont( UiConsts.FONT_TITLE3 ) ;
+        homeworkDetailPane.add(homeworkPublishTime, "span,wrap,wmin 100");
 
         System.out.println(currentSelectedHomework.getDescription());
 
@@ -157,11 +180,16 @@ public class ClassesPanel extends JPanel {
         classTabinit = true ;
 
 //        classList = new String[]{"claaaaaaaaaaaaaaaaass1","class2","class3"} ;
-        HashMap<String, OBECourse> hmp = student.getCourses();
-        for(HashMap.Entry<String, OBECourse> ent: hmp.entrySet()) {
-            OBECourse curCourse = ent.getValue();
+        ArrayList<OBECourse> hmp = student.getCourses();
+        for(int i = 0; i < hmp.size(); ++i) {
+            OBECourse curCourse = hmp.get(i);
             classTab.addTab(curCourse.getCourseName(), null);
+
         }
+//        for(HashMap.Entry<String, OBECourse> ent: hmp.entrySet()) {
+//            OBECourse curCourse = ent.getValue();
+//            classTab.addTab(curCourse.getCourseName(), null);
+//        }
 //        for( int i = 0 ; i < hmp.size(); i ++ ){
 //            classTab.addTab( classList[i] , null ) ;
 //        }
@@ -174,27 +202,36 @@ public class ClassesPanel extends JPanel {
                 chosedClassId = classTab.getSelectedIndex();
                 chosedClass = classTab.getTitleAt(chosedClassId);
                 System.out.println(chosedClass);
-                HashMap<String, OBECourse> curCourses = student.getCourses();
-                currentSelectedCourse = curCourses.get(chosedClass);
-                HashMap<String, OBEHomework> curHws = currentSelectedCourse.getHomework();
+                ArrayList<OBECourse> curCourses = student.getCourses();
+                currentSelectedCourse = curCourses.get(classTab.getSelectedIndex());
+                ArrayList<OBEHomework> curHws = currentSelectedCourse.getHomework();
                 homeworkTabinit = false;
                 chosedHomeworkId = -1 ;
                 homeworkTab.removeAll();
                 homeworkTabinit = true;
                 classTab.setComponentAt(chosedClassId, homeworkTab);
-                ImageIcon checkedIcon = new ImageIcon("./resources/check.png");
-                ImageIcon errorIcon = new ImageIcon("./resources/error.png");
-//                homeworkTab.setTabLayoutPolicy(JTabbedPane.LEFT_ALIGNMENT);
-                for(HashMap.Entry<String, OBEHomework> ent: curHws.entrySet()) {
-                    OBEHomework curh = ent.getValue();
+                FlatSVGIcon checkSVGIcon = new FlatSVGIcon("client/check.svg");
+                FlatSVGIcon errorSVGIcon = new FlatSVGIcon("client/error.svg");
+
+                FlatSVGIcon fsi = new FlatSVGIcon("client/check.svg");
+                ImageIcon checkedIcon = getScaledImageIcon("./resources/check.png", 28, 28);
+                ImageIcon errorIcon = getScaledImageIcon("./resources/error.png", 28, 28);
+//                homeworkTab.setTabLayoutPolicy(JTabbedPane.LEFT);
+                for(int i = 0; i < curHws.size(); ++i) {
+                    OBEHomework curh = curHws.get(i);
+
                     if(curh.getStatus() == 1) {
-                        homeworkTab.addTab(curh.getTitle(), errorIcon, null);
+                        homeworkTab.addTab(curh.getTitle(), errorSVGIcon, null);
                     }
                     else {
-                        homeworkTab.addTab(curh.getTitle(), checkedIcon, null);
+                        homeworkTab.addTab(curh.getTitle(), checkSVGIcon, null);
                     }
-//                    homeworkTab.addTab(ent.getValue().getTitle(), checkedIcon, null);
                 }
+//                for(HashMap.Entry<String, OBEHomework> ent: curHws.entrySet()) {
+//                    OBEHomework curh = ent.getValue();
+//
+////                    homeworkTab.addTab(ent.getValue().getTitle(), checkedIcon, null);
+//                }
 //                homeworkTab.setIconAt(1, checkedIcon);
             }
         });
@@ -206,7 +243,7 @@ public class ClassesPanel extends JPanel {
                     if (chosedHomeworkId >= 0) homeworkTab.setComponentAt(chosedHomeworkId, null);
                     chosedHomeworkId = homeworkTab.getSelectedIndex();
                     chosedHomework = homeworkTab.getTitleAt(chosedHomeworkId);
-                    currentSelectedHomework = currentSelectedCourse.getHomework().get(chosedHomework);
+                    currentSelectedHomework = currentSelectedCourse.getHomework().get(chosedHomeworkId);
                     System.out.println(chosedHomework) ;
                     homeworkDetailPane.setVisible(false);
                     homeworkDetailPane.removeAll();
