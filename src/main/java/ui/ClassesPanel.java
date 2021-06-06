@@ -4,9 +4,6 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
-import com.formdev.flatlaf.intellijthemes.FlatCyanLightIJTheme;
-import com.formdev.flatlaf.intellijthemes.FlatSolarizedDarkIJTheme;
-import com.kitfox.svg.app.beans.SVGIcon;
 import main.java.App;
 import main.java.client.OBECourse;
 import main.java.client.OBEHomework;
@@ -17,13 +14,25 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static com.formdev.flatlaf.FlatClientProperties.TABBED_PANE_MAXIMUM_TAB_WIDTH;
 import static com.formdev.flatlaf.FlatClientProperties.TABBED_PANE_MINIMUM_TAB_WIDTH;
@@ -120,7 +129,7 @@ public class ClassesPanel extends JPanel {
                 new MigLayout(
                         "ltr,insets 0,hidemode 0",
                         "[fill,grow,shrink]",
-                        "[][][][fill,grow][]"
+                        "[][][][fill,grow][fill,grow][]"
                 )
         );
         homeworkDetailPane.setVisible(true);
@@ -138,8 +147,88 @@ public class ClassesPanel extends JPanel {
         return panelRight ;
     }
 
+    private Object[][] getCurrentHomeworkLocalData() {
+        String path = currentSelectedHomework.getLocalPath();
+        System.out.println(path);
+        File file = new File(path);
+        File[] tempList = file.listFiles();
+        Object[] ret[] = new Object[tempList.length][];
+        for (int i = 0; i < tempList.length; i++) {
+            System.out.println(tempList[i].getName());
+            Date date = new Date(tempList[i].lastModified());
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String strDate = formatter.format(date);
+            if (tempList[i].isFile()) {
+                Object[] col = new Object[] {tempList[i].getName(), strDate, false};
+                ret[i] = col;
+            }
+            if (tempList[i].isDirectory()) {
+                System.out.println(tempList[i].getName());
+                Object[] col = new Object[] {tempList[i].getName(), strDate, false};
+                ret[i] = col;
+            }
+        }
+        return ret;
+    }
+
+
+    private void packSelectedItems(String path) {
+        TableModel mdl = fileTable.getModel();
+        int rowCount = mdl.getRowCount();
+        ZipOutputStream zos = null ;
+        String curHwPath = currentSelectedHomework.getLocalPath();
+        Path dataPath = null;
+        Pattern illegalFilePat = Pattern.compile("[\\\\/:*?\"<>| ]");
+        String fixedHwName = illegalFilePat.matcher(currentSelectedHomework.getTitle()).replaceAll("");
+
+        String zipFileName = App.student.getUsername() + "-" + fixedHwName + ".zip";
+
+        if(path == null || path.length() < 1) {
+
+            dataPath = Paths.get(System.getProperty("user.dir"), "OBFPDdata", zipFileName);
+            System.out.println(dataPath);
+        }
+        else {
+            dataPath = Paths.get(path, "OBFPDdata", zipFileName);
+            System.out.println(dataPath);
+        }
+        try{
+            FileOutputStream fos = new FileOutputStream(dataPath.toString());
+            zos = new ZipOutputStream(fos);
+            for(int i = 0; i < rowCount; ++i) {
+                String filename = (String) mdl.getValueAt(i, 0);
+                Boolean selected = (Boolean) mdl.getValueAt(i, 2);
+                if(selected == true) {
+                    System.out.println("ZIP:" + filename);
+                    Path curSrcPath = Paths.get(curHwPath, filename);
+                    File src = new File(curSrcPath.toString());
+                    if(src.isDirectory()) {
+
+                    }
+                    else {
+                        byte[] buf = new byte[4096];
+
+                        System.out.println("zipping: " + curSrcPath.toString());
+
+                        FileInputStream in = new FileInputStream(src);
+                        zos.putNextEntry(new ZipEntry(src.getName()));
+                        int len;
+                        while ((len = in.read(buf)) != -1){
+                            zos.write(buf, 0, len);
+                        }
+                        in.close();
+                    }
+                }
+            }
+            zos.close();
+            fos.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void getHomeworkDetailPanel() {
-//        try{
 
         homeworkDetailPane.setVisible(false);
         JLabel homeworkTitle = new JLabel( currentSelectedHomework.getTitle()) ;
@@ -156,49 +245,74 @@ public class ClassesPanel extends JPanel {
 
         System.out.println(currentSelectedHomework.getDescription());
 
+
         JTextArea l1 = new JTextArea(currentSelectedHomework.getDescription());
+//        l1.setFont(UiConsts);
         l1.setLineWrap(true);
-        l1.setOpaque(false);
+
         l1.setEditable(false);
         l1.setName("作业描述");
+//        jsp0.setVisible(true);
 
         homeworkDetailPane.add(l1, "span,growx,growy,wmin 100");
         homeworkDetailPane.setVisible(true);
+        Object[][] curF = getCurrentHomeworkLocalData();
+        fileTable = new JTable();
+        fileTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        fileTable.setModel(new DefaultTableModel(
+                curF,
+                new String[] {
+                        "文件名", "修改时间", "是否上传"
+                }
+        ) {
+            Class<?>[] columnTypes = new Class<?>[] {
+                    String.class, String.class, Boolean.class
+            };
+            boolean[] columnEditable = new boolean[] {
+                    false, false, true
+            };
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                return columnTypes[columnIndex];
+            }
+            @Override
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return columnEditable[columnIndex];
+            }
+        });
+
+        JScrollPane jsp = new JScrollPane(fileTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        homeworkDetailPane.add(jsp, "span,growx,growy,wmin 100");
+//        JList
+//        homeworkDetailPane.
+
         System.out.println(l1.getSize().height + ", " + l1.getSize().width);
-        JButton jb1 = new JButton("汪元森");
+        JButton jb1 = new JButton("更新提交");
         jb1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    UIManager.setLookAndFeel( new FlatDarculaLaf() ) ;
-//                    SwingUtilities.invokeLater(() -> App.frame.repaint());
-                    FlatLaf.updateUI();
-                } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
-                    unsupportedLookAndFeelException.printStackTrace();
-                }
+                (new Runnable() {
+                    @Override
+                    public void run() {
+                        packSelectedItems("");
+                    }
+                }).run();
             }
         });
-        JButton jb2 = new JButton("真可爱");
+        JButton jb2 = new JButton("下载附件");
         jb2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
-//                    SwingUtilities.invokeLater(() -> App.frame.repaint());
-                    FlatLaf.updateUI();
-                } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
-                    unsupportedLookAndFeelException.printStackTrace();
-                }
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        App.student.createDataFolders("");
+                    }
+                });
             }
         });
         homeworkDetailPane.add(jb1);
         homeworkDetailPane.add(jb2,"wrap");
-//        ret.add(new JLabel(currentSelectedHomework.getDescription()), "wrap");
-//        ret.setSize(new Dimension(800, 600));
-//        return ret;
-//        }catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     public void setContent(){
