@@ -19,10 +19,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -171,6 +168,34 @@ public class ClassesPanel extends JPanel {
         return ret;
     }
 
+    private static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
+        if (fileToZip.isHidden()) {
+            return;
+        }
+        if (fileToZip.isDirectory()) {
+            if (fileName.endsWith("/")) {
+                zipOut.putNextEntry(new ZipEntry(fileName));
+                zipOut.closeEntry();
+            } else {
+                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
+                zipOut.closeEntry();
+            }
+            File[] children = fileToZip.listFiles();
+            for (File childFile : children) {
+                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+            }
+            return;
+        }
+        FileInputStream fis = new FileInputStream(fileToZip);
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOut.putNextEntry(zipEntry);
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+            zipOut.write(bytes, 0, length);
+        }
+        fis.close();
+    }
 
     private void packSelectedItems(String path) {
         TableModel mdl = fileTable.getModel();
@@ -202,27 +227,12 @@ public class ClassesPanel extends JPanel {
                     System.out.println("ZIP:" + filename);
                     Path curSrcPath = Paths.get(curHwPath, filename);
                     File src = new File(curSrcPath.toString());
-                    if(src.isDirectory()) {
-
-                    }
-                    else {
-                        byte[] buf = new byte[4096];
-
-                        System.out.println("zipping: " + curSrcPath.toString());
-
-                        FileInputStream in = new FileInputStream(src);
-                        zos.putNextEntry(new ZipEntry(src.getName()));
-                        int len;
-                        while ((len = in.read(buf)) != -1){
-                            zos.write(buf, 0, len);
-                        }
-                        in.close();
+                    zipFile(src, src.getName(), zos);
                     }
                 }
-            }
-            zos.close();
-            fos.close();
-        }catch (Exception e) {
+                zos.close();
+                fos.close();
+            } catch (Exception e) {
             e.printStackTrace();
         }
 
