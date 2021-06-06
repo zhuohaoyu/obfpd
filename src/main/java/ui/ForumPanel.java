@@ -1,5 +1,7 @@
 package main.java.ui;
 
+import com.alibaba.fastjson.JSONObject;
+import main.java.App;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -13,6 +15,8 @@ public class ForumPanel extends JPanel {
     JLabel tabPlacementLabel = null;
     JPanel panelTitle = null;
     JPanel panelContent = null;
+    JScrollPane jsPanel = null;
+    public static List< Map<String, String> > post = new ArrayList<>();
 
     private class ReadMore implements ActionListener {
         JFrame Reply = null;
@@ -192,8 +196,195 @@ public class ForumPanel extends JPanel {
         }
     }
 
+    private class NewPost implements ActionListener {
+        private JFrame NewPost = null;
+        private JTextField jtftitile = null;
+        private JTextField jtfcourse = null;
+        private JTextArea jtacontent = null;
+
+        void initialize() {
+            NewPost.setLayout( new MigLayout(
+                    "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ",hidemode 3",
+                    "[grow,fill]para",
+                    "[]10[grow,fill]"
+            ));
+
+            /******** Title ********/
+            {
+                JPanel panelTitle = new JPanel();
+                JLabel label = new JLabel("分享新鲜事");
+                label.setFont(UiConsts.FONT_TITLE0);
+                panelTitle.add(label);
+                NewPost.add(panelTitle, "cell 0 0,alignx left,growx 0");
+            }
+
+            /******** Post Content ********/
+            {
+                JPanel panelContent = new JPanel();
+                panelContent.setLayout(new MigLayout(
+                        "insets 0,hidemode 3",
+                        "[grow,fill]para",
+                        "[]10[]10[grow,fill]10[]"
+                ));
+                {
+                    JPanel panelCourse = new JPanel();
+                    panelCourse.setLayout(new MigLayout(
+                            "insets 0,hidemode 3",
+                            "[]10[grow,fill]para",
+                            "[grow,fill]"
+                    ));
+                    JLabel label = new JLabel("课 程：");
+                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
+                    jtfcourse = new JTextField();
+                    jtfcourse.setFont(jtfcourse.getFont().deriveFont(jtfcourse.getFont().getSize() + 4f));
+                    panelCourse.add(label, "cell 0 0");
+                    panelCourse.add(jtfcourse, "cell 1 0");
+                    panelContent.add(panelCourse, "cell 0 0");
+                }
+                {
+                    JPanel panelCourse = new JPanel();
+                    panelCourse.setLayout(new MigLayout(
+                            "insets 0,hidemode 3",
+                            "[]10[grow,fill]para",
+                            "[grow,fill]"
+                    ));
+                    JLabel label = new JLabel("标 题：");
+                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
+                    jtftitile = new JTextField();
+                    jtftitile.setFont(jtftitile.getFont().deriveFont(jtftitile.getFont().getSize() + 4f));
+                    panelCourse.add(label, "cell 0 0");
+                    panelCourse.add(jtftitile, "cell 1 0");
+                    panelContent.add(panelCourse, "cell 0 1");
+                }
+                {
+                    JPanel panelCourse = new JPanel();
+                    panelCourse.setLayout(new MigLayout(
+                            "insets 0,hidemode 3",
+                            "[]10[grow,fill]para",
+                            "[grow,fill]"
+                    ));
+                    JLabel label = new JLabel("内 容：");
+                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
+                    jtacontent = new JTextArea();
+                    jtacontent.setFont(jtacontent.getFont().deriveFont(jtacontent.getFont().getSize() + 4f));
+                    JScrollPane jsp = new JScrollPane(jtacontent);
+                    panelCourse.add(label, "cell 0 0");
+                    panelCourse.add(jsp, "cell 1 0");
+                    panelContent.add(panelCourse, "cell 0 2");
+                }
+                {
+                    JPanel panelButton = new JPanel();
+                    panelButton.setLayout(new MigLayout(
+                            "insets 0,hidemode 3",
+                            "[]20[]20",
+                            "[grow,fill]"
+                    ));
+                    JButton jbok = new JButton("发 送");
+                    JButton jbcancle = new JButton("取 消");
+                    jbok.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("Task", "createPOST");
+                            jsonObject.put("Title", jtftitile.getText());
+                            jsonObject.put("Course", jtfcourse.getText());
+                            jsonObject.put("Content", jtacontent.getText());
+                            jsonObject.put("userID", App.username);
+                            App.myclient.send(jsonObject);
+                            NewPost.dispose();
+                            ReFresh();
+                        }
+                    });
+                    jbcancle.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            NewPost.dispose();
+                        }
+                    });
+                    panelButton.add(jbok, "cell 0 0");
+                    panelButton.add(jbcancle, "cell 1 0");
+                    panelContent.add(panelButton, "cell 0 3,align right,growx 0");
+                }
+                NewPost.add(panelContent, "cell 0 1");
+            }
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            NewPost = new JFrame("分享新鲜事");
+            NewPost.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            NewPost.setVisible(true);
+            NewPost.setBounds( UiConsts.MAIN_WINDOW_X,
+                    UiConsts.MAIN_WINDOW_Y,
+                    UiConsts.MAIN_WINDOW_WIDTH,
+                    UiConsts.MAIN_WINDOW_HEIGHT ) ;
+            initialize();
+        }
+    }
+
+    public void ReFresh() {
+        initialize();
+        App.mainPanelCenter.add( App.forumPanel , BorderLayout.CENTER ) ;
+        SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+    }
+
     public ForumPanel(){
+        setName("this");
+        setLayout( new MigLayout(
+                "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ", hidemode 3",
+                "[grow,fill]para",
+                "[][]"
+        ));
+        tabPlacementLabel = new JLabel();
+
+        panelTitle = new JPanel();
+        panelTitle.setName("panel1");
+        panelTitle.setLayout(new MigLayout(
+                "insets 0,hidemode 3",
+                "[grow, fill]para",
+                "[grow, fill]para"));
+
+        JPanel panelTitle = new JPanel();
+        panelTitle.setLayout( new MigLayout(
+                "insets 0, hidemode 3",
+                "[][grow,fill]para[]20[]",
+                "[]"
+        ));
+        tabPlacementLabel.setText("论坛");
+        tabPlacementLabel.setFont(UiConsts.FONT_TITLE0);
+        JSeparator sepline = new JSeparator() ;
+        sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
+        panelTitle.add(tabPlacementLabel, "cell 0 0");
+
+        JButton jbrefresh = new JButton();
+        jbrefresh.setText("刷 新");
+        jbrefresh.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ReFresh();
+            }
+        });
+        panelTitle.add(jbrefresh, "cell 2 0");
+
+        JButton jbnew = new JButton();
+        jbnew.setText("分享新鲜事");
+        jbnew.addActionListener(new NewPost());
+        panelTitle.add(jbnew, "cell 3 0");
+
+        add(panelTitle, "cell 0 0");
         initialize() ;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(1 * 1000);
+                        ReFresh();
+                    }
+                    catch (Exception e) { }
+                }
+            }
+        }).start();
     }
 
     private JPanel createPOST(String title, String user, String postID) {
@@ -234,49 +425,42 @@ public class ForumPanel extends JPanel {
         return panel;
     }
 
-    private void initialize(){
-        tabPlacementLabel = new JLabel();
+    public void initialize(){
+        if (jsPanel != null) {
+            remove(panelContent);
+            remove(jsPanel);
+        }
+        System.err.println("running initialize.");
 
-        setName("this");
-        setLayout( new MigLayout(
-                "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ", hidemode 3",
-                "[grow,fill]para",
-                "[][]"
-        ));
-
-        panelTitle = new JPanel();
-        panelTitle.setName("panel1");
-        panelTitle.setLayout(new MigLayout(
-                "insets 0,hidemode 3",
-                "[grow, fill]para",
-                "[grow, fill]para"));
-        tabPlacementLabel.setText("论坛");
-        tabPlacementLabel.setFont(UiConsts.FONT_TITLE0);
-        JSeparator sepline = new JSeparator() ;
-        sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
-        panelTitle.add(tabPlacementLabel, "cell 0 0");
-
-        add(panelTitle, "cell 0 0");
-
+        String buf = "[]";
+        int total = post.size() - 1;
+        for (int i = 1; i <= total; ++i)
+            buf = buf + "15[]";
         panelContent = new JPanel();
-        panelContent.setName("panel");
         panelContent.setLayout(new MigLayout(
                 "insets 0,hidemode 3",
                 // columns
                 "[grow,fill]para",
                 // rows
-                "[]15[]15[]15[]15[]"));
-
-        for (int i = 1; i <= 5; ++i) {
-            panelContent.add(createPOST("flkjaskldjfikljashdkjlfhasjkldfhjklashdfjklahsdjklfhjklashdfjklhasdjklfhjklasehdfjklhskl",
-                    "lkfasjsdkljfaklsdjflasdkjfklasjdfljasdlfjkaslkdjflkasd",
-                    "test"),
-                    "cell 0 " + Integer.toString(i));
+                buf));
+        System.err.println("size of post: " + post.size());
+        for (int i = total; i >= 0; --i) {
+            Map<String, String> detail = post.get(i);
+            panelContent.add(createPOST(detail.get("Title"),
+                    detail.get("User"),
+                    detail.get("postID")),
+                    "cell 0 " + Integer.toString(total - i));
         }
-        JScrollPane jsp = new JScrollPane(panelContent);
-        jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        jsp.setBorder(null);
-        jsp.getVerticalScrollBar().setUnitIncrement(16);
-        add(jsp, "cell 0 1");
+        if (total == -1) {
+            JLabel label = new JLabel();
+            label.setText("暂时没有帖子");
+            label.setFont(UiConsts.FONT_TITLE2);
+            panelContent.add(label, "cell 0 0");
+        }
+        jsPanel = new JScrollPane(panelContent);
+        jsPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        jsPanel.setBorder(null);
+        jsPanel.getVerticalScrollBar().setUnitIncrement(16);
+        add(jsPanel, "cell 0 1");
     }
 }

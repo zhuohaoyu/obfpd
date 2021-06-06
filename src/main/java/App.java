@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
+import main.java.client.MyClient;
 import main.java.client.OBEManager;
 import main.java.ui.* ;
 import net.miginfocom.swing.MigLayout;
@@ -25,6 +26,7 @@ public class App {
     public static ForumPanel forumPanel;
 
     public static OBEManager student;
+    public static MyClient myclient;
 
     public static void main( String[] args ){
         EventQueue.invokeLater( ()->{
@@ -152,7 +154,9 @@ public class App {
         student = new OBEManager();
         initialize() ;
         new Login().login();
+//        islogin = true;
         if (islogin == false) System.exit(0);
+        myclient = new MyClient("username");
         addComponent() ;
     }
 

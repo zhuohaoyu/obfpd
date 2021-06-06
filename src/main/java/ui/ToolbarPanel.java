@@ -105,6 +105,7 @@ public class ToolbarPanel extends JPanel{
             buttonSettings.setSelected( false ) ;
             buttonForum.setSelected( true );
             App.mainPanelCenter.removeAll() ;
+            App.forumPanel.initialize();
             App.mainPanelCenter.add( App.forumPanel , BorderLayout.CENTER ) ;
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
         });
