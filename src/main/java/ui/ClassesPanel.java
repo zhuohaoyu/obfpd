@@ -1,5 +1,9 @@
 package main.java.ui;
 
+import main.java.App;
+import main.java.client.OBECourse;
+import main.java.client.OBEHomework;
+import main.java.client.OBEManager;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -7,6 +11,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.formdev.flatlaf.FlatClientProperties.TABBED_PANE_MAXIMUM_TAB_WIDTH;
 import static com.formdev.flatlaf.FlatClientProperties.TABBED_PANE_MINIMUM_TAB_WIDTH;
@@ -15,12 +21,17 @@ public class ClassesPanel extends JPanel {
     JTabbedPane classTab , homeworkTab ;
     JTable fileTable ;
     JScrollPane scro_file ;
+    JScrollPane homeworkDetailPane;
     int chosedClassId ;
     int chosedHomeworkId ;
     String chosedClass , classList[] ;
     String chosedHomework , homeworkList[] ;
+    OBEManager student;
+    OBECourse currentSelectedCourse;
+    OBEHomework currentSelectedHomework;
     boolean classTabinit , homeworkTabinit ;
     public ClassesPanel(){
+        this.student = App.student;
         initialize() ;
         addComponent() ;
         setContent();
@@ -65,32 +76,36 @@ public class ClassesPanel extends JPanel {
         JPanel panelCenter0 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 0 ) ) ;
         JPanel panelCenter = new JPanel( new GridLayout( 1 , 3 ) ) ;
         UIManager.put( "TabbedPane.tabWidth", 32 );
+        {
             classTab = new JTabbedPane() ;
             classTab.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT ) ;
             classTab.setTabPlacement( JTabbedPane.LEFT ) ;
             classTab.setFont( UiConsts.FONT_NORMAL ) ;
-            classTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 150 ) ;
-            classTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 150 ) ;
+            classTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 200 ) ;
+            classTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 200 ) ;
             this.add(classTab);
             homeworkTab = new JTabbedPane( ) ;
             homeworkTab.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT ) ;
             homeworkTab.setTabPlacement( JTabbedPane.LEFT ) ;
             homeworkTab.setFont( UiConsts.FONT_NORMAL );
-            homeworkTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 150 ) ;
-            homeworkTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 150 ) ;
+            homeworkTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 200 ) ;
+            homeworkTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 200 ) ;
             this.add(homeworkTab);
-            String colnames[] = { "文件名" , "提交确认" } ;
-            DefaultTableModel tmodel = new DefaultTableModel( ) ;
-            tmodel.setColumnIdentifiers( colnames );
+        }
+
+//            String colnames[] = { "文件名" , "提交确认" } ;
+//            DefaultTableModel tmodel = new DefaultTableModel( ) ;
+//            tmodel.setColumnIdentifiers( colnames );
 //            fileTable = new JTable( tmodel ) ;
 //            fileTable.getTableHeader().setResizingAllowed(true) ;
 //            fileTable.setRowHeight(30) ;
 //            scro_file = new JScrollPane( fileTable ) ;
-            JTextArea jtatest = new JTextArea("占位jtextarea \n 汪元森好可爱！！！\n 写屎山就不可爱了！！！！！");
-            jtatest.setPreferredSize(new Dimension(800, 600));
+//            JTextArea jtatest = new JTextArea("占位jtextarea \n 汪元森好可爱！！！\n 写屎山就不可爱了！！！！！");
+        homeworkDetailPane = new JScrollPane();
+        homeworkDetailPane.setPreferredSize(new Dimension(800, 600));
 //            String ts[] = {"?" , "?" } ;
 //            tmodel.addRow( ts );
-            this.add(jtatest, "growx");
+        this.add(homeworkDetailPane, "growx");
 
 //        panelCenter.add( classTab ) ;
 //        panelCenter0.add( panelCenter ) ;
@@ -108,6 +123,27 @@ public class ClassesPanel extends JPanel {
         return panelRight ;
     }
 
+    private JPanel getHomeworkDetailPanel() {
+//        try{
+        JPanel ret = new JPanel(
+            new MigLayout(
+                "ltr,insets 0,hidemode 3",
+                "[fill,grow]",
+                "[][]"
+            )
+        );
+
+        System.out.println(currentSelectedHomework.getTitle());
+        ret.add(new JLabel(currentSelectedHomework.getTitle()), "wrap");
+        ret.add(new JLabel(currentSelectedHomework.getDescription()), "wrap");
+        ret.setSize(new Dimension(800, 600));
+        ret.setVisible(true);
+        return ret;
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }
+    }
+
     public void setContent(){
         chosedClassId = -1 ;
         chosedClass = null ;
@@ -117,10 +153,15 @@ public class ClassesPanel extends JPanel {
         classTab.removeAll();
         classTabinit = true ;
 
-        classList = new String[]{"claaaaaaaaaaaaaaaaass1","class2","class3"} ;
-        for( int i = 0 ; i < classList.length ; i ++ ){
-            classTab.addTab( classList[i] , null ) ;
+//        classList = new String[]{"claaaaaaaaaaaaaaaaass1","class2","class3"} ;
+        HashMap<String, OBECourse> hmp = student.getCourses();
+        for(HashMap.Entry<String, OBECourse> ent: hmp.entrySet()) {
+            OBECourse curCourse = ent.getValue();
+            classTab.addTab(curCourse.getCourseName(), null);
         }
+//        for( int i = 0 ; i < hmp.size(); i ++ ){
+//            classTab.addTab( classList[i] , null ) ;
+//        }
     }
 
     public void addListener(){
@@ -130,16 +171,16 @@ public class ClassesPanel extends JPanel {
                 chosedClassId = classTab.getSelectedIndex();
                 chosedClass = classTab.getTitleAt(chosedClassId);
                 System.out.println(chosedClass);
-                homeworkList = new String[]{"homddddddddework1", "homework2", "homework3"};
-                if (chosedClassId == 2)
-                    homeworkList = new String[]{"qwqwqwqwq", "_(:з)∠)_", "homework3"};
+                HashMap<String, OBECourse> curCourses = student.getCourses();
+                currentSelectedCourse = curCourses.get(chosedClass);
+                HashMap<String, OBEHomework> curHws = currentSelectedCourse.getHomework();
                 homeworkTabinit = false;
                 chosedHomeworkId = -1 ;
                 homeworkTab.removeAll();
                 homeworkTabinit = true;
                 classTab.setComponentAt(chosedClassId, homeworkTab);
-                for (int i = 0; i < homeworkList.length; i++) {
-                    homeworkTab.addTab(homeworkList[i], null);
+                for(HashMap.Entry<String, OBEHomework> ent: curHws.entrySet()) {
+                    homeworkTab.add(ent.getValue().getTitle(), null);
                 }
             }
         });
@@ -151,8 +192,11 @@ public class ClassesPanel extends JPanel {
                     if (chosedHomeworkId >= 0) homeworkTab.setComponentAt(chosedHomeworkId, null);
                     chosedHomeworkId = homeworkTab.getSelectedIndex();
                     chosedHomework = homeworkTab.getTitleAt(chosedHomeworkId);
+                    currentSelectedHomework = currentSelectedCourse.getHomework().get(chosedHomework);
                     System.out.println(chosedHomework) ;
-                    homeworkTab.setComponentAt( chosedHomeworkId , scro_file );
+                    homeworkDetailPane.removeAll();
+                    homeworkDetailPane.add(getHomeworkDetailPanel());
+//                    homeworkTab.setComponentAt( chosedHomeworkId , scro_file );
 
 
                 }

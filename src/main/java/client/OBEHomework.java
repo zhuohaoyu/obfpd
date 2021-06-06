@@ -17,6 +17,37 @@ public class OBEHomework {
     int id;
     // 所有附件
     ArrayList<OBEAttachment> attachments;
+    public String getPublishTime() {
+        return publishTime;
+    }
+
+    public String getDeadLine() {
+        return deadLine;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getScoring() {
+        return scoring;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public ArrayList<OBEAttachment> getAttachments() {
+        return attachments;
+    }
     public OBEHomework() {
         scoring = "";
         attachments = new ArrayList<>();
