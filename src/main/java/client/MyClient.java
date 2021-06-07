@@ -48,8 +48,8 @@ public class MyClient {
             e.printStackTrace();
         }
 
-        client.connect();
         try {
+            client.connect();
             while (!client.getReadyState().equals(WebSocket.READYSTATE.OPEN)) {
                 Thread.sleep(1);
             }
@@ -60,6 +60,7 @@ public class MyClient {
         }
         catch (Exception e) {
             System.err.println(e);
+            System.exit(0);
         }
         new Thread(new ReConntect()).start();
     }

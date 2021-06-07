@@ -88,5 +88,6 @@ public class MyWebSocketClient extends WebSocketClient{
     public void onError(Exception e){
         e.printStackTrace();
         System.err.println("Connect Error");
+        System.exit(0);
     }
 }
