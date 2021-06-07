@@ -2,6 +2,7 @@ package main.java.ui;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.extras.FlatAnimatedLafChange;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import net.miginfocom.swing.MigLayout;
 
@@ -53,8 +54,10 @@ public class SettingsPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    FlatAnimatedLafChange.showSnapshot();
                     UIManager.setLookAndFeel( new FlatDarculaLaf() ) ;
                     FlatLaf.updateUI();
+                    FlatAnimatedLafChange.hideSnapshotWithAnimation();
                 } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
                     unsupportedLookAndFeelException.printStackTrace();
                 }
@@ -65,9 +68,11 @@ public class SettingsPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    FlatAnimatedLafChange.showSnapshot();
                     UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
 //                    SwingUtilities.invokeLater(() -> App.frame.repaint());
                     FlatLaf.updateUI();
+                    FlatAnimatedLafChange.hideSnapshotWithAnimation();
                 } catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
                     unsupportedLookAndFeelException.printStackTrace();
                 }
