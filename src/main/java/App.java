@@ -30,6 +30,7 @@ import net.miginfocom.swing.MigLayout;
 public class App {
     public static boolean isForum = false;
     public static boolean islogin ;
+    public static boolean isFinishedUpdate = false;
     public static String username ;
     public static String password ;
     public static JFrame frame ;
@@ -226,8 +227,14 @@ public class App {
 
         if (islogin == false) System.exit(0);
         myclient = new MyClient("username");
-        addComponent() ;
         writeLoginTimeLog() ;
+        while (!isFinishedUpdate) {
+            try {
+                Thread.sleep(100);
+            }
+            catch (Exception e) { }
+        }
+        addComponent() ;
     }
 
     private void initialize(){

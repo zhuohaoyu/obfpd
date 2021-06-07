@@ -28,7 +28,7 @@ public class progressBarFrame extends JFrame {
             JPanel panelTitle = new JPanel();
             nowDownloadHint = new JTextArea();
             nowDownloadHint.setLineWrap( true );
-//            nowDownloadHint.setEnabled( false ) ;
+            nowDownloadHint.setEnabled( false ) ;
             nowDownloadHint.setOpaque( false ) ;
             nowDownloadHint.setFont(UiConsts.FONT_MENU2 ) ;
             nowDownloadHint.setPreferredSize( new Dimension( 450 , 30 ) );

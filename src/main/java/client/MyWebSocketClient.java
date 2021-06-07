@@ -72,6 +72,7 @@ public class MyWebSocketClient extends WebSocketClient{
                 mp.put("new", jsonObject.get("new" + Integer.toString(i)).toString());
                 App.update.add(mp);
             }
+            App.isFinishedUpdate = true;
             System.err.println(App.update);
         }
         if(msg.equals("over")){

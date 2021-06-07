@@ -862,8 +862,9 @@ public class DataBase {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-            File dbFile = new File(dbPath);
-            if(!dbFile.exists()) initCourseTable(); // ...
+//            File dbFile = new File(dbPath);
+//            if(!dbFile.exists())
+                initCourseTable(); // ...
             System.out.println("Opened database successfully");
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
