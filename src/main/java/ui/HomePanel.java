@@ -183,7 +183,7 @@ public class HomePanel extends Panel {
         else if( hour <= 22 ) nowT = "晚上好" ;
         else if( hour <= 24 ) nowT = "夜深了" ;
 
-        lableTitle.setText( nowT + ( App.islogin ? ", " + App.username : "" ) ) ;
+        lableTitle.setText( nowT + ( App.islogin ? ", " + App.student.getName() : "" ) ) ;
         homeworktot.setText( "待完成的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(999) ) + " 项" ) ;
         homework3d.setText( "剩余时间不足 3 天的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(3) ) + " 项" ) ;
         homework1d.setText( "剩余时间不足 1 天的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(1)) + " 项" ) ;

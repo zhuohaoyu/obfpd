@@ -10,6 +10,8 @@ import java.io.*;
 import java.rmi.server.ExportException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
@@ -239,7 +241,17 @@ public class App {
 
     private void initialize(){
         try {
-            UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
+            Calendar cal = new GregorianCalendar() ;
+            int hour = cal.get( Calendar.HOUR_OF_DAY ) ;
+            if(hour <= 6 || hour >= 18) {
+                UIManager.setLookAndFeel( new FlatDarculaLaf() ) ;
+            }
+            else {
+                UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
+            }
+            UIManager.put( "ScrollBar.width", 10 );
+            UIManager.put( "ScrollBar.thumbArc", 999 );
+            UIManager.put( "ScrollBar.thumbInsets", new Insets( 2, 2, 2, 2 ) );
             UIManager.put( "TabbedPane.tabAlignment" , "leading" ) ;
         } catch ( Exception e ){
             System.err.println( "set L&F failed" ) ;

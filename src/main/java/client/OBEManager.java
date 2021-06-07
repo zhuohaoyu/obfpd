@@ -2,6 +2,7 @@ package main.java.client;
 
 import com.alibaba.fastjson.JSONObject;
 import com.kitfox.svg.Use;
+import main.java.App;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,13 +22,18 @@ import java.util.regex.Pattern;
 public class OBEManager {
     OBELoginWorker LoginWorker;
     Map<String, String> Cookie;
-
+    String Name;
     String sDocument ;
     String Username;
     String Password;
     String nowCrawlingCourse ;
     ArrayList<OBECourse> courses;
-
+    public void setName(String s) {
+        Name = s;
+    }
+    public String getName() {
+        return Name;
+    }
     public String getUsername() {
         return Username;
     }
@@ -162,6 +168,15 @@ public class OBEManager {
 
     public void getContent() {
         try{
+            String nameStr = "window.UNAME=\"(.*)\"\\+";
+            Pattern namePat = Pattern.compile(nameStr);
+            Matcher m0 = namePat.matcher(sDocument);
+            if(m0.find()) {
+                setName(m0.group(1));
+            }
+            else {
+                setName(Username);
+            }
             String courseregexpat = "<option value=\"(.{2,})\">(.*)</option>";
             Pattern coursepat = Pattern.compile(courseregexpat);
             Matcher m = coursepat.matcher(sDocument);
