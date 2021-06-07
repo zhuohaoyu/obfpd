@@ -72,15 +72,11 @@ public class ClassesPanel extends JPanel {
 
     private void addComponent(){
         this.add(getUpPanel(), "span");
-//        this.add( getRightPanel()) ;
-//        this.add( getDownPanel()) ;
-
-//        this.add( getCenterPanel()) ;
         this.getCenterPanel();
     }
 
     private JPanel getUpPanel(){
-        JPanel panelUp0 = new JPanel(new FlowLayout( FlowLayout.LEADING , UiConsts.MAIN_H_GAP , UiConsts.MAIN_EDGE_GAP ) ) ;
+        JPanel panelUp0 = new JPanel(new FlowLayout( FlowLayout.LEADING , UiConsts.MAIN_H_GAP , UiConsts.MAIN_H_GAP ) ) ;
         JPanel panelUp = new JPanel( new BorderLayout() ) ;
 
         JLabel lableTitle = new JLabel( "课程中心" ) ;

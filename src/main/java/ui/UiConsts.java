@@ -31,6 +31,6 @@ public class UiConsts {
     public final static Font FONT_MENU2 = new Font( "微软雅黑" , 0 , 16 ) ;
 
     public final static Color LIMEGREEN = new Color( 50 , 205 , 50 ) ;
-    public final static Color MIMOSAYELLOW = new Color( 230 , 217 , 51 ) ;
+    public final static Color MIMOSAYELLOW = new Color(198, 198, 22) ;
     public final static Color BRIGHTRED = new Color( 231 , 80 , 60 ) ;
 }

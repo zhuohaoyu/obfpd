@@ -36,6 +36,14 @@ public class OBEManager {
         return courses;
     }
     public String getNowCrawlingCourse() { return nowCrawlingCourse; }
+    public int getDayLimitHomeworkCnt( int day ){
+        int rt = 0 ;
+//        System.out.printf( "tot course :%d\n" , courses.size() ) ;
+        for (OBECourse cours : courses) {
+            rt += cours.getDayLimitHomeworkCnt(day);
+        }
+        return rt ;
+    }
 
     public OBEManager() {
         LoginWorker = new OBELoginWorker();
@@ -56,8 +64,7 @@ public class OBEManager {
 
     public boolean doTest() throws IOException {
         Document document = Jsoup.connect(OBEConstants.OBE_URL).cookies(Cookie).get();
-        if (document.title().toString().equals(OBEConstants.SUCC_LOGIN)) return true;
-        else return false;
+        return document.title().toString().equals(OBEConstants.SUCC_LOGIN);
     }
 
     public boolean doLogin() {

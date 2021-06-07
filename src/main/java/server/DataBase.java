@@ -1,5 +1,6 @@
 package main.java.server;
 
+import java.io.File;
 import java.sql.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
@@ -861,7 +862,8 @@ public class DataBase {
         try {
             Class.forName("org.sqlite.JDBC");
             c = DriverManager.getConnection("jdbc:sqlite:" + dbPath);
-            initCourseTable(); // ...
+            File dbFile = new File(dbPath);
+            if(!dbFile.exists()) initCourseTable(); // ...
             System.out.println("Opened database successfully");
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());

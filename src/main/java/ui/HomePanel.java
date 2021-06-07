@@ -2,6 +2,7 @@ package main.java.ui;
 
 import main.java.App;
 import main.java.ui.mycompo.TimeRefresh ;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +13,6 @@ import java.util.GregorianCalendar;
 
 public class HomePanel extends Panel {
     JLabel homeworktot , homework3d , homework1d ;
-    JLabel loginStatus ;
     JLabel lableTitle ;
     public HomePanel(){
         initialize() ;
@@ -21,95 +21,103 @@ public class HomePanel extends Panel {
     }
 
     private void initialize(){
-        this.setLayout( new BorderLayout() ) ;
+        this.setLayout( new MigLayout(
+                "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ",hidemode 3",
+                "[grow,fill]",
+                "[][grow,fill][]"
+        )) ;
     }
 
     private void addComponent(){
-        this.add( getUpPanel() , BorderLayout.NORTH ) ;
-        this.add( getCenterPanel() , BorderLayout.CENTER ) ;
-        this.add( getDownPanel() , BorderLayout.SOUTH ) ;
+        this.add( getUpPanel() ,  "cell 0 0,growx" ) ;
+        this.add( getCenterPanel() , "cell 0 1,alignx left,growx,growy" ) ;
+        this.add( getDownPanel() , "cell 0 2" ) ;
     }
 
     private JPanel getUpPanel(){
-        JPanel panelUp0 = new JPanel(new FlowLayout( FlowLayout.LEADING , UiConsts.MAIN_H_GAP , UiConsts.MAIN_EDGE_GAP  ) ) ;
-        JPanel panelUp = new JPanel( new GridLayout( 3 , 1 ) ) ;
-
+        JPanel panelUp = new JPanel( new MigLayout(
+                "",
+                "[grow,fill]para",
+                "[][][]"
+        )) ;
         lableTitle = new JLabel( ) ;
         lableTitle.setFont( UiConsts.FONT_TITLE0 ) ;
-        panelUp.add( lableTitle ) ;
+        panelUp.add( lableTitle , "cell 0 0") ;
 
         TimeRefresh lableTime = new TimeRefresh() ;
         lableTime.setFont( UiConsts.FONT_TITLE2 );
-        panelUp.add( lableTime ) ;
+        panelUp.add( lableTime , "cell 0 1") ;
 
         JSeparator sepline = new JSeparator() ;
-        sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
-        panelUp.add( sepline ) ;
-        panelUp0.add( panelUp ) ;
-        return panelUp0 ;
+        panelUp.add( sepline , "cell 0 2" ) ;
+        return panelUp ;
     }
 
     private JPanel getCenterPanel(){
-        JPanel panelCenter = new JPanel() ;
-        panelCenter.setLayout( new GridLayout( 3 , 1 ) ) ;
+        JPanel panelCenter = new JPanel( new MigLayout(
+                "",
+                "[grow,fill][fill]",
+                "[]"
+        )) ;
 
-        // homework info
-        JPanel panel1 = new JPanel(  new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 0 ) ) ;
-            homeworktot = new JLabel() ;
-            homework3d = new JLabel() ;
-            homework1d = new JLabel() ;
-            homeworktot.setFont(UiConsts.FONT_NORMAL) ;
-            homeworktot.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH * 2 , 30 ) ) ;
-            homework3d.setFont(UiConsts.FONT_NORMAL );
-            homework3d.setForeground( UiConsts.MIMOSAYELLOW ) ;
-            homework3d.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH * 2 , 30 ) ) ;
-            homework1d.setFont(UiConsts.FONT_NORMAL );
-            homework1d.setForeground( UiConsts.BRIGHTRED ) ;
-            homework1d.setPreferredSize( new Dimension( UiConsts.MAIN_CONTENT_WIDTH * 2 , 30 ) ) ;
-            panel1.add( homeworktot ) ;
-            panel1.add( homework3d ) ;
-            panel1.add( homework1d ) ;
-
-        // empty
-        JPanel panel2 = new JPanel() ;
-
-        // login info
-        JPanel panel3 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 30 ) ) ;
-            loginStatus = new JLabel() ;
-            loginStatus.setFont(UiConsts.FONT_NORMAL );
-            panel3.add( loginStatus ) ;
-
-        panelCenter.add( panel1 ) ;
-        panelCenter.add( panel2 ) ;
-        panelCenter.add( panel3 ) ;
-
+        {
+            JPanel panelCenterLeft = new JPanel( new MigLayout(
+                  "",
+                  "[fill]",
+                  "[][][]"
+            ));
+            homeworktot = new JLabel();
+            homework3d = new JLabel();
+            homework1d = new JLabel();
+            homeworktot.setFont(UiConsts.FONT_NORMAL);
+            homeworktot.setPreferredSize(new Dimension(UiConsts.MAIN_CONTENT_WIDTH * 2, 30));
+            homework3d.setFont(UiConsts.FONT_NORMAL);
+            homework3d.setForeground(UiConsts.MIMOSAYELLOW);
+            homework3d.setPreferredSize(new Dimension(UiConsts.MAIN_CONTENT_WIDTH * 2, 30));
+            homework1d.setFont(UiConsts.FONT_NORMAL);
+            homework1d.setForeground(UiConsts.BRIGHTRED);
+            homework1d.setPreferredSize(new Dimension(UiConsts.MAIN_CONTENT_WIDTH * 2, 30));
+            panelCenterLeft.add(homeworktot, "cell 0 0,alignx left");
+            panelCenterLeft.add(homework3d, "cell 0 1,alignx left");
+            panelCenterLeft.add(homework1d, "cell 0 2,alignx left");
+            panelCenter.add( panelCenterLeft , "cell 0 0,alignx left") ;
+        }
         return panelCenter ;
     }
 
     private JPanel getDownPanel(){
-        JPanel panelDown = new JPanel( new GridLayout( 1 , 2 ) ) ;
-        JPanel panelGrid1 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , UiConsts.MAIN_EDGE_GAP ) ) ;
-            JButton openOBE = new JButton() ;
-            openOBE.setText( "在浏览器中打开..." ) ;
-            openOBE.setOpaque( true ) ;
-            openOBE.setBackground( getBackground() ) ;
-            openOBE.setFocusPainted( false );
+        JPanel panelDown = new JPanel( new MigLayout(
+                "",
+                "[]para",
+                "[]"
+        ) ) ;
+        {
+            JPanel panelDown1 = new JPanel( new MigLayout(
+                    "",
+                    "[]para",
+                    "[]"
+            )) ;
+            JButton openOBE = new JButton();
+            openOBE.setText("在浏览器中打开...");
+            openOBE.setOpaque(true);
+            openOBE.setBackground(getBackground());
+            openOBE.setFocusPainted(false);
             openOBE.addActionListener(e -> {
-                if(Desktop.isDesktopSupported()){
+                if (Desktop.isDesktopSupported()) {
                     try {
                         java.net.URI uri = java.net.URI.create("http://obe.ruc.edu.cn/");
                         Desktop dp = Desktop.getDesktop();
-                        if(dp.isSupported(Desktop.Action.BROWSE)){
+                        if (dp.isSupported(Desktop.Action.BROWSE)) {
                             dp.browse(uri);
                         }
-                    } catch ( java.io.IOException ae ) {
+                    } catch (java.io.IOException ae) {
                         ae.printStackTrace();
                     }
                 }
             });
-            panelGrid1.add( openOBE ) ;
-
-        panelDown.add( panelGrid1 ) ;
+            panelDown1.add( openOBE , "cell 0 0,alignx left") ;
+            panelDown.add( panelDown1 ,"cell 0 0,alignx left") ;
+        }
         return panelDown ;
     }
 
@@ -126,10 +134,9 @@ public class HomePanel extends Panel {
         else if( hour <= 24 ) nowT = "夜深了" ;
 
         lableTitle.setText( nowT + ( App.islogin ? ", " + App.username : "" ) ) ;
-        homeworktot.setText( "待完成的作业:" + "" + " 项" ) ;
-        homework3d.setText( "剩余时间不足 3 天的作业:" + "" + " 项" ) ;
-        homework1d.setText( "剩余时间不足 1 天的作业:" + "" + " 项" ) ;
-        loginStatus.setText( "状态:" + ( App.islogin ? "已登录" : "未登录" ) ) ;
+        homeworktot.setText( "待完成的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(999) ) + " 项" ) ;
+        homework3d.setText( "剩余时间不足 3 天的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(3) ) + " 项" ) ;
+        homework1d.setText( "剩余时间不足 1 天的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(1)) + " 项" ) ;
     }
 
 }

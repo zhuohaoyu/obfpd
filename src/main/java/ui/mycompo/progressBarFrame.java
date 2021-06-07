@@ -13,7 +13,7 @@ public class progressBarFrame extends JFrame {
     public progressBarFrame( String title ){
         setTitle( title ) ;
         setDefaultCloseOperation( DISPOSE_ON_CLOSE );
-        setSize(500 , 200 );
+        setSize( new Dimension(500 , 200 ) );
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         this.setAlwaysOnTop( true ) ;
@@ -31,7 +31,7 @@ public class progressBarFrame extends JFrame {
 //            nowDownloadHint.setEnabled( false ) ;
             nowDownloadHint.setOpaque( false ) ;
             nowDownloadHint.setFont(UiConsts.FONT_MENU2 ) ;
-            nowDownloadHint.setPreferredSize( new Dimension( 400 , 20 ) );
+            nowDownloadHint.setPreferredSize( new Dimension( 450 , 30 ) );
             panelTitle.add(nowDownloadHint);
             add(panelTitle, "cell 0 0");
         }

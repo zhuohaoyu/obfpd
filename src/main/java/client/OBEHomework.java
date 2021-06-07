@@ -6,9 +6,9 @@ import org.jsoup.Jsoup;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class OBEHomework {
     // 发布时间、ddl
@@ -76,6 +76,28 @@ public class OBEHomework {
         attachments = new ArrayList<>();
         status = 0;
     }
+
+    public long checkLeftDay() {
+        if( status == 0 ) return -1 ;
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = null;
+        try {
+            date = sdf.parse(deadLine);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Calendar ddl = Calendar.getInstance();
+        ddl.setTime(date);
+        Calendar now = Calendar.getInstance() ;
+
+//        System.out.printf( "now homework :%s\n" , title ) ;
+        long aTime=now.getTimeInMillis() , bTime = ddl.getTimeInMillis() ;
+        if( aTime >= bTime ) return -1 ;
+//        System.out.printf( "single check Day: %d %d\n" , bTime - aTime , ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24  );
+        return ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24 ;
+
+    }
+
     public String toString() {
         String ret = "";
         if(status == 1) ret = "[Unfinished]";

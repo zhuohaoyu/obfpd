@@ -25,25 +25,29 @@ public class OBECourse {
     public String getCourseID() {
         return CourseID;
     }
-
     public String getCourseName() {
         return CourseName;
     }
-
     public OBEPerson getTeacher() {
         return teacher;
     }
-
     public ArrayList<OBEPerson> getTa() {
         return ta;
     }
-
     public ArrayList<OBEHomework> getHomework() {
         return homework;
     }
-
     public ArrayList<OBEAttachment> getAttachment() {
         return attachment;
+    }
+    public int getDayLimitHomeworkCnt( int day ){
+        int rt = 0 ;
+//        System.out.printf( "now course :%s %d\n" , CourseName , homework.size() ) ;
+        for (OBEHomework obeHomework : homework) {
+            long tmp = obeHomework.checkLeftDay();
+            if (tmp <= day && tmp > 0) rt++;
+        }
+        return rt ;
     }
 
     public void getPagedHomework(Map<String, String> Cookie, int pageNum) {
@@ -141,9 +145,6 @@ public class OBECourse {
                     System.out.println("FAILED");
                 }
             }
-            else {
-
-            }
         } catch(Exception e) {
             e.printStackTrace();
         }
@@ -210,8 +211,6 @@ public class OBECourse {
                 else {
                     System.out.println("FAILED");
                 }
-            }
-            else {
             }
         } catch(Exception e) {
             e.printStackTrace();

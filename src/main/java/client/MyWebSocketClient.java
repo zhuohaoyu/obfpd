@@ -68,7 +68,7 @@ public class MyWebSocketClient extends WebSocketClient{
                 mp.put("course_name", jsonObject.get("course_name" + Integer.toString(i)).toString());
                 mp.put("homework_name", jsonObject.get("homework_name" + Integer.toString(i)).toString());
                 mp.put("type", jsonObject.get("type" + Integer.toString(i)).toString());
-                mp.put("ole", jsonObject.get("old" + Integer.toString(i)).toString());
+                mp.put("old", jsonObject.get("old" + Integer.toString(i)).toString());
                 mp.put("new", jsonObject.get("new" + Integer.toString(i)).toString());
                 App.update.add(mp);
             }
@@ -82,12 +82,12 @@ public class MyWebSocketClient extends WebSocketClient{
     @Override
     public void onClose(int i, String s, boolean b) {
         System.err.println("Linking Close");
+        System.exit( 0 ); ;
     }
 
     @Override
     public void onError(Exception e){
         e.printStackTrace();
         System.err.println("Connect Error");
-        System.exit(0);
     }
 }

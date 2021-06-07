@@ -10,7 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class MyClient {
-    public WebSocketClient client;
+    public MyWebSocketClient client;
     public String user;
     public class ReConntect implements Runnable {
         @Override

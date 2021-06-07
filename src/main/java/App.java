@@ -35,7 +35,6 @@ public class App {
     public static JFrame frame ;
     public static JPanel mainPanelCenter , mainToolPanel ;
 
-    public static TestPanel testPanel ;
     public static ToolbarPanel toolbarPanel ;
     public static HomePanel homePanel ;
     public static ClassesPanel classesPanel ;
@@ -176,6 +175,7 @@ public class App {
                                         public void run() {
                                             if (islogin == true) {
                                                 setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
+                                                pbar.deleteIt();
                                                 dispose();
                                             }
                                             else {
