@@ -22,17 +22,20 @@ public class OBEManager {
     OBELoginWorker LoginWorker;
     Map<String, String> Cookie;
 
+    String sDocument ;
     String Username;
     String Password;
+    String nowCrawlingCourse ;
     ArrayList<OBECourse> courses;
 
     public String getUsername() {
         return Username;
     }
-
+    public Map<String,String > getCookie() { return Cookie ;}
     public ArrayList<OBECourse> getCourses() {
         return courses;
     }
+    public String getNowCrawlingCourse() { return nowCrawlingCourse; }
 
     public OBEManager() {
         LoginWorker = new OBELoginWorker();
@@ -123,17 +126,42 @@ public class OBEManager {
         return false;
     }
 
-    public void getContent() {
+    public int getTotCourse(){
+        int cnt = 0 ;
         try{
-            String url = "http://obe.ruc.edu.cn/index/home/index.html";
-            Document document = Jsoup.connect(url).cookies(Cookie).get();
-            String cont = document.body().toString();
             String courseregexpat = "<option value=\"(.{2,})\">(.*)</option>";
             Pattern coursepat = Pattern.compile(courseregexpat);
-            Matcher m = coursepat.matcher(cont);
+            Matcher m = coursepat.matcher(sDocument);
             while(m.find()) {
                 String courseID = m.group(1);
                 String courseName = m.group(2);
+                cnt ++ ;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cnt ;
+    }
+
+    public void initsDocument(){
+        try{
+            String url = "http://obe.ruc.edu.cn/index/home/index.html";
+            Document document = Jsoup.connect(url).cookies(Cookie).get();
+            sDocument = document.body().toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getContent() {
+        try{
+            String courseregexpat = "<option value=\"(.{2,})\">(.*)</option>";
+            Pattern coursepat = Pattern.compile(courseregexpat);
+            Matcher m = coursepat.matcher(sDocument);
+            while(m.find()) {
+                String courseID = m.group(1);
+                String courseName = m.group(2);
+                nowCrawlingCourse = courseName ;
                 System.out.println(courseName);
 
                 OBECourse curcourse = new OBECourse(courseID, courseName);

@@ -4,6 +4,8 @@ import javax.swing.* ;
 import java.awt.* ;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.*;
 import java.rmi.server.ExportException;
 import java.text.SimpleDateFormat;
@@ -20,7 +22,9 @@ import com.formdev.flatlaf.intellijthemes.FlatCyanLightIJTheme;
 import main.java.client.MyClient;
 import main.java.client.OBECourse;
 import main.java.client.OBEManager;
+import main.java.server.Crawler;
 import main.java.ui.* ;
+import main.java.ui.mycompo.progressBarFrame;
 import net.miginfocom.swing.MigLayout;
 
 public class App {
@@ -58,12 +62,12 @@ public class App {
     public class Login extends JDialog {
         public JTextField jtaid = null;
         public JPasswordField  jtapw = null;
+        public progressBarFrame pbar = null ;
 
         public Login() {
             setTitle("登录");
-            setModal(true);
+            setModal( true );
             setSize(350, 250);
-            setDefaultCloseOperation(DISPOSE_ON_CLOSE);
             setLocationRelativeTo(null);
 
             setLayout(new MigLayout(
@@ -137,16 +141,43 @@ public class App {
                             public void run() {
                                 username = jtaid.getText();
                                 password = jtapw.getText();
-                                student.setInfo(username, password);
+                                student.setInfo(username, password) ;
+
                                 islogin = student.doLogin();
-                                student.getContent();
-                                student.createDataFolders("");
-                                System.out.println( "????" ) ;
+                                if( islogin ) {
+                                    pbar = new progressBarFrame("登录中");
+                                    pbar.showIt();
+                                    pbar.setNowHint("正在连接OBE服务器...");
+                                    student.initsDocument();
+                                    int maxc = student.getTotCourse() ;
+                                    pbar.init( maxc ) ;
+                                    new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            while( true ){
+                                                int nowc = student.getCourses().size() ;
+                                                pbar.setVal( nowc ) ;
+                                                pbar.setNowHint( "正在爬取：" + student.getNowCrawlingCourse() ); ;
+                                                try {
+                                                    Thread.sleep( 200 ) ;
+                                                } catch ( Exception ae ) { ae.printStackTrace(); }
+                                                if( nowc >= maxc ){
+                                                    pbar.deleteIt();
+                                                };
+                                            }
+                                        }
+                                    }).start();
+                                    student.getContent();
+                                    student.createDataFolders("");
+                                }
                                 try {
                                     SwingUtilities.invokeAndWait(new Runnable() {
                                         @Override
                                         public void run() {
-                                            if (islogin == true) dispose();
+                                            if (islogin == true) {
+                                                setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
+                                                dispose();
+                                            }
                                             else {
                                                 JOptionPane.showMessageDialog(null, "账号或者密码错误！", "登录失败", JOptionPane.ERROR_MESSAGE);
                                                 jbok.setEnabled(true);
@@ -155,7 +186,7 @@ public class App {
                                     });
                                 } catch ( Exception ae ){ ae.printStackTrace(); System.exit(1);}
                             }
-                        }).start(); ;
+                        }).start() ;
                     }
                 });
                 jbcancle.addActionListener(new ActionListener() {
@@ -163,6 +194,16 @@ public class App {
                     public void actionPerformed(ActionEvent e) {
                         System.exit(0);
                     }
+                });
+
+                addWindowListener(new WindowListener() {
+                    @Override public void windowOpened(WindowEvent e) {}
+                    @Override public void windowClosing(WindowEvent e) { System.out.println("exit!"); System.exit( 0 ) ; }
+                    @Override public void windowClosed(WindowEvent e) { }
+                    @Override public void windowIconified(WindowEvent e) { }
+                    @Override public void windowDeiconified(WindowEvent e) { }
+                    @Override public void windowActivated(WindowEvent e) { }
+                    @Override public void windowDeactivated(WindowEvent e) { }
                 });
 
                 panelButton.add(jbok, "cell 0 0");
@@ -176,54 +217,17 @@ public class App {
         }
     }
 
-    App(){
+    App() throws InterruptedException {
         islogin = false;
         student = new OBEManager();
         initialize() ;
-        new Login().login();
-//        islogin = true;
+        Login fLogin =  new Login() ;
+        fLogin.login();
+
         if (islogin == false) System.exit(0);
         myclient = new MyClient("username");
         addComponent() ;
-
-        try {
-            String ti;
-            File configFile = new File("config.txt");
-            if(!configFile.exists()) {
-                // set default
-                ti = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()).toString();
-            } else {
-                var fin = new BufferedReader(new FileReader("config.txt"));
-                ti = fin.readLine();
-            }
-            System.err.println("time = " + ti);
-            ArrayList<OBECourse> cl = student.getCourses();
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("Task", "queryUPDATE");
-            jsonObject.put("Time", ti);
-            jsonObject.put("size", Integer.toString(cl.size()));
-            int sum = 0;
-            for (OBECourse c : cl) {
-                jsonObject.put(Integer.toString(sum), c.getCourseID());
-                sum += 1;
-            }
-            myclient.send(jsonObject);
-        }
-        catch (Exception e) { }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        var osw = new OutputStreamWriter(new FileOutputStream("./config.txt"), "UTF-8");
-                        osw.write(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
-                        osw.close();
-                        Thread.sleep(30 * 1000);
-                    }
-                    catch (Exception e) { }
-                }
-            }
-        }).start();
+        writeLoginTimeLog() ;
     }
 
     private void initialize(){
@@ -262,5 +266,46 @@ public class App {
         frame.add( mainPanel ) ;
         mainPanel.updateUI();
 
+    }
+
+    void writeLoginTimeLog(){
+        try {
+            String ti;
+            File configFile = new File("config.txt");
+            if(!configFile.exists()) {
+                // set default
+                ti = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()).toString();
+            } else {
+                var fin = new BufferedReader(new FileReader("config.txt"));
+                ti = fin.readLine();
+            }
+            System.err.println("time = " + ti);
+            ArrayList<OBECourse> cl = student.getCourses();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("Task", "queryUPDATE");
+            jsonObject.put("Time", ti);
+            jsonObject.put("size", Integer.toString(cl.size()));
+            int sum = 0;
+            for (OBECourse c : cl) {
+                jsonObject.put(Integer.toString(sum), c.getCourseID());
+                sum += 1;
+            }
+            myclient.send(jsonObject);
+        }
+        catch (Exception e) { }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        var osw = new OutputStreamWriter(new FileOutputStream("./config.txt"), "UTF-8");
+                        osw.write(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
+                        osw.close();
+                        Thread.sleep(30 * 1000);
+                    }
+                    catch (Exception e) { }
+                }
+            }
+        }).start();
     }
 }

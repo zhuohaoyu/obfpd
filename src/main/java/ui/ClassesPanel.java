@@ -5,9 +5,12 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import main.java.App;
+import main.java.client.OBEAttachment;
 import main.java.client.OBECourse;
 import main.java.client.OBEHomework;
 import main.java.client.OBEManager;
+import main.java.server.Crawler;
+import main.java.ui.mycompo.progressBarFrame;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -243,10 +246,10 @@ public class ClassesPanel extends JPanel {
                     Path curSrcPath = Paths.get(curHwPath, filename);
                     File src = new File(curSrcPath.toString());
                     zipFile(src, src.getName(), zos);
-                    }
                 }
-                zos.close();
-                fos.close();
+            }
+            zos.close();
+            fos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -315,7 +318,7 @@ public class ClassesPanel extends JPanel {
             jb1.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    (new Runnable() {
+                    new Thread(new Runnable() {
                         @Override
                         public void run() {
                             String packed = packSelectedItems("");
@@ -326,11 +329,16 @@ public class ClassesPanel extends JPanel {
                                 currentSelectedHomework.setStatus(0);
                                 System.out.println(currentSelectedHomework.getDescription());
                                 System.out.println(currentSelectedHomework.getDeadLine());
-                                homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
-                                resetHomeworkDetailPanel();
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
+                                        resetHomeworkDetailPanel();
+                                    }
+                                });
                             }
                         }
-                    }).run();
+                    }).start() ;
                 }
             });
             homeworkDetailPane.add(jb1);
@@ -340,7 +348,7 @@ public class ClassesPanel extends JPanel {
             jb1.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    (new Runnable() {
+                    new Thread(new Runnable() {
                         @Override
                         public void run() {
                             String packed = packSelectedItems("");
@@ -349,21 +357,20 @@ public class ClassesPanel extends JPanel {
                             currentSelectedHomework.setStatus(0);
                             System.out.println("RES:" + ret.toString());
                             if(ret) {
-                                System.out.println("UPLOAD SUCCESS");
+                                System.out.println("UPLO    AD SUCCESS");
                                 currentSelectedHomework.setStatus(0);
                                 System.out.println(currentSelectedHomework.getDescription());
                                 System.out.println(currentSelectedHomework.getDeadLine());
-                                homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
-                                resetHomeworkDetailPanel();
-//                                SwingUtilities.invokeLater(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//
-//                                    }
-//                                });
+                                SwingUtilities.invokeLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
+                                        resetHomeworkDetailPanel();
+                                    }
+                                });
                             }
                         }
-                    }).run();
+                    }).start() ;
                 }
             });
             homeworkDetailPane.add(jb1);
@@ -373,12 +380,38 @@ public class ClassesPanel extends JPanel {
         jb2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                SwingUtilities.invokeLater(new Runnable() {
+                progressBarFrame pbarFrame = new progressBarFrame( "下载附件中" ) ;
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        App.student.createDataFolders("");
+                        ArrayList<OBEAttachment> attachments = currentSelectedHomework.getAttachments() ;
+                        if( attachments.size() == 0 ) {
+                            JOptionPane.showMessageDialog( null , "此作业无附件" , "坏了" , JOptionPane.INFORMATION_MESSAGE );
+                            return;
+                        }
+                        pbarFrame.init( attachments.size() ) ;
+                        pbarFrame.showIt();
+                        Map<String,String> cookie = App.student.getCookie() ;
+                        String path = currentSelectedHomework.getLocalPath() + "\\" ;
+                        for( int i = 0 , lim = attachments.size() ; i < lim ; i ++ ){
+                            OBEAttachment attach = attachments.get( i ) ;
+                            String filename = attach.getName() ;
+                            int cnt = 0 ;
+                            System.out.println( "enter download: " ) ;
+                            System.out.println( i ) ;
+                            pbarFrame.setNowHint( "正在下载：" + filename ); ;
+                            while ( !currentSelectedHomework.downloadHomeworkAttachment( cookie , path , filename , Integer.toString( attach.getId() ) , filename ) ) {
+                                cnt++;
+                                System.out.println("try " + Integer.toString(i) + " failed");
+                                if (cnt > 3) {
+                                    break;
+                                }
+                            }
+                            pbarFrame.setVal( i + 1 ) ;
+                        }
+//                        pbarFrame.deleteIt();
                     }
-                });
+                }).start();
             }
         });
 
@@ -395,20 +428,12 @@ public class ClassesPanel extends JPanel {
         classTab.removeAll();
         classTabinit = true ;
 
-//        classList = new String[]{"claaaaaaaaaaaaaaaaass1","class2","class3"} ;
         ArrayList<OBECourse> hmp = student.getCourses();
         for(int i = 0; i < hmp.size(); ++i) {
             OBECourse curCourse = hmp.get(i);
             classTab.addTab(curCourse.getCourseName(), null);
 
         }
-//        for(HashMap.Entry<String, OBECourse> ent: hmp.entrySet()) {
-//            OBECourse curCourse = ent.getValue();
-//            classTab.addTab(curCourse.getCourseName(), null);
-//        }
-//        for( int i = 0 ; i < hmp.size(); i ++ ){
-//            classTab.addTab( classList[i] , null ) ;
-//        }
     }
 
     public void addListener(){
@@ -427,8 +452,6 @@ public class ClassesPanel extends JPanel {
                 homeworkTabinit = true;
                 classTab.setComponentAt(chosedClassId, homeworkTab);
 
-
-//                homeworkTab.setTabLayoutPolicy(JTabbedPane.LEFT);
                 for(int i = 0; i < curHws.size(); ++i) {
                     OBEHomework curh = curHws.get(i);
 
@@ -439,12 +462,6 @@ public class ClassesPanel extends JPanel {
                         homeworkTab.addTab(curh.getTitle(), checkSVGIcon, null);
                     }
                 }
-//                for(HashMap.Entry<String, OBEHomework> ent: curHws.entrySet()) {
-//                    OBEHomework curh = ent.getValue();
-//
-////                    homeworkTab.addTab(ent.getValue().getTitle(), checkedIcon, null);
-//                }
-//                homeworkTab.setIconAt(1, checkedIcon);
             }
         });
 
