@@ -249,6 +249,8 @@ public class App {
             else {
                 UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
             }
+            UIManager.put( "TitlePane.unifiedBackground", true );
+            UIManager.put( "TitlePane.menuBarEmbedded", true );
             UIManager.put( "ScrollBar.width", 10 );
             UIManager.put( "ScrollBar.thumbArc", 999 );
             UIManager.put( "ScrollBar.thumbInsets", new Insets( 2, 2, 2, 2 ) );
