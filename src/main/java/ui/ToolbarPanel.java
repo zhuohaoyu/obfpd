@@ -6,6 +6,7 @@ import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.formdev.flatlaf.ui.FlatButtonUI;
 import com.formdev.flatlaf.ui.FlatRoundBorder;
+import com.kitfox.svg.A;
 import main.java.App;
 import javax.swing.*;
 import javax.swing.plaf.ButtonUI;
@@ -120,6 +121,7 @@ public class ToolbarPanel extends JPanel{
             buttonClasses.setSelected( false ) ;
             buttonSettings.setSelected( false ) ;
             buttonForum.setSelected( false );
+            buttonDownloadCenter.setSelected( false ) ;
             App.mainPanelCenter.removeAll();
             App.homePanel.setContent() ;
             App.mainPanelCenter.add( App.homePanel , BorderLayout.CENTER );
@@ -132,6 +134,7 @@ public class ToolbarPanel extends JPanel{
             buttonClasses.setSelected( true ) ;
             buttonSettings.setSelected( false ) ;
             buttonForum.setSelected( false );
+            buttonDownloadCenter.setSelected( false );
             App.mainPanelCenter.removeAll();
             App.classesPanel.setContent() ;
             App.mainPanelCenter.add( App.classesPanel , BorderLayout.CENTER );
@@ -145,6 +148,7 @@ public class ToolbarPanel extends JPanel{
             buttonClasses.setSelected( false ) ;
             buttonSettings.setSelected( true ) ;
             buttonForum.setSelected( false );
+            buttonDownloadCenter.setSelected( false );
             App.mainPanelCenter.removeAll() ;
             App.mainPanelCenter.add( App.settingsPanel , BorderLayout.CENTER ) ;
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
@@ -157,10 +161,25 @@ public class ToolbarPanel extends JPanel{
             buttonClasses.setSelected( false ) ;
             buttonSettings.setSelected( false ) ;
             buttonForum.setSelected( true );
+            buttonDownloadCenter.setSelected( false ) ;
             App.mainPanelCenter.removeAll() ;
             App.forumPanel.initialize();
             App.mainPanelCenter.add( App.forumPanel , BorderLayout.CENTER ) ;
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+            FlatLaf.updateUI();
+        });
+
+        buttonDownloadCenter.addActionListener( e->{
+            App.isForum = false ;
+            buttonHome.setSelected( false ) ;
+            buttonClasses.setSelected( false );
+            buttonSettings.setSelected( false ) ;
+            buttonForum.setSelected( false ) ;
+            buttonDownloadCenter.setSelected( true ) ;
+            App.mainPanelCenter.removeAll();
+            App.downloadPanel.setContent();
+            App.mainPanelCenter.add( App.downloadPanel , BorderLayout.CENTER ) ;
+            SwingUtilities.invokeLater(()-> App.mainPanelCenter.updateUI() ) ;
             FlatLaf.updateUI();
         });
     }

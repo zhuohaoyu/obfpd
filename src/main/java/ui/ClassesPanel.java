@@ -45,8 +45,8 @@ public class ClassesPanel extends JPanel {
     JPanel homeworkDetailPane;
     int chosedClassId ;
     int chosedHomeworkId ;
-    String chosedClass , classList[] ;
-    String chosedHomework , homeworkList[] ;
+    String chosedClass , chosedHomework;
+    String[] homeworkList;
     OBEManager student;
     OBECourse currentSelectedCourse;
     OBEHomework currentSelectedHomework;
@@ -104,8 +104,6 @@ public class ClassesPanel extends JPanel {
     }
 
     private void getCenterPanel(){
-        JPanel panelCenter0 = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , 0 ) ) ;
-        JPanel panelCenter = new JPanel( new GridLayout( 1 , 3 ) ) ;
         UIManager.put( "TabbedPane.tabWidth", 32 );
         {
             classTab = new JTabbedPane() ;
@@ -133,17 +131,6 @@ public class ClassesPanel extends JPanel {
         );
         homeworkDetailPane.setVisible(true);
         this.add(homeworkDetailPane, "growx");
-    }
-
-    private JPanel getDownPanel(){
-        JPanel panelDown = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , UiConsts.MAIN_EDGE_GAP  ) ) ;
-
-        return panelDown ;
-    }
-
-    private JPanel getRightPanel(){
-        JPanel panelRight = new JPanel( new FlowLayout( FlowLayout.LEFT , UiConsts.MAIN_H_GAP , UiConsts.MAIN_EDGE_GAP  ) ) ;
-        return panelRight ;
     }
 
     private Object[][] getCurrentHomeworkLocalData() {
@@ -425,10 +412,8 @@ public class ClassesPanel extends JPanel {
         classTabinit = true ;
 
         ArrayList<OBECourse> hmp = student.getCourses();
-        for(int i = 0; i < hmp.size(); ++i) {
-            OBECourse curCourse = hmp.get(i);
+        for (OBECourse curCourse : hmp) {
             classTab.addTab(curCourse.getCourseName(), null);
-
         }
     }
 
@@ -448,37 +433,25 @@ public class ClassesPanel extends JPanel {
                 homeworkTabinit = true;
                 classTab.setComponentAt(chosedClassId, homeworkTab);
 
-                for(int i = 0; i < curHws.size(); ++i) {
-                    OBEHomework curh = curHws.get(i);
-
-                    if(curh.getStatus() == 1) {
+                for (OBEHomework curh : curHws) {
+                    if (curh.getStatus() == 1) {
                         homeworkTab.addTab(curh.getTitle(), errorSVGIcon, null);
-                    }
-                    else {
+                    } else {
                         homeworkTab.addTab(curh.getTitle(), checkSVGIcon, null);
                     }
                 }
             }
         });
 
-        homeworkTab.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                if (homeworkTabinit) {
-                    if (chosedHomeworkId >= 0) homeworkTab.setComponentAt(chosedHomeworkId, null);
-                    chosedHomeworkId = homeworkTab.getSelectedIndex();
-                    chosedHomework = homeworkTab.getTitleAt(chosedHomeworkId);
-                    currentSelectedHomework = currentSelectedCourse.getHomework().get(chosedHomeworkId);
-                    System.out.println(chosedHomework) ;
-
-                    resetHomeworkDetailPanel();
-//                    homeworkDetailPane.add(getHomeworkDetailPanel());
-//                    homeworkDetailPane.setPreferredSize(new Dimension(800, 600));
-                    homeworkDetailPane.setVisible(true);
-//                    homeworkTab.setComponentAt( chosedHomeworkId , scro_file );
-
-
-                }
+        homeworkTab.addChangeListener(e -> {
+            if (homeworkTabinit) {
+                if (chosedHomeworkId >= 0) homeworkTab.setComponentAt(chosedHomeworkId, null);
+                chosedHomeworkId = homeworkTab.getSelectedIndex();
+                chosedHomework = homeworkTab.getTitleAt(chosedHomeworkId);
+                currentSelectedHomework = currentSelectedCourse.getHomework().get(chosedHomeworkId);
+                System.out.println(chosedHomework) ;
+                resetHomeworkDetailPanel();
+                homeworkDetailPane.setVisible(true);
             }
         });
     }

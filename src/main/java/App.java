@@ -31,7 +31,7 @@ import net.miginfocom.swing.MigLayout;
 
 public class App {
     public static boolean isForum = false;
-    public static boolean islogin ;
+    public static boolean islogin = false ;
     public static boolean isFinishedUpdate = false;
     public static String username ;
     public static String password ;
@@ -43,6 +43,7 @@ public class App {
     public static ClassesPanel classesPanel ;
     public static SettingsPanel settingsPanel ;
     public static ForumPanel forumPanel;
+    public static DownloadPanel downloadPanel ;
 
     public static OBEManager student;
     public static MyClient myclient;
@@ -159,7 +160,7 @@ public class App {
                                             while( true ){
                                                 int nowc = student.getCourses().size() ;
                                                 pbar.setVal( nowc ) ;
-                                                pbar.setNowHint( "正在爬取：" + student.getNowCrawlingCourse() ); ;
+                                                pbar.setNowHint( "正在加载：" + student.getNowCrawlingCourse() ); ;
                                                 try {
                                                     Thread.sleep( 200 ) ;
                                                 } catch ( Exception ae ) { ae.printStackTrace(); }
@@ -221,7 +222,6 @@ public class App {
     }
 
     App() throws InterruptedException {
-        islogin = false;
         student = new OBEManager();
         initialize() ;
         Login fLogin =  new Login() ;
@@ -280,6 +280,8 @@ public class App {
         classesPanel = new ClassesPanel() ;
         forumPanel = new ForumPanel();
         settingsPanel = new SettingsPanel() ;
+        downloadPanel = new DownloadPanel() ;
+
 
         mainToolPanel.add( toolbarPanel , BorderLayout.CENTER ) ;
         mainPanelCenter.add( homePanel , BorderLayout.CENTER ) ;

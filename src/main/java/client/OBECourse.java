@@ -1,10 +1,13 @@
 package main.java.client;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +15,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class OBECourse {
-
-
 
     String CourseID;
     String CourseName;
@@ -123,6 +124,7 @@ public class OBECourse {
             e.printStackTrace();
         }
     }
+
     public void getAllHomework(Map<String, String> Cookie) {
         try{
             String coursehwurl = "http://obe.ruc.edu.cn/index/homework/index/cno/" + CourseID + ".html";
@@ -189,7 +191,6 @@ public class OBECourse {
         }
     }
 
-
     public void getAllAttachment(Map<String, String> Cookie) {
         try{
             String courseDocUrl = "http://obe.ruc.edu.cn/index/document/index/cno/" + CourseID + ".html";
@@ -216,6 +217,7 @@ public class OBECourse {
             e.printStackTrace();
         }
     }
+
     OBECourse(String courseid, String coursename) {
         CourseID = courseid;
         CourseName = coursename;

@@ -48,32 +48,21 @@ public class progressBarFrame extends JFrame {
 
     public void init( int max_ ){
         maximum = max_ ;
-        System.out.printf( "enter progress init:%d" , max_ ) ;
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setMaximum( maximum ) ;
-                progressBar.setValue( 0 ) ;
-            }
+        System.out.printf( "enter progress init:%d\n" , max_ ) ;
+        SwingUtilities.invokeLater(() -> {
+            progressBar.setMaximum( maximum ) ;
+            progressBar.setValue( 0 ) ;
         });
     }
 
     public void setNowHint( String sTitle ){
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                nowDownloadHint.setText( sTitle ) ;
-            }
-        });
+        SwingUtilities.invokeLater(() -> nowDownloadHint.setText( sTitle ));
     }
 
     public void setVal( int val ){
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setValue( val ) ;
-                progressBar.setString( Integer.toString(val) + "/" + Integer.toString(maximum) ) ;
-            }
+        SwingUtilities.invokeLater(() -> {
+            progressBar.setValue( val ) ;
+            progressBar.setString( Integer.toString(val) + "/" + Integer.toString(maximum) ) ;
         });
     }
 
