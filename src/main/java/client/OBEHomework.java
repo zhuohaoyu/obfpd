@@ -5,6 +5,7 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -53,13 +54,13 @@ public class OBEHomework {
         this.localTemp = localTemp;
         File dir = new File( localTemp ) ;
         File lastupdFile = new File( dir , "lastUPD.txt" ) ;
-        if( lastupdFile.exists() == false ){
+        if(!lastupdFile.exists()){
             if( lastUpdateTime != null ) {
                 try {
-                    var osw = new OutputStreamWriter(new FileOutputStream( lastupdFile ), "UTF-8");
+                    var osw = new OutputStreamWriter(new FileOutputStream( lastupdFile ), StandardCharsets.UTF_8);
                     osw.write( lastUpdateTime );
                     osw.close();
-                } catch ( Exception ae ){}
+                } catch ( Exception ae ){ ae.printStackTrace(); }
             }
         } else {
             try {
@@ -69,14 +70,16 @@ public class OBEHomework {
                 System.err.println( "in setLocalTemp: read existing tempfile lastUPD.txt error");
             }
         }
+
         File chooseStatusFile = new File( dir , "chosedFileList.txt" ) ;
-        if( lastupdFile.exists() == false ){
+        if(!lastupdFile.exists()){
             writeInChosedFileList( uploadSelected );
         } else {
             try {
-                var fin = new BufferedReader(new FileReader(lastupdFile ) );
-                String file = null ;
+                var fin = new BufferedReader(new FileReader(chooseStatusFile ) );
+                String file;
                 while( (file = fin.readLine()) != null ){
+//                    System.out.println( title + ": load " + file ) ;
                     uploadSelected.put( file , true ) ;
                 }
             }catch ( Exception ae ){
@@ -90,7 +93,7 @@ public class OBEHomework {
         try {
             File dir = new File(localTemp);
             File chooseStatusFile = new File( dir , "chosedFileList.txt" ) ;
-            var osw = new OutputStreamWriter(new FileOutputStream( chooseStatusFile ), "UTF-8");
+            var osw = new OutputStreamWriter(new FileOutputStream( chooseStatusFile ), StandardCharsets.UTF_8);
             if( mp != null ) {
                 for (var item : mp.keySet()) {
                     if (mp.get(item)) {
@@ -100,7 +103,7 @@ public class OBEHomework {
                 }
             }
             osw.close();
-        } catch ( Exception ae ){}
+        } catch ( Exception ae ){ ae.printStackTrace(); }
     }
 
     public void writeInUPDTimeLog(){
@@ -108,10 +111,10 @@ public class OBEHomework {
         try {
             File dir = new File(localTemp);
             File lastupdFile = new File(dir, "lastUPD.txt");
-            var osw = new OutputStreamWriter(new FileOutputStream( lastupdFile ), "UTF-8");
+            var osw = new OutputStreamWriter(new FileOutputStream( lastupdFile ), StandardCharsets.UTF_8);
             osw.write( lastUpdateTime );
             osw.close();
-        } catch ( Exception ae ){}
+        } catch ( Exception ae ){ ae.printStackTrace(); }
     }
 
     public Map<String, Boolean> getUploadSelected() { return uploadSelected; }
@@ -202,7 +205,7 @@ public class OBEHomework {
     }
 
     public String toString() {
-        String ret = "";
+        String ret;
         if(status == 1) ret = "[Unfinished]";
         else ret = "[Finished]";
         ret += "Homework: " + title + "\n";
@@ -246,7 +249,7 @@ public class OBEHomework {
                     .method(Connection.Method.POST)
                     .execute()
                     .charset("UTF-8");
-            FileOutputStream out = (new FileOutputStream(new java.io.File(path + FileName)));
+            FileOutputStream out = (new FileOutputStream(path + FileName));
             out.write(content.bodyAsBytes());
             out.close();
             return true;

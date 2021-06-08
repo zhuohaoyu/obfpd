@@ -190,9 +190,9 @@ public class ClassesPanel extends JPanel {
     public String packSelectedItems(String path) {
         TableModel mdl = fileTable.getModel();
         int rowCount = mdl.getRowCount();
-        ZipOutputStream zos = null ;
+        ZipOutputStream zos;
         String curHwPath = currentSelectedHomework.getLocalPath();
-        Path dataPath = null;
+        Path dataPath;
         Pattern illegalFilePat = Pattern.compile("[\\\\/:*?\"<>| ]");
         String fixedHwName = illegalFilePat.matcher(currentSelectedHomework.getTitle()).replaceAll("");
 
@@ -225,7 +225,7 @@ public class ClassesPanel extends JPanel {
             for(int i = 0; i < rowCount; ++i) {
                 String filename = (String) mdl.getValueAt(i, 0);
                 Boolean selected = (Boolean) mdl.getValueAt(i, 2);
-                if(selected == true) {
+                if(selected) {
                     System.out.println("ZIP:" + filename);
                     Path curSrcPath = Paths.get(curHwPath, filename);
                     File src = new File(curSrcPath.toString());
@@ -240,7 +240,7 @@ public class ClassesPanel extends JPanel {
         return dataPath.toString();
     }
 
-    private void resetHomeworkDetailPanel() {
+    public void resetHomeworkDetailPanel() {
 
         homeworkDetailPane.setVisible(false);
         homeworkDetailPane.removeAll();
@@ -318,7 +318,7 @@ public class ClassesPanel extends JPanel {
                         }
                     }
                     if( fileCnt == 0 ){
-                        int vopt = JOptionPane.showConfirmDialog( null ,"没有选择任何文件哎！要交空压缩包吗？", "贴心的提示" , 0 ) ;
+                        int vopt = JOptionPane.showConfirmDialog( null ,"没有选择任何文件哎！要交空压缩包吗？", "贴心的提示" , JOptionPane.YES_NO_OPTION) ;
                         if( vopt == JOptionPane.NO_OPTION ) return ;
                     }
                     new Thread(new Runnable() {
@@ -333,13 +333,10 @@ public class ClassesPanel extends JPanel {
                                 System.out.println(currentSelectedHomework.getDescription());
                                 System.out.println(currentSelectedHomework.getDeadLine());
                                 currentSelectedHomework.writeInUPDTimeLog();
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
-                                        resetHomeworkDetailPanel();
-                                        JOptionPane.showMessageDialog( null , "成功提交" , "好起来了" , JOptionPane.INFORMATION_MESSAGE );
-                                    }
+                                SwingUtilities.invokeLater(() -> {
+                                    homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
+                                    resetHomeworkDetailPanel();
+                                    JOptionPane.showMessageDialog( null , "成功提交" , "好起来了" , JOptionPane.INFORMATION_MESSAGE );
                                 });
                             }
                         }
@@ -379,13 +376,10 @@ public class ClassesPanel extends JPanel {
                                 System.out.println(currentSelectedHomework.getDescription());
                                 System.out.println(currentSelectedHomework.getDeadLine());
                                 currentSelectedHomework.writeInUPDTimeLog();
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
-                                        resetHomeworkDetailPanel();
-                                        JOptionPane.showMessageDialog( null , "成功提交" , "好起来了" , JOptionPane.INFORMATION_MESSAGE );
-                                    }
+                                SwingUtilities.invokeLater(() -> {
+                                    homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
+                                    resetHomeworkDetailPanel();
+                                    JOptionPane.showMessageDialog( null , "成功提交" , "好起来了" , JOptionPane.INFORMATION_MESSAGE );
                                 });
 
                             }
@@ -436,7 +430,7 @@ public class ClassesPanel extends JPanel {
                         pbarFrame.setNowHint( "正在下载：" + filename ) ;
                         while ( !currentSelectedHomework.downloadHomeworkAttachment( cookie , path , filename , Integer.toString( attach.getId() ) , filename ) ) {
                             cnt++;
-                            System.out.println("try " + Integer.toString(i) + " failed");
+                            System.out.println("try " + i + " failed");
                             if (cnt > 3) {
                                 break;
                             }

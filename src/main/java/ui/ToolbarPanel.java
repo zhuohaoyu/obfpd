@@ -138,7 +138,8 @@ public class ToolbarPanel extends JPanel{
             buttonDownloadCenter.setSelected( false );
             buttonForumSearch.setSelected( false );
             App.mainPanelCenter.removeAll();
-            App.classesPanel.setContent() ;
+            App.classesPanel.setContent();
+            App.classesPanel.resetHomeworkDetailPanel() ;
             App.mainPanelCenter.add( App.classesPanel , BorderLayout.CENTER );
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
             FlatLaf.updateUI();
