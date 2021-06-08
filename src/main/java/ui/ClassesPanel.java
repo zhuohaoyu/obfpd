@@ -198,8 +198,8 @@ public class ClassesPanel extends JPanel {
         String zipFileName = App.student.getUsername() + "-" + fixedHwName + ".zip";
 
         if(path == null || path.length() < 1) {
-            dataPath = Paths.get(System.getProperty("user.dir"), "OBFPDdata", "submit", zipFileName);
-            Path submitDir = Paths.get(System.getProperty("user.dir"), "OBFPDdata", "submit");
+            dataPath = Paths.get( App.settingsPanel.nowTempPath , "OBFPDdata", "submit", zipFileName);
+            Path submitDir = Paths.get(  App.settingsPanel.nowTempPath , "OBFPDdata", "submit");
             try{
                 Files.createDirectories(submitDir);
             } catch (Exception e) {
@@ -301,10 +301,22 @@ public class ClassesPanel extends JPanel {
             jb1.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    TableModel tmodel = fileTable.getModel() ;
+                    int rowCount = tmodel.getRowCount() ;
+                    int fileCnt = 0 ;
+                    for( int i = 0 ; i < rowCount ; i ++ ){
+                        if ((boolean) tmodel.getValueAt(i, 2)) {
+                            fileCnt++;
+                        }
+                    }
+                    if( fileCnt == 0 ){
+                        JOptionPane.showMessageDialog( null ,"未选择要上传的文件！","摸不着头脑", JOptionPane.ERROR_MESSAGE) ;
+                        return ;
+                    }
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            String packed = packSelectedItems("");
+                            String packed = packSelectedItems( "" );
                             Boolean ret = App.student.uploadHomework(packed, currentSelectedCourse.getCourseID(), currentSelectedHomework.getId());
                             System.out.println("RES:" + ret.toString());
                             if(ret) {
@@ -331,6 +343,18 @@ public class ClassesPanel extends JPanel {
             jb1.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    TableModel tmodel = fileTable.getModel() ;
+                    int rowCount = tmodel.getRowCount() ;
+                    int fileCnt = 0 ;
+                    for( int i = 0 ; i < rowCount ; i ++ ){
+                        if ((boolean) tmodel.getValueAt(i, 2)) {
+                            fileCnt++;
+                        }
+                    }
+                    if( fileCnt == 0 ){
+                        JOptionPane.showMessageDialog( null ,"未选择要上传的文件！","摸不着头脑", JOptionPane.ERROR_MESSAGE) ;
+                        return ;
+                    }
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -364,35 +388,47 @@ public class ClassesPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 progressBarFrame pbarFrame = new progressBarFrame( "下载附件中" ) ;
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ArrayList<OBEAttachment> attachments = currentSelectedHomework.getAttachments() ;
-                        if( attachments.size() == 0 ) {
-                            JOptionPane.showMessageDialog( null , "此作业无附件" , "坏了" , JOptionPane.INFORMATION_MESSAGE );
-                            return;
-                        }
-                        pbarFrame.init( attachments.size() ) ;
-                        pbarFrame.showIt();
-                        Map<String,String> cookie = App.student.getCookie() ;
-                        String path = currentSelectedHomework.getLocalPath() + "\\" ;
-                        for( int i = 0 , lim = attachments.size() ; i < lim ; i ++ ){
-                            OBEAttachment attach = attachments.get( i ) ;
-                            String filename = attach.getName() ;
-                            int cnt = 0 ;
-                            System.out.println( "enter download: " ) ;
-                            System.out.println( i ) ;
-                            pbarFrame.setNowHint( "正在下载：" + filename ); ;
-                            while ( !currentSelectedHomework.downloadHomeworkAttachment( cookie , path , filename , Integer.toString( attach.getId() ) , filename ) ) {
-                                cnt++;
-                                System.out.println("try " + Integer.toString(i) + " failed");
-                                if (cnt > 3) {
-                                    break;
-                                }
+                ArrayList<OBEAttachment> attachments = currentSelectedHomework.getAttachments() ;
+                if( attachments.size() == 0 ) {
+                    JOptionPane.showMessageDialog( null , "此作业无附件" , "坏了" , JOptionPane.INFORMATION_MESSAGE );
+                    return;
+                }
+
+                JFileChooser jfc = new JFileChooser(System.getProperty("user.dir") ) ;
+                jfc.setFileHidingEnabled( true ) ;
+                jfc.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY ) ;
+
+                int vsave = jfc.showDialog( new JLabel( ) , "选择保存位置" ) ;
+                File source ;
+                if( vsave == JFileChooser.APPROVE_OPTION){
+                    source = jfc.getSelectedFile() ;
+                    System.out.printf( "%s\n" , source.getPath() ) ;
+                    if(!source.exists()){
+                        JOptionPane.showMessageDialog( null ,"没有找到这个文件","错误", JOptionPane.ERROR_MESSAGE) ;
+                        return ;
+                    }
+                } else {
+                    return ;
+                }
+
+                new Thread(() -> {
+                    pbarFrame.init( attachments.size() ) ;
+                    pbarFrame.showIt() ;
+                    Map<String,String> cookie = App.student.getCookie() ;
+                    String path = source.getPath() + "\\" ;
+                    for( int i = 0 , lim = attachments.size() ; i < lim ; i ++ ){
+                        OBEAttachment attach = attachments.get( i ) ;
+                        String filename = attach.getName() ;
+                        int cnt = 0 ;
+                        pbarFrame.setNowHint( "正在下载：" + filename ) ;
+                        while ( !currentSelectedHomework.downloadHomeworkAttachment( cookie , path , filename , Integer.toString( attach.getId() ) , filename ) ) {
+                            cnt++;
+                            System.out.println("try " + Integer.toString(i) + " failed");
+                            if (cnt > 3) {
+                                break;
                             }
-                            pbarFrame.setVal( i + 1 ) ;
                         }
-//                        pbarFrame.deleteIt();
+                        pbarFrame.setVal( i + 1 ) ;
                     }
                 }).start();
             }

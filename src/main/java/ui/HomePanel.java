@@ -72,10 +72,10 @@ public class HomePanel extends Panel {
             homeworktot = new JLabel();
             homework3d = new JLabel();
             homework1d = new JLabel();
-            homeworktot.setFont(UiConsts.FONT_NORMAL);
-            homework3d.setFont(UiConsts.FONT_NORMAL);
+            homeworktot.setFont(UiConsts.FONT_TITLE2);
+            homework3d.setFont(UiConsts.FONT_TITLE2);
             homework3d.setForeground(UiConsts.MIMOSAYELLOW);
-            homework1d.setFont(UiConsts.FONT_NORMAL);
+            homework1d.setFont(UiConsts.FONT_TITLE2);
             homework1d.setForeground(UiConsts.BRIGHTRED);
             panelCenterLeft.add(homeworktot, "cell 0 0");
             panelCenterLeft.add(homework3d, "cell 0 1");
@@ -184,9 +184,9 @@ public class HomePanel extends Panel {
         else if( hour <= 24 ) nowT = "夜深了" ;
 
         lableTitle.setText( nowT + ( App.islogin ? ", " + App.student.getName() : "" ) ) ;
-        homeworktot.setText( "待完成的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(999) ) + " 项" ) ;
-        homework3d.setText( "剩余时间不足 3 天的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(3) ) + " 项" ) ;
-        homework1d.setText( "剩余时间不足 1 天的作业:" + Integer.toString( App.student.getDayLimitHomeworkCnt(1)) + " 项" ) ;
+        homeworktot.setText( "待完成的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(999) ) + " 项" ) ;
+        homework3d.setText( "剩余时间不足3天的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(3) ) + " 项" ) ;
+        homework1d.setText( "剩余时间不足1天的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(1)) + " 项" ) ;
 
         String buf = "[]";
         int total = App.update.size() ;

@@ -103,7 +103,7 @@ public class DownloadPanel extends JPanel {
         JPanel downloadPane = new JPanel();
         downloadPane.setLayout(
                 new MigLayout(
-                        "ltr,insets 0,hidemode 0",
+                        "",
                         "[fill,grow,shrink]",
                         "[grow,fill][]"
                 )
