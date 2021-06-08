@@ -12,16 +12,12 @@ import java.rmi.server.ExportException;
 import java.util.*;
 import java.util.List;
 
-public class ForumPanel extends JPanel {
+public class SearchPanel extends JPanel {
     JLabel tabPlacementLabel = null;
     JPanel panelTitle = null;
     JPanel panelContent = null;
     JScrollPane jsPanel = null;
-    public boolean isQueryREPLYFinished = false;
-    public boolean isQueryPOSTFinished = false;
-    public static int cnt = 0;
-    public List < Map<String, String> > post = new ArrayList<>();
-    public List < Map<String, String> > reply = new ArrayList<>();
+    JTextField jtftitile = null;
 
     public class ReadMore implements ActionListener {
         public JFrame Reply = null;
@@ -65,20 +61,19 @@ public class ForumPanel extends JPanel {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("Task", "queryREPLY");
             jsonObject.put("postID", postID);
-            isQueryREPLYFinished = false;
-            reply.clear();
+            App.forumPanel.isQueryREPLYFinished = false;
+            App.forumPanel.reply.clear();
             App.myclient.send(jsonObject);
 
-            while (!isQueryREPLYFinished) {
+            while (!App.forumPanel.isQueryREPLYFinished) {
                 try{
                     Thread.sleep(100);
                 }
                 catch (Exception e) {  }
             }
-            System.err.println("refresh in READMORE" + reply.size() + "  " + isQueryREPLYFinished);
-            isQueryREPLYFinished = false;
+            App.forumPanel.isQueryREPLYFinished = false;
             int sum = 0;
-            int total = reply.size() - 1;
+            int total = App.forumPanel.reply.size() - 1;
             String buf = "[]";
             for (int i = 1; i < total; ++i)
                 buf = buf + "5[]";
@@ -90,7 +85,7 @@ public class ForumPanel extends JPanel {
             ));
             System.err.println("in refresh: " + total);
             for (int i = 0; i <= total; ++i) {
-                Map<String, String> detail = reply.get(i);
+                Map<String, String> detail = App.forumPanel.reply.get(i);
                 System.err.println("refresh: " + detail.get("postID") + "  " + postID);
                 if (!detail.get("postID").equals(postID)) continue;
                 if (sum == 0) {
@@ -140,20 +135,19 @@ public class ForumPanel extends JPanel {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("Task", "queryREPLY");
             jsonObject.put("postID", postID);
-            isQueryREPLYFinished = false;
-            reply.clear();
+            App.forumPanel.isQueryREPLYFinished = false;
+            App.forumPanel.reply.clear();
             App.myclient.send(jsonObject);
 
-            while (!isQueryREPLYFinished) {
+            while (!App.forumPanel.isQueryREPLYFinished) {
                 try{
                     Thread.sleep(100);
                 }
                 catch (Exception e) {  }
             }
-            System.err.println("refresh in READMORE" + reply.size() + "  " + isQueryREPLYFinished);
-            isQueryREPLYFinished = false;
+            App.forumPanel.isQueryREPLYFinished = false;
 
-            System.err.println(reply);
+            System.err.println(App.forumPanel.reply);
             jpr.setLayout( new MigLayout(
                     "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ",hidemode 3",
                     "[grow,fill]para",
@@ -179,8 +173,8 @@ public class ForumPanel extends JPanel {
                 ));
                 JLabel user = new JLabel();
                 JLabel ptti = new JLabel();
-                for (int i = 0; i < reply.size(); ++i) {
-                    Map<String, String> detail = reply.get(i);
+                for (int i = 0; i < App.forumPanel.reply.size(); ++i) {
+                    Map<String, String> detail = App.forumPanel.reply.get(i);
                     if (!detail.get("postID").equals(postID)) continue;
                     panelPoster.add(createREPLY(detail, true), "cell 0 0");
 
@@ -207,7 +201,7 @@ public class ForumPanel extends JPanel {
             /******** Reply ********/
             {
                 int sum = 0;
-                int total = reply.size() - 1;
+                int total = App.forumPanel.reply.size() - 1;
                 String buf = "[]";
                 for (int i = 1; i < total; ++i)
                     buf = buf + "5[]";
@@ -218,7 +212,7 @@ public class ForumPanel extends JPanel {
                         buf
                 ));
                 for (int i = 0; i <= total; ++i) {
-                    Map<String, String> detail = reply.get(i);
+                    Map<String, String> detail = App.forumPanel.reply.get(i);
                     if (!detail.get("postID").equals(postID)) continue;
                     if (sum == 0) {
                         sum += 1;
@@ -301,7 +295,7 @@ public class ForumPanel extends JPanel {
                             jsonObject.put("content", jtacontent.getText());
                             jsonObject.put("postID", postID);
                             jsonObject.put("userID", App.username);
-                            isQueryREPLYFinished = false;
+                            App.forumPanel.isQueryREPLYFinished = false;
                             App.myclient.send(jsonObject);
                             refresh();
                         }
@@ -338,147 +332,20 @@ public class ForumPanel extends JPanel {
         }
     }
 
-    private class NewPost implements ActionListener {
-        private JFrame NewPost = null;
-        private JTextField jtftitile = null;
-        private JTextField jtfcourse = null;
-        private JTextArea jtacontent = null;
-
-        void initialize() {
-            NewPost.setLayout( new MigLayout(
-                    "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ",hidemode 3",
-                    "[grow,fill]para",
-                    "[]10[grow,fill]"
-            ));
-
-            /******** Title ********/
-            {
-                JPanel panelTitle = new JPanel();
-                JLabel label = new JLabel("分享新鲜事");
-                label.setFont(UiConsts.FONT_TITLE0);
-                panelTitle.add(label);
-                NewPost.add(panelTitle, "cell 0 0,alignx left,growx 0");
-            }
-
-            /******** Post Content ********/
-            {
-                JPanel panelContent = new JPanel();
-                panelContent.setLayout(new MigLayout(
-                        "insets 0,hidemode 3",
-                        "[grow,fill]para",
-                        "[]10[]10[grow,fill]10[]"
-                ));
-                {
-                    JPanel panelCourse = new JPanel();
-                    panelCourse.setLayout(new MigLayout(
-                            "insets 0,hidemode 3",
-                            "[]10[grow,fill]para",
-                            "[grow,fill]"
-                    ));
-                    JLabel label = new JLabel("话 题：");
-                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
-                    jtfcourse = new JTextField();
-                    jtfcourse.setFont(jtfcourse.getFont().deriveFont(jtfcourse.getFont().getSize() + 4f));
-                    panelCourse.add(label, "cell 0 0");
-                    panelCourse.add(jtfcourse, "cell 1 0");
-                    panelContent.add(panelCourse, "cell 0 1");
-                }
-                {
-                    JPanel panelCourse = new JPanel();
-                    panelCourse.setLayout(new MigLayout(
-                            "insets 0,hidemode 3",
-                            "[]10[grow,fill]para",
-                            "[grow,fill]"
-                    ));
-                    JLabel label = new JLabel("标 题：");
-                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
-                    jtftitile = new JTextField();
-                    jtftitile.setFont(jtftitile.getFont().deriveFont(jtftitile.getFont().getSize() + 4f));
-                    panelCourse.add(label, "cell 0 0");
-                    panelCourse.add(jtftitile, "cell 1 0");
-                    panelContent.add(panelCourse, "cell 0 0");
-                }
-                {
-                    JPanel panelCourse = new JPanel();
-                    panelCourse.setLayout(new MigLayout(
-                            "insets 0,hidemode 3",
-                            "[]10[grow,fill]para",
-                            "[grow,fill]"
-                    ));
-                    JLabel label = new JLabel("内 容：");
-                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
-                    jtacontent = new JTextArea();
-                    jtacontent.setFont(jtacontent.getFont().deriveFont(jtacontent.getFont().getSize() + 4f));
-                    jtacontent.setLineWrap(true);
-                    JScrollPane jsp = new JScrollPane(jtacontent);
-                    panelCourse.add(label, "cell 0 0");
-                    panelCourse.add(jsp, "cell 1 0");
-                    panelContent.add(panelCourse, "cell 0 2");
-                }
-                {
-                    JPanel panelButton = new JPanel();
-                    panelButton.setLayout(new MigLayout(
-                            "insets 0,hidemode 3",
-                            "[]20[]20",
-                            "[grow,fill]"
-                    ));
-                    JButton jbok = new JButton("发 送");
-                    JButton jbcancle = new JButton("取 消");
-                    jbok.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("Task", "createPOST");
-                            jsonObject.put("Title", jtftitile.getText());
-                            jsonObject.put("topic", jtfcourse.getText());
-                            jsonObject.put("content", jtacontent.getText());
-                            jsonObject.put("userID", App.username);
-                            App.myclient.send(jsonObject);
-                            NewPost.dispose();
-                            ReFresh();
-                        }
-                    });
-                    jbcancle.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            NewPost.dispose();
-                        }
-                    });
-                    panelButton.add(jbok, "cell 0 0");
-                    panelButton.add(jbcancle, "cell 1 0");
-                    panelContent.add(panelButton, "cell 0 3,align right,growx 0");
-                }
-                NewPost.add(panelContent, "cell 0 1");
-            }
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            NewPost = new JFrame("分享新鲜事");
-            NewPost.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-            NewPost.setVisible(true);
-            NewPost.setBounds( UiConsts.MAIN_WINDOW_X,
-                    UiConsts.MAIN_WINDOW_Y,
-                    UiConsts.MAIN_WINDOW_WIDTH,
-                    UiConsts.MAIN_WINDOW_HEIGHT ) ;
-            initialize();
-        }
-    }
-
     public void ReFresh() {
         if (App.isForum == true) {
             initialize();
-            App.mainPanelCenter.add(App.forumPanel, BorderLayout.CENTER);
+            App.mainPanelCenter.add(App.searchPanel, BorderLayout.CENTER);
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
         }
     }
 
-    public ForumPanel(){
+    public SearchPanel(){
         setName("this");
         setLayout( new MigLayout(
                 "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ", hidemode 3",
                 "[grow,fill]para",
-                "[][]"
+                "[][][]"
         ));
         tabPlacementLabel = new JLabel();
 
@@ -492,31 +359,40 @@ public class ForumPanel extends JPanel {
         JPanel panelTitle = new JPanel();
         panelTitle.setLayout( new MigLayout(
                 "insets 0, hidemode 3",
-                "[][grow,fill]para[]20[]",
-                "[]"
+                "[grow,fill]",
+                "[][]"
         ));
-        tabPlacementLabel.setText("论坛");
+        tabPlacementLabel.setText("搜索");
         tabPlacementLabel.setFont(UiConsts.FONT_TITLE0);
         JSeparator sepline = new JSeparator() ;
         sepline.setPreferredSize( new Dimension( UiConsts.INF_WIDTH , 20 ) ) ;
-        panelTitle.add(tabPlacementLabel, "cell 0 0");
+        panelTitle.add(tabPlacementLabel, "cell 0 0,align left,growx 0");
 
-        JButton jbrefresh = new JButton();
-        jbrefresh.setText("刷 新");
-        jbrefresh.addActionListener(new ActionListener() {
+        JPanel panelCourse = new JPanel();
+        panelCourse.setLayout(new MigLayout(
+                "insets 0,hidemode 3",
+                "[]10[grow,fill]10[]",
+                "[grow,fill]"
+        ));
+        JLabel label = new JLabel("标 题：");
+        label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
+        jtftitile = new JTextField();
+        jtftitile.setFont(jtftitile.getFont().deriveFont(jtftitile.getFont().getSize() + 4f));
+        JButton jbs = new JButton();
+        jbs.setText("搜一搜");
+        jbs.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ReFresh();
             }
         });
-        panelTitle.add(jbrefresh, "cell 2 0");
-
-        JButton jbnew = new JButton();
-        jbnew.setText("分享新鲜事");
-        jbnew.addActionListener(new NewPost());
-        panelTitle.add(jbnew, "cell 3 0");
+        panelCourse.add(label, "cell 0 0");
+        panelCourse.add(jtftitile, "cell 1 0");
+        panelCourse.add(jbs, "cell 2 0");
+        panelTitle.add(panelCourse, "cell 0 1");
 
         add(panelTitle, "cell 0 0");
+        initialize() ;
     }
 
     private JPanel createPOST(String title, String user, String postID) {
@@ -542,35 +418,24 @@ public class ForumPanel extends JPanel {
         ReadMoreButton.setFont(ReadMoreButton.getFont().deriveFont(ReadMoreButton.getFont().getSize() + 0f));
         ReadMoreButton.setName("ReadMoreButton");
         panel.add(ReadMoreButton, "cell 0 1");
-
-        Map<String, String> mp = new HashMap<String, String>();
-/*
-        for (int i = 1; i <= 10; ++i) {
-            mp = new HashMap<String, String>();
-            mp.put("content", "orz" + Integer.toString(i) + " " + postID);
-            mp.put("time", "2021-6-5 23:27:17");
-            mp.put("postID", postID);
-            reply.add(mp);
-        }
- */
         ReadMoreButton.addActionListener(new ReadMore(postID, title));
 
         return panel;
     }
 
     public void initialize(){
-        post.clear();
+        App.forumPanel.post.clear();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("Task", "queryPOST");
         App.myclient.send(jsonObject);
 
-        while (!isQueryPOSTFinished) {
+        while (!App.forumPanel.isQueryPOSTFinished) {
             try {
                 Thread.sleep(100);
             }
             catch (Exception e) { }
         }
-        isQueryPOSTFinished = false;
+        App.forumPanel.isQueryPOSTFinished = false;
 
         if (jsPanel != null) {
             remove(panelContent);
@@ -578,7 +443,7 @@ public class ForumPanel extends JPanel {
         }
 
         String buf = "[]";
-        int total = post.size() - 1;
+        int total = App.forumPanel.post.size() - 1;
         System.err.println("in forum panel: " + total);
         for (int i = 1; i <= total; ++i)
             buf = buf + "15[]";
@@ -590,7 +455,10 @@ public class ForumPanel extends JPanel {
                 // rows
                 buf));
         for (int i = total; i >= 0; --i) {
-            Map<String, String> detail = post.get(i);
+            Map<String, String> detail = App.forumPanel.post.get(i);
+            System.err.println("search: " + jtftitile.getText());
+            System.err.println("thispost: " + detail.get("Title"));
+            if (!detail.get("Title").contains(jtftitile.getText())) continue;
             panelContent.add(createPOST(detail.get("Title"),
                     detail.get("userID"),
                     detail.get("postID")),
