@@ -280,6 +280,7 @@ public class App {
         homePanel = new HomePanel() ;
         classesPanel = new ClassesPanel() ;
         forumPanel = new ForumPanel();
+        forumPanel.initialize();
         settingsPanel = new SettingsPanel() ;
         downloadPanel = new DownloadPanel() ;
         searchPanel = new SearchPanel();

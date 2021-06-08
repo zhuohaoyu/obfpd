@@ -35,16 +35,16 @@ public class MyWebSocketClient extends WebSocketClient{
             mp.put("Title", jsonObject.get("Title").toString());
             mp.put("userID", jsonObject.get("userID").toString());
             mp.put("postID", jsonObject.get("postID").toString());
-            ForumPanel.post.add(mp);
-            System.err.println("list: " + ForumPanel.post + "  size = " + ForumPanel.post.size());
+            App.forumPanel.post.add(mp);
+            System.err.println("list: " + App.forumPanel.post + "  size = " + App.forumPanel.post.size());
         }
         else if (jsonObject.get("Task").equals(ClientConstants.queryPOST)) {
             Map<String, String> mp = new HashMap<>();
             mp.put("Title", jsonObject.get("Title").toString());
             mp.put("userID", jsonObject.get("userID").toString());
             mp.put("postID", jsonObject.get("postID").toString());
-            ForumPanel.post.add(mp);
-            System.err.println("list: " + ForumPanel.post + "  size = " + ForumPanel.post.size());
+            App.forumPanel.post.add(mp);
+            System.err.println("list: " + App.forumPanel.post + "  size = " + App.forumPanel.post.size());
         }
         else if (jsonObject.get("Task").equals(ClientConstants.queryREPLY)) {
             Map<String, String> mp = new HashMap<>();
@@ -52,13 +52,13 @@ public class MyWebSocketClient extends WebSocketClient{
             mp.put("time", jsonObject.get("time").toString());
             mp.put("posterID", jsonObject.get("posterID").toString());
             mp.put("postID", jsonObject.get("postID").toString());
-            ForumPanel.reply.add(mp);
+            App.forumPanel.reply.add(mp);
         }
         else if (jsonObject.get("Task").equals(ClientConstants.queryREPLYFinished)) {
-            ForumPanel.isQueryREPLYFinished = true;
+            App.forumPanel.isQueryREPLYFinished = true;
         }
         else if (jsonObject.get("Task").equals(ClientConstants.queryPOSTFinished)) {
-            ForumPanel.isQueryPOSTFinished = true;
+            App.forumPanel.isQueryPOSTFinished = true;
         }
         else if (jsonObject.get("Task").equals(ClientConstants.queryUPDATE)) {
             int sum = Integer.parseInt(jsonObject.get("size").toString());

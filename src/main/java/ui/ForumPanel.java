@@ -17,11 +17,11 @@ public class ForumPanel extends JPanel {
     JPanel panelTitle = null;
     JPanel panelContent = null;
     JScrollPane jsPanel = null;
-    public static boolean isQueryREPLYFinished = false;
-    public static boolean isQueryPOSTFinished = false;
+    public boolean isQueryREPLYFinished = false;
+    public boolean isQueryPOSTFinished = false;
     public static int cnt = 0;
-    public static List < Map<String, String> > post = new ArrayList<>();
-    public static List < Map<String, String> > reply = new ArrayList<>();
+    public List < Map<String, String> > post = new ArrayList<>();
+    public List < Map<String, String> > reply = new ArrayList<>();
 
     public class ReadMore implements ActionListener {
         public JFrame Reply = null;
@@ -517,22 +517,6 @@ public class ForumPanel extends JPanel {
         panelTitle.add(jbnew, "cell 3 0");
 
         add(panelTitle, "cell 0 0");
-        initialize() ;
-/*
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        Thread.sleep(5 * 1000);
-                        ReFresh();
-                    }
-                    catch (Exception e) { }
-                }
-            }
-        }).start();
-        支持自动刷新功能，放在设置里，默认关闭
- */
     }
 
     private JPanel createPOST(String title, String user, String postID) {

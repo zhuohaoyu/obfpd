@@ -61,19 +61,19 @@ public class SearchPanel extends JPanel {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("Task", "queryREPLY");
             jsonObject.put("postID", postID);
-            ForumPanel.isQueryREPLYFinished = false;
-            ForumPanel.reply.clear();
+            App.forumPanel.isQueryREPLYFinished = false;
+            App.forumPanel.reply.clear();
             App.myclient.send(jsonObject);
 
-            while (!ForumPanel.isQueryREPLYFinished) {
+            while (!App.forumPanel.isQueryREPLYFinished) {
                 try{
                     Thread.sleep(100);
                 }
                 catch (Exception e) {  }
             }
-            ForumPanel.isQueryREPLYFinished = false;
+            App.forumPanel.isQueryREPLYFinished = false;
             int sum = 0;
-            int total = ForumPanel.reply.size() - 1;
+            int total = App.forumPanel.reply.size() - 1;
             String buf = "[]";
             for (int i = 1; i < total; ++i)
                 buf = buf + "5[]";
@@ -85,7 +85,7 @@ public class SearchPanel extends JPanel {
             ));
             System.err.println("in refresh: " + total);
             for (int i = 0; i <= total; ++i) {
-                Map<String, String> detail = ForumPanel.reply.get(i);
+                Map<String, String> detail = App.forumPanel.reply.get(i);
                 System.err.println("refresh: " + detail.get("postID") + "  " + postID);
                 if (!detail.get("postID").equals(postID)) continue;
                 if (sum == 0) {
@@ -135,19 +135,19 @@ public class SearchPanel extends JPanel {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("Task", "queryREPLY");
             jsonObject.put("postID", postID);
-            ForumPanel.isQueryREPLYFinished = false;
-            ForumPanel.reply.clear();
+            App.forumPanel.isQueryREPLYFinished = false;
+            App.forumPanel.reply.clear();
             App.myclient.send(jsonObject);
 
-            while (!ForumPanel.isQueryREPLYFinished) {
+            while (!App.forumPanel.isQueryREPLYFinished) {
                 try{
                     Thread.sleep(100);
                 }
                 catch (Exception e) {  }
             }
-            ForumPanel.isQueryREPLYFinished = false;
+            App.forumPanel.isQueryREPLYFinished = false;
 
-            System.err.println(ForumPanel.reply);
+            System.err.println(App.forumPanel.reply);
             jpr.setLayout( new MigLayout(
                     "insets " + Integer.toString(UiConsts.MAIN_H_GAP) + ",hidemode 3",
                     "[grow,fill]para",
@@ -173,8 +173,8 @@ public class SearchPanel extends JPanel {
                 ));
                 JLabel user = new JLabel();
                 JLabel ptti = new JLabel();
-                for (int i = 0; i < ForumPanel.reply.size(); ++i) {
-                    Map<String, String> detail = ForumPanel.reply.get(i);
+                for (int i = 0; i < App.forumPanel.reply.size(); ++i) {
+                    Map<String, String> detail = App.forumPanel.reply.get(i);
                     if (!detail.get("postID").equals(postID)) continue;
                     panelPoster.add(createREPLY(detail, true), "cell 0 0");
 
@@ -201,7 +201,7 @@ public class SearchPanel extends JPanel {
             /******** Reply ********/
             {
                 int sum = 0;
-                int total = ForumPanel.reply.size() - 1;
+                int total = App.forumPanel.reply.size() - 1;
                 String buf = "[]";
                 for (int i = 1; i < total; ++i)
                     buf = buf + "5[]";
@@ -212,7 +212,7 @@ public class SearchPanel extends JPanel {
                         buf
                 ));
                 for (int i = 0; i <= total; ++i) {
-                    Map<String, String> detail = ForumPanel.reply.get(i);
+                    Map<String, String> detail = App.forumPanel.reply.get(i);
                     if (!detail.get("postID").equals(postID)) continue;
                     if (sum == 0) {
                         sum += 1;
@@ -295,7 +295,7 @@ public class SearchPanel extends JPanel {
                             jsonObject.put("content", jtacontent.getText());
                             jsonObject.put("postID", postID);
                             jsonObject.put("userID", App.username);
-                            ForumPanel.isQueryREPLYFinished = false;
+                            App.forumPanel.isQueryREPLYFinished = false;
                             App.myclient.send(jsonObject);
                             refresh();
                         }
@@ -335,7 +335,7 @@ public class SearchPanel extends JPanel {
     public void ReFresh() {
         if (App.isForum == true) {
             initialize();
-            App.mainPanelCenter.add(App.forumPanel, BorderLayout.CENTER);
+            App.mainPanelCenter.add(App.searchPanel, BorderLayout.CENTER);
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
         }
     }
@@ -380,6 +380,12 @@ public class SearchPanel extends JPanel {
         jtftitile.setFont(jtftitile.getFont().deriveFont(jtftitile.getFont().getSize() + 4f));
         JButton jbs = new JButton();
         jbs.setText("搜一搜");
+        jbs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ReFresh();
+            }
+        });
         panelCourse.add(label, "cell 0 0");
         panelCourse.add(jtftitile, "cell 1 0");
         panelCourse.add(jbs, "cell 2 0");
@@ -418,18 +424,18 @@ public class SearchPanel extends JPanel {
     }
 
     public void initialize(){
-        ForumPanel.post.clear();
+        App.forumPanel.post.clear();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("Task", "queryPOST");
         App.myclient.send(jsonObject);
 
-        while (!ForumPanel.isQueryPOSTFinished) {
+        while (!App.forumPanel.isQueryPOSTFinished) {
             try {
                 Thread.sleep(100);
             }
             catch (Exception e) { }
         }
-        ForumPanel.isQueryPOSTFinished = false;
+        App.forumPanel.isQueryPOSTFinished = false;
 
         if (jsPanel != null) {
             remove(panelContent);
@@ -437,7 +443,7 @@ public class SearchPanel extends JPanel {
         }
 
         String buf = "[]";
-        int total = ForumPanel.post.size() - 1;
+        int total = App.forumPanel.post.size() - 1;
         System.err.println("in forum panel: " + total);
         for (int i = 1; i <= total; ++i)
             buf = buf + "15[]";
@@ -449,7 +455,7 @@ public class SearchPanel extends JPanel {
                 // rows
                 buf));
         for (int i = total; i >= 0; --i) {
-            Map<String, String> detail = ForumPanel.post.get(i);
+            Map<String, String> detail = App.forumPanel.post.get(i);
             System.err.println("search: " + jtftitile.getText());
             System.err.println("thispost: " + detail.get("Title"));
             if (!detail.get("Title").contains(jtftitile.getText())) continue;
