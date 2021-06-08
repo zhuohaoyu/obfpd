@@ -187,7 +187,7 @@ public class ClassesPanel extends JPanel {
         fis.close();
     }
 
-    private String packSelectedItems(String path) {
+    public String packSelectedItems(String path) {
         TableModel mdl = fileTable.getModel();
         int rowCount = mdl.getRowCount();
         ZipOutputStream zos = null ;
@@ -199,8 +199,8 @@ public class ClassesPanel extends JPanel {
         String zipFileName = App.student.getUsername() + "-" + fixedHwName + ".zip";
 
         if(path == null || path.length() < 1) {
-            dataPath = Paths.get( App.settingsPanel.nowTempPath , "OBFPDdata", "submit", zipFileName);
-            Path submitDir = Paths.get(  App.settingsPanel.nowTempPath , "OBFPDdata", "submit");
+            dataPath = Paths.get( App.settingsPanel.nowWorkPath , "OBFPDdata", "submit", zipFileName);
+            Path submitDir = Paths.get(  App.settingsPanel.nowWorkPath , "OBFPDdata", "submit");
             try{
                 Files.createDirectories(submitDir);
             } catch (Exception e) {
@@ -332,6 +332,7 @@ public class ClassesPanel extends JPanel {
                                 currentSelectedHomework.setStatus(0);
                                 System.out.println(currentSelectedHomework.getDescription());
                                 System.out.println(currentSelectedHomework.getDeadLine());
+                                currentSelectedHomework.writeInUPDTimeLog();
                                 SwingUtilities.invokeLater(new Runnable() {
                                     @Override
                                     public void run() {
@@ -377,6 +378,7 @@ public class ClassesPanel extends JPanel {
                                 currentSelectedHomework.setStatus(0);
                                 System.out.println(currentSelectedHomework.getDescription());
                                 System.out.println(currentSelectedHomework.getDeadLine());
+                                currentSelectedHomework.writeInUPDTimeLog();
                                 SwingUtilities.invokeLater(new Runnable() {
                                     @Override
                                     public void run() {
@@ -507,7 +509,7 @@ public class ClassesPanel extends JPanel {
                     if( (Boolean) tmodel.getValueAt( i , 2 ) )
                         nowSelected.put( (String) tmodel.getValueAt( i , 0 ) , true ) ;
                 }
-                currentSelectedHomework.setUploadSelected( nowSelected ) ;
+                currentSelectedHomework.writeInChosedFileList( nowSelected ) ;
             }
             @Override
             public void mousePressed(MouseEvent e) { }

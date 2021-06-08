@@ -197,17 +197,16 @@ public class OBEManager {
     }
 
     public void createDataFolders(String path) {
-        System.out.println(System.getProperty("user.dir"));
         Path dataPath = null;
         Pattern illegalFilePat = Pattern.compile("[\\\\/:*?\"<>| ]");
 
         if(path == null || path.length() < 1) {
             dataPath = Paths.get(System.getProperty("user.dir"), "OBFPDdata", Username);
-            System.out.println(dataPath);
+            System.out.println( "创建工作目录：" + dataPath);
         }
         else {
             dataPath = Paths.get(path, "OBFPDdata", Username);
-            System.out.println(dataPath);
+            System.out.println(  "创建工作目录：" + dataPath);
         }
         try{
             for(int i = 0; i < courses.size(); ++i) {
@@ -222,6 +221,38 @@ public class OBEManager {
                     Path hwPath = Paths.get(coursePathCreate.toString(), fixedHwName);
                     Path hwPathCreate = Files.createDirectories(hwPath);
                     curHomework.setLocalPath(hwPathCreate.toString());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createTempFolders(String path) {
+        Path dataPath = null;
+        Pattern illegalFilePat = Pattern.compile("[\\\\/:*?\"<>| ]");
+
+        if(path == null || path.length() < 1) {
+            dataPath = Paths.get(System.getProperty("user.dir"), "temp", "tempData", Username);
+            System.out.println( "创建缓存目录：" + dataPath);
+        }
+        else {
+            dataPath = Paths.get(path, "tempData", Username);
+            System.out.println( "创建缓存目录：" + dataPath);
+        }
+        try{
+            for(int i = 0; i < courses.size(); ++i) {
+                OBECourse curCourse = courses.get(i);
+                String fixedCourseName = illegalFilePat.matcher(curCourse.getCourseName()).replaceAll("");
+                Path coursePath = Paths.get(dataPath.toString(), fixedCourseName);
+                Path coursePathCreate = Files.createDirectories(coursePath);
+
+                for(int j = 0; j < curCourse.homework.size(); ++j) {
+                    OBEHomework curHomework = curCourse.homework.get(j);
+                    String fixedHwName = illegalFilePat.matcher(curHomework.getTitle()).replaceAll("");
+                    Path hwPath = Paths.get(coursePathCreate.toString(), fixedHwName);
+                    Path hwPathCreate = Files.createDirectories(hwPath);
+                    curHomework.setLocalTemp(hwPathCreate.toString());
                 }
             }
         } catch (Exception e) {

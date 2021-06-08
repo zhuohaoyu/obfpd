@@ -4,8 +4,7 @@ import main.java.App;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,14 +23,22 @@ public class OBEHomework {
     // 作业编号
     int id;
     // 所有附件
-    String localPath;
-    // 本地数据目录
     ArrayList<OBEAttachment> attachments;
+    // 本地数据目录
+    String localPath;
+    // 本地缓存目录
+    String localTemp ;
+    // 本地上次提交时间
+    String lastUpdateTime = null ;
     // 每个文件是否被选择提交
     Map< String , Boolean > uploadSelected ;
 
     public String getLocalPath() {
         return localPath;
+    }
+
+    public String getLocalTemp() {
+        return localTemp;
     }
 
     public void setStatus(int s) {
@@ -42,8 +49,69 @@ public class OBEHomework {
         localPath = s;
     }
 
-    public void setUploadSelected(Map<String, Boolean> uploadSelected) {
-        this.uploadSelected = uploadSelected;
+    public void setLocalTemp(String localTemp) {
+        this.localTemp = localTemp;
+        File dir = new File( localTemp ) ;
+        File lastupdFile = new File( dir , "lastUPD.txt" ) ;
+        if( lastupdFile.exists() == false ){
+            if( lastUpdateTime != null ) {
+                try {
+                    var osw = new OutputStreamWriter(new FileOutputStream( lastupdFile ), "UTF-8");
+                    osw.write( lastUpdateTime );
+                    osw.close();
+                } catch ( Exception ae ){}
+            }
+        } else {
+            try {
+                var fin = new BufferedReader(new FileReader(lastupdFile ) );
+                lastUpdateTime = fin.readLine() ;
+            }catch ( Exception ae ){
+                System.err.println( "in setLocalTemp: read existing tempfile lastUPD.txt error");
+            }
+        }
+        File chooseStatusFile = new File( dir , "chosedFileList.txt" ) ;
+        if( lastupdFile.exists() == false ){
+            writeInChosedFileList( uploadSelected );
+        } else {
+            try {
+                var fin = new BufferedReader(new FileReader(lastupdFile ) );
+                String file = null ;
+                while( (file = fin.readLine()) != null ){
+                    uploadSelected.put( file , true ) ;
+                }
+            }catch ( Exception ae ){
+                writeInChosedFileList ( uploadSelected ) ;
+            }
+        }
+    }
+
+    public void writeInChosedFileList( Map<String ,Boolean> mp ){
+        this.uploadSelected = mp ;
+        try {
+            File dir = new File(localTemp);
+            File chooseStatusFile = new File( dir , "chosedFileList.txt" ) ;
+            var osw = new OutputStreamWriter(new FileOutputStream( chooseStatusFile ), "UTF-8");
+            if( mp != null ) {
+                for (var item : mp.keySet()) {
+                    if (mp.get(item)) {
+                        osw.write(item);
+                        osw.write("\n");
+                    }
+                }
+            }
+            osw.close();
+        } catch ( Exception ae ){}
+    }
+
+    public void writeInUPDTimeLog(){
+        lastUpdateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()) ;
+        try {
+            File dir = new File(localTemp);
+            File lastupdFile = new File(dir, "lastUPD.txt");
+            var osw = new OutputStreamWriter(new FileOutputStream( lastupdFile ), "UTF-8");
+            osw.write( lastUpdateTime );
+            osw.close();
+        } catch ( Exception ae ){}
     }
 
     public Map<String, Boolean> getUploadSelected() { return uploadSelected; }
@@ -93,18 +161,44 @@ public class OBEHomework {
         try {
             date = sdf.parse(deadLine);
         } catch (ParseException e) {
-            e.printStackTrace();
+            System.err.println( "in checkLeftDay : parse error") ;
         }
         Calendar ddl = Calendar.getInstance();
         ddl.setTime(date);
         Calendar now = Calendar.getInstance() ;
 
-//        System.out.printf( "now homework :%s\n" , title ) ;
         long aTime=now.getTimeInMillis() , bTime = ddl.getTimeInMillis() ;
 //        if( aTime >= bTime ) return -1 ;
 //        System.out.printf( "single check Day: %d %d\n" , bTime - aTime , ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24  );
         return ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24 ;
 
+    }
+
+    public Boolean checkFileUpdate(){
+        if( lastUpdateTime == null ) return false ;
+        String path = localPath ;
+        System.out.println( "checking Update... " + path);
+        File file = new File(path);
+        File[] tempList = file.listFiles();
+        Calendar lsupd = Calendar.getInstance() ;
+        try {
+            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse( lastUpdateTime ) ;
+            lsupd.setTime( date );
+        } catch ( ParseException e ){
+            System.err.println( "in checkFileUpdate : parse error") ;
+        }
+
+        for (int i = 0; i < tempList.length; i++) {
+            if( uploadSelected.get( tempList[i].getName() ) == null ) continue ;
+            if( !uploadSelected.get( tempList[i].getName() ) ) continue ;
+            System.out.println( "    " + tempList[i].getName());
+            Date date = new Date(tempList[i].lastModified());
+            Calendar lsm = Calendar.getInstance() ;
+            lsm.setTime( date );
+            if( lsupd.getTimeInMillis() < lsm.getTimeInMillis() )
+                return true ;
+        }
+        return false ;
     }
 
     public String toString() {

@@ -17,9 +17,9 @@ import java.text.SimpleDateFormat;
 
 public class SettingsPanel extends JPanel {
     JButton lightModeButton , darkModeButton ;
-    JButton tempPathchooser ;
-    JTextArea tempPathLabel ;
-    public String nowTempPath ;
+    JButton tempPathchooser , workPathchooser;
+    JTextArea tempPathLabel , workPathLabel ;
+    public String nowTempPath , nowWorkPath ;
     public SettingsPanel(){
         initialize() ;
         addComponent() ;
@@ -27,16 +27,19 @@ public class SettingsPanel extends JPanel {
     }
 
     void initialize() {
+        File nowFd = new File( System.getProperty("user.dir" ) ) ;
         File configFile = new File("tempPathconfig.txt");
+        File aimFd = new File( nowFd , "temp" ) ;
         if(!configFile.exists()) {
-            nowTempPath = System.getProperty("user.dir") ;
+            aimFd.mkdir() ;
+            nowTempPath = aimFd.getPath() ;
             try {
                 var osw = new OutputStreamWriter(new FileOutputStream("./tempPathconfig.txt"), StandardCharsets.UTF_8);
                 osw.write( nowTempPath );
                 osw.close();
             }
             catch (Exception ae) {
-                JOptionPane.showMessageDialog( null ,"初始化缓存路径失败","坏了", JOptionPane.ERROR_MESSAGE ) ;
+                JOptionPane.showMessageDialog( null ,"读取缓存路径失败","坏了", JOptionPane.ERROR_MESSAGE ) ;
                 return ;
             }
         } else {
@@ -44,15 +47,34 @@ public class SettingsPanel extends JPanel {
                 var fin = new BufferedReader(new FileReader("tempPathconfig.txt"));
                 nowTempPath = fin.readLine();
             } catch (IOException e) {
-                nowTempPath = System.getProperty("user.dir") ;
+                aimFd.mkdir() ;
+                nowTempPath = aimFd.getPath() ;
                 e.printStackTrace();
             }
         }
-        this.setLayout( new MigLayout(
-                "",
-                "[grow,fill]",
-                "[min!]20[grow,fill][]"
-        ) ) ;
+
+        configFile = new File( "workPathconfig.txt" ) ;
+        if(!configFile.exists()) {
+            nowWorkPath = System.getProperty("user.dir") ;
+            try {
+                var osw = new OutputStreamWriter(new FileOutputStream("./workPathconfig.txt"), StandardCharsets.UTF_8);
+                osw.write( nowWorkPath );
+                osw.close();
+            }
+            catch (Exception ae) {
+                JOptionPane.showMessageDialog( null ,"读取工作目录失败","坏了", JOptionPane.ERROR_MESSAGE ) ;
+                return ;
+            }
+        } else {
+            try {
+                var fin = new BufferedReader(new FileReader("workPathconfig.txt"));
+                nowWorkPath = fin.readLine();
+            } catch (IOException e) {
+                nowWorkPath = System.getProperty("user.dir") ;
+                e.printStackTrace();
+            }
+        }
+
         this.setLayout( new MigLayout(
                 "",
                 "[grow,fill]",
@@ -85,7 +107,7 @@ public class SettingsPanel extends JPanel {
         JPanel panelCenter = new JPanel(new MigLayout(
                 "",
                 "[grow,shrink,fill]",
-                "[fill][fill]"
+                "[fill][fill][fill]"
         )) ;
         {
             JPanel panelColorTheme = new JPanel( new MigLayout(
@@ -116,6 +138,22 @@ public class SettingsPanel extends JPanel {
             tempPathchooser.setFont( UiConsts.FONT_NORMAL ) ;
             panelTempPath.add( tempPathchooser , "cell 0 0" ) ;
             panelCenter.add( panelTempPath , "cell 0 1" ) ;
+        }
+        {
+            JPanel panelTempPath = new JPanel( new MigLayout(
+                    "",
+                    "[][grow]",
+                    "[grow]"
+            )) ;
+            workPathLabel = new JTextArea("当前工作目录：" + nowWorkPath + "\\"  ) ;
+            workPathLabel.setEditable( false ) ;
+            workPathLabel.setLineWrap( true ) ;
+            workPathLabel.setFont( UiConsts.FONT_NORMAL ) ;
+            panelTempPath.add( workPathLabel , "cell 1 0,growx,wmin 100" ) ;
+            workPathchooser = new JButton( "选择工作目录" ) ;
+            workPathchooser.setFont( UiConsts.FONT_NORMAL ) ;
+            panelTempPath.add( workPathchooser , "cell 0 0" ) ;
+            panelCenter.add( panelTempPath , "cell 0 2" ) ;
         }
         return panelCenter ;
     }
@@ -165,7 +203,7 @@ public class SettingsPanel extends JPanel {
                 return ;
             }
             nowTempPath = source.getPath() ;
-            App.student.createDataFolders( source.getPath() ) ;
+            App.student.createTempFolders( source.getPath() ); ;
             tempPathLabel.setText( "当前缓存目录：" + nowTempPath + "\\" ) ;
             try {
                 var osw = new OutputStreamWriter(new FileOutputStream("./tempPathconfig.txt"), StandardCharsets.UTF_8);
@@ -177,6 +215,38 @@ public class SettingsPanel extends JPanel {
                 return ;
             }
             JOptionPane.showMessageDialog( null ,"成功修改缓存路径","成功", JOptionPane.INFORMATION_MESSAGE ) ;
+        });
+
+        workPathchooser.addActionListener( e -> {
+            JFileChooser jfc = new JFileChooser(System.getProperty("user.dir") ) ;
+            jfc.setFileHidingEnabled( true ) ;
+            jfc.setFileSelectionMode( JFileChooser.DIRECTORIES_ONLY ) ;
+
+            int vsave = jfc.showDialog( new JLabel( ) , "选择工作目录" ) ;
+            File source ;
+            if( vsave == JFileChooser.APPROVE_OPTION){
+                source = jfc.getSelectedFile() ;
+                System.out.printf( "%s\n" , source.getPath() ) ;
+                if(!source.exists()){
+                    JOptionPane.showMessageDialog( null ,"没有找到这个文件","错误", JOptionPane.ERROR_MESSAGE) ;
+                    return ;
+                }
+            } else {
+                return ;
+            }
+            nowWorkPath = source.getPath() ;
+            App.student.createDataFolders( source.getPath() ) ;
+            workPathLabel.setText( "当前工作目录：" + nowWorkPath + "\\" ) ;
+            try {
+                var osw = new OutputStreamWriter(new FileOutputStream("./workPathconfig.txt"), StandardCharsets.UTF_8);
+                osw.write( nowWorkPath );
+                osw.close();
+            }
+            catch (Exception ae) {
+                JOptionPane.showMessageDialog( null ,"修改工作目录失败","坏了", JOptionPane.ERROR_MESSAGE ) ;
+                return ;
+            }
+            JOptionPane.showMessageDialog( null ,"成功工作目录路径","成功", JOptionPane.INFORMATION_MESSAGE ) ;
         });
     }
     public void setContent(){

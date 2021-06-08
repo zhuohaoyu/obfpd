@@ -23,6 +23,7 @@ import com.formdev.flatlaf.intellijthemes.FlatArcOrangeIJTheme;
 import com.formdev.flatlaf.intellijthemes.FlatCyanLightIJTheme;
 import main.java.client.MyClient;
 import main.java.client.OBECourse;
+import main.java.client.OBEHomework;
 import main.java.client.OBEManager;
 import main.java.server.Crawler;
 import main.java.ui.* ;
@@ -33,6 +34,7 @@ public class App {
     public static boolean isForum = false;
     public static boolean islogin = false ;
     public static boolean isFinishedUpdate = false;
+    public static boolean isAutoUpdate = true ;
     public static String username ;
     public static String password ;
     public static JFrame frame ;
@@ -133,7 +135,6 @@ public class App {
                 jbok.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        System.out.println( "????" ) ;
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
@@ -221,7 +222,7 @@ public class App {
         }
     }
 
-    App() throws InterruptedException {
+    App(){
         student = new OBEManager();
         initialize() ;
         Login fLogin =  new Login() ;
@@ -238,6 +239,7 @@ public class App {
         }
         addComponent() ;
         loadSettings() ;
+        runScheduleMission() ;
     }
 
     private void initialize(){
@@ -294,7 +296,48 @@ public class App {
     }
 
     void loadSettings(){
-        student.createDataFolders( settingsPanel.nowTempPath ) ;
+        System.out.println( "缓存目录：" + settingsPanel.nowTempPath ) ;
+        System.out.println( "工作目录：" + settingsPanel.nowWorkPath ) ;
+        student.createDataFolders( settingsPanel.nowWorkPath ) ;
+        student.createTempFolders( settingsPanel.nowTempPath ) ;
+    }
+
+    void runScheduleMission(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    if(!isAutoUpdate) break;
+                    System.out.println("自动上交开始");
+                    for( OBECourse course : student.getCourses() ) {
+                        for(OBEHomework homework : course.getHomework() ){
+                            System.out.println("自动上交枚举中：" + course.getCourseName()  + "->" + homework.getTitle() );
+                            if( homework.checkFileUpdate() ){
+
+                                String packed = classesPanel.packSelectedItems( "" );
+                                Boolean ret = App.student.uploadHomework(packed, course.getCourseID(), homework.getId());
+                                System.out.println("开始上交：" + course.getCourseName() + "->" + homework.getTitle() );
+                                if(ret) {
+                                    System.out.println("自动上交成功：" + course.getCourseName() + "->" + homework.getTitle() );
+                                    homework.setStatus(0);
+                                    System.out.println(homework.getDescription());
+                                    System.out.println(homework.getDeadLine());
+                                    homework.writeInUPDTimeLog();
+                                }
+                            }
+                            break;
+                        }
+                        break ;
+                    }
+                    System.out.println("单次上交结束");
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
     void writeLoginTimeLog(){
