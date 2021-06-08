@@ -27,6 +27,8 @@ public class OBEHomework {
     String localPath;
     // 本地数据目录
     ArrayList<OBEAttachment> attachments;
+    // 每个文件是否被选择提交
+    Map< String , Boolean > uploadSelected ;
 
     public String getLocalPath() {
         return localPath;
@@ -39,6 +41,12 @@ public class OBEHomework {
     public void setLocalPath(String s) {
         localPath = s;
     }
+
+    public void setUploadSelected(Map<String, Boolean> uploadSelected) {
+        this.uploadSelected = uploadSelected;
+    }
+
+    public Map<String, Boolean> getUploadSelected() { return uploadSelected; }
 
     public String getPublishTime() {
         return publishTime;
@@ -74,11 +82,12 @@ public class OBEHomework {
     public OBEHomework() {
         scoring = "";
         attachments = new ArrayList<>();
+        uploadSelected = new HashMap<String,Boolean>() ;
         status = 0;
     }
 
     public long checkLeftDay() {
-        if( status == 0 ) return -1 ;
+        if( status == 0 ) return -999 ;
         SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = null;
         try {
@@ -92,7 +101,7 @@ public class OBEHomework {
 
 //        System.out.printf( "now homework :%s\n" , title ) ;
         long aTime=now.getTimeInMillis() , bTime = ddl.getTimeInMillis() ;
-        if( aTime >= bTime ) return -1 ;
+//        if( aTime >= bTime ) return -1 ;
 //        System.out.printf( "single check Day: %d %d\n" , bTime - aTime , ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24  );
         return ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24 ;
 

@@ -21,6 +21,8 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
@@ -41,11 +43,9 @@ import static com.formdev.flatlaf.FlatClientProperties.TABBED_PANE_MINIMUM_TAB_W
 public class ClassesPanel extends JPanel {
     JTabbedPane classTab , homeworkTab ;
     JTable fileTable ;
-    JScrollPane scro_file ;
     JPanel homeworkDetailPane;
     int chosedClassId ;
     int chosedHomeworkId ;
-    String chosedClass , chosedHomework;
     String[] homeworkList;
     OBEManager student;
     OBECourse currentSelectedCourse;
@@ -68,6 +68,7 @@ public class ClassesPanel extends JPanel {
                 "[min!]20[grow,fill]"
         );
         this.setLayout( mgl ) ;
+        fileTable = new JTable( );
     }
 
     private void addComponent(){
@@ -259,19 +260,15 @@ public class ClassesPanel extends JPanel {
 
 
         JTextArea l1 = new JTextArea(currentSelectedHomework.getDescription());
-//        l1.setFont(UiConsts);
         l1.setLineWrap(true);
 
         l1.setEditable(false);
         l1.setName("作业描述");
-//        jsp0.setVisible(true);
 
         homeworkDetailPane.add(l1, "span,growx,growy,wmin 100");
         homeworkDetailPane.setVisible(true);
         Object[][] curF = getCurrentHomeworkLocalData();
-        fileTable = new JTable();
-        fileTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        fileTable.setModel(new DefaultTableModel(
+        DefaultTableModel tmodel = new DefaultTableModel(
                 curF,
                 new String[] {
                         "文件名", "修改时间", "是否上传"
@@ -291,7 +288,18 @@ public class ClassesPanel extends JPanel {
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return columnEditable[columnIndex];
             }
-        });
+        } ;
+        fileTable.setModel( tmodel );
+        fileTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        if( currentSelectedHomework != null ) {
+            int rowCount = tmodel.getRowCount() ;
+            Map<String,Boolean> tselected = currentSelectedHomework.getUploadSelected() ;
+            for (int i = 0; i < rowCount; i++) {
+                Boolean astatus = tselected.get( tmodel.getValueAt( i , 0 ) ) ;
+                if( astatus != null )
+                    tmodel.setValueAt( astatus , i , 2 ) ;
+            }
+        }
 
         JScrollPane jsp = new JScrollPane(fileTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         homeworkDetailPane.add(jsp, "span,growx,growy,wmin 100");
@@ -310,8 +318,8 @@ public class ClassesPanel extends JPanel {
                         }
                     }
                     if( fileCnt == 0 ){
-                        JOptionPane.showMessageDialog( null ,"未选择要上传的文件！","摸不着头脑", JOptionPane.ERROR_MESSAGE) ;
-                        return ;
+                        int vopt = JOptionPane.showConfirmDialog( null ,"没有选择任何文件哎！要交空压缩包吗？", "贴心的提示" , 0 ) ;
+                        if( vopt == JOptionPane.NO_OPTION ) return ;
                     }
                     new Thread(new Runnable() {
                         @Override
@@ -329,6 +337,7 @@ public class ClassesPanel extends JPanel {
                                     public void run() {
                                         homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
                                         resetHomeworkDetailPanel();
+                                        JOptionPane.showMessageDialog( null , "成功提交" , "好起来了" , JOptionPane.INFORMATION_MESSAGE );
                                     }
                                 });
                             }
@@ -352,8 +361,8 @@ public class ClassesPanel extends JPanel {
                         }
                     }
                     if( fileCnt == 0 ){
-                        JOptionPane.showMessageDialog( null ,"未选择要上传的文件！","摸不着头脑", JOptionPane.ERROR_MESSAGE) ;
-                        return ;
+                        int vopt = JOptionPane.showConfirmDialog( null ,"没有选择任何文件哎！要交空压缩包吗？", "贴心的提示" , 0 ) ;
+                        if( vopt == JOptionPane.NO_OPTION ) return ;
                     }
                     new Thread(new Runnable() {
                         @Override
@@ -373,8 +382,10 @@ public class ClassesPanel extends JPanel {
                                     public void run() {
                                         homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
                                         resetHomeworkDetailPanel();
+                                        JOptionPane.showMessageDialog( null , "成功提交" , "好起来了" , JOptionPane.INFORMATION_MESSAGE );
                                     }
                                 });
+
                             }
                         }
                     }).start() ;
@@ -440,8 +451,6 @@ public class ClassesPanel extends JPanel {
 
     public void setContent(){
         chosedClassId = -1 ;
-        chosedClass = null ;
-        chosedHomework = null ;
         homeworkList = null ;
         classTabinit = false ;
         classTab.removeAll();
@@ -458,10 +467,9 @@ public class ClassesPanel extends JPanel {
             if (classTabinit) {
                 if (chosedClassId >= 0) classTab.setComponentAt(chosedClassId, null);
                 chosedClassId = classTab.getSelectedIndex();
-                chosedClass = classTab.getTitleAt(chosedClassId);
-                System.out.println(chosedClass);
                 ArrayList<OBECourse> curCourses = student.getCourses();
-                currentSelectedCourse = curCourses.get(classTab.getSelectedIndex());
+                currentSelectedCourse = curCourses.get( chosedClassId );
+                System.out.println( currentSelectedCourse.getCourseName() ) ;
                 ArrayList<OBEHomework> curHws = currentSelectedCourse.getHomework();
                 homeworkTabinit = false;
                 chosedHomeworkId = -1 ;
@@ -481,14 +489,34 @@ public class ClassesPanel extends JPanel {
 
         homeworkTab.addChangeListener(e -> {
             if (homeworkTabinit) {
-                if (chosedHomeworkId >= 0) homeworkTab.setComponentAt(chosedHomeworkId, null);
                 chosedHomeworkId = homeworkTab.getSelectedIndex();
-                chosedHomework = homeworkTab.getTitleAt(chosedHomeworkId);
                 currentSelectedHomework = currentSelectedCourse.getHomework().get(chosedHomeworkId);
-                System.out.println(chosedHomework) ;
+                System.out.println( currentSelectedHomework.getTitle() ) ;
                 resetHomeworkDetailPanel();
                 homeworkDetailPane.setVisible(true);
             }
+        });
+
+        fileTable.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Map<String,Boolean> nowSelected = new HashMap<String ,Boolean>() ;
+                TableModel tmodel = fileTable.getModel() ;
+                int rowCount = tmodel.getRowCount() ;
+                for( int i = 0 ; i < rowCount ; i ++ ){
+                    if( (Boolean) tmodel.getValueAt( i , 2 ) )
+                        nowSelected.put( (String) tmodel.getValueAt( i , 0 ) , true ) ;
+                }
+                currentSelectedHomework.setUploadSelected( nowSelected ) ;
+            }
+            @Override
+            public void mousePressed(MouseEvent e) { }
+            @Override
+            public void mouseReleased(MouseEvent e) { }
+            @Override
+            public void mouseEntered(MouseEvent e) { }
+            @Override
+            public void mouseExited(MouseEvent e) { }
         });
     }
 }

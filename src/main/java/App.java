@@ -172,7 +172,6 @@ public class App {
                                         }
                                     }).start();
                                     student.getContent();
-                                    student.createDataFolders("");
                                 }
                                 try {
                                     SwingUtilities.invokeAndWait(new Runnable() {
@@ -238,6 +237,7 @@ public class App {
             catch (Exception e) { }
         }
         addComponent() ;
+        loadSettings() ;
     }
 
     private void initialize(){
@@ -291,6 +291,10 @@ public class App {
         frame.add( mainPanel ) ;
         mainPanel.updateUI();
 
+    }
+
+    void loadSettings(){
+        student.createDataFolders( settingsPanel.nowTempPath ) ;
     }
 
     void writeLoginTimeLog(){

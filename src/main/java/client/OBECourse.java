@@ -46,7 +46,7 @@ public class OBECourse {
 //        System.out.printf( "now course :%s %d\n" , CourseName , homework.size() ) ;
         for (OBEHomework obeHomework : homework) {
             long tmp = obeHomework.checkLeftDay();
-            if (tmp <= day && tmp > 0) rt++;
+            if (tmp <= day ) rt++;
         }
         return rt ;
     }

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HomePanel extends Panel {
-    JLabel homeworktot , homework3d , homework1d ;
+    JLabel homeworktot , homework3d , homework1d , homeworktle ;
     JLabel lableTitle ;
     JPanel updatePostPanel ;
     public HomePanel(){
@@ -67,19 +67,23 @@ public class HomePanel extends Panel {
             JPanel panelCenterLeft = new JPanel( new MigLayout(
                   "inset 0, hidemode 3",
                   "[]",
-                  "[]20[]20[]"
+                  "[]20[]20[]20[]"
             ));
             homeworktot = new JLabel();
             homework3d = new JLabel();
             homework1d = new JLabel();
+            homeworktle = new JLabel() ;
             homeworktot.setFont(UiConsts.FONT_TITLE2);
             homework3d.setFont(UiConsts.FONT_TITLE2);
             homework3d.setForeground(UiConsts.MIMOSAYELLOW);
             homework1d.setFont(UiConsts.FONT_TITLE2);
             homework1d.setForeground(UiConsts.BRIGHTRED);
+            homeworktle.setFont( UiConsts.FONT_TITLE2 ) ;
+            homeworktle.setForeground( Color.red ) ;
             panelCenterLeft.add(homeworktot, "cell 0 0");
             panelCenterLeft.add(homework3d, "cell 0 1");
             panelCenterLeft.add(homework1d, "cell 0 2");
+            panelCenterLeft.add(homeworktle, "cell 0 3") ;
             panelCenter.add( panelCenterLeft , "cell 0 0,aligny top") ;
         }
 
@@ -184,9 +188,15 @@ public class HomePanel extends Panel {
         else if( hour <= 24 ) nowT = "夜深了" ;
 
         lableTitle.setText( nowT + ( App.islogin ? ", " + App.student.getName() : "" ) ) ;
-        homeworktot.setText( "待完成的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(999) ) + " 项" ) ;
-        homework3d.setText( "剩余时间不足3天的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(3) ) + " 项" ) ;
-        homework1d.setText( "剩余时间不足1天的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(1)) + " 项" ) ;
+        int day = cal.get( Calendar.DAY_OF_YEAR ) ;
+        System.out.println( day ) ;
+        if( day > 243 ) day = -day + 243 ; // 9.1为基准
+        else if( day > 90 ) day = -day + 90 ;
+        int fix = App.student.getDayLimitHomeworkCnt( day ) ;
+        homeworktot.setText( "待完成的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(999) - fix ) + " 项" ) ;
+        homework3d.setText( "剩余时间不足3天的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(3) - fix ) + " 项" ) ;
+        homework1d.setText( "剩余时间不足1天的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(1) - fix ) + " 项" ) ;
+        homeworktle.setText( "超时的作业：" + Integer.toString( App.student.getDayLimitHomeworkCnt(0) - fix ) + " 项" ) ;
 
         String buf = "[]";
         int total = App.update.size() ;
