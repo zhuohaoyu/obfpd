@@ -11,7 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 
 public class SettingsPanel extends JPanel {
     JButton lightModeButton , darkModeButton ;
@@ -24,8 +26,33 @@ public class SettingsPanel extends JPanel {
         addListener() ;
     }
 
-    void initialize(){
-        nowTempPath = System.getProperty("user.dir") ;
+    void initialize() {
+        File configFile = new File("tempPathconfig.txt");
+        if(!configFile.exists()) {
+            nowTempPath = System.getProperty("user.dir") ;
+            try {
+                var osw = new OutputStreamWriter(new FileOutputStream("./tempPathconfig.txt"), StandardCharsets.UTF_8);
+                osw.write( nowTempPath );
+                osw.close();
+            }
+            catch (Exception ae) {
+                JOptionPane.showMessageDialog( null ,"初始化缓存路径失败","坏了", JOptionPane.ERROR_MESSAGE ) ;
+                return ;
+            }
+        } else {
+            try {
+                var fin = new BufferedReader(new FileReader("tempPathconfig.txt"));
+                nowTempPath = fin.readLine();
+            } catch (IOException e) {
+                nowTempPath = System.getProperty("user.dir") ;
+                e.printStackTrace();
+            }
+        }
+        this.setLayout( new MigLayout(
+                "",
+                "[grow,fill]",
+                "[min!]20[grow,fill][]"
+        ) ) ;
         this.setLayout( new MigLayout(
                 "",
                 "[grow,fill]",
@@ -81,7 +108,7 @@ public class SettingsPanel extends JPanel {
                     "[grow]"
             )) ;
             tempPathLabel = new JTextArea("当前缓存目录：" + nowTempPath + "\\"  ) ;
-            tempPathLabel.setEditable( false ); ;
+            tempPathLabel.setEditable( false ) ;
             tempPathLabel.setLineWrap( true ) ;
             tempPathLabel.setFont( UiConsts.FONT_NORMAL ) ;
             panelTempPath.add( tempPathLabel , "cell 1 0,growx,wmin 100" ) ;
@@ -94,7 +121,8 @@ public class SettingsPanel extends JPanel {
     }
 
     private JPanel getDownPanel(){
-        JPanel panelDown = new JPanel( ) ;
+        JPanel panelDown;
+        panelDown = new JPanel( );
         return panelDown ;
     }
 
@@ -139,6 +167,15 @@ public class SettingsPanel extends JPanel {
             nowTempPath = source.getPath() ;
             App.student.createDataFolders( source.getPath() ) ;
             tempPathLabel.setText( "当前缓存目录：" + nowTempPath + "\\" ) ;
+            try {
+                var osw = new OutputStreamWriter(new FileOutputStream("./tempPathconfig.txt"), StandardCharsets.UTF_8);
+                osw.write( nowTempPath );
+                osw.close();
+            }
+            catch (Exception ae) {
+                JOptionPane.showMessageDialog( null ,"修改缓存路径失败","坏了", JOptionPane.ERROR_MESSAGE ) ;
+                return ;
+            }
             JOptionPane.showMessageDialog( null ,"成功修改缓存路径","成功", JOptionPane.INFORMATION_MESSAGE ) ;
         });
     }
