@@ -122,6 +122,7 @@ public class ToolbarPanel extends JPanel{
             buttonSettings.setSelected( false ) ;
             buttonForum.setSelected( false );
             buttonDownloadCenter.setSelected( false ) ;
+            buttonForumSearch.setSelected( false );
             App.mainPanelCenter.removeAll();
             App.homePanel.setContent() ;
             App.mainPanelCenter.add( App.homePanel , BorderLayout.CENTER );
@@ -135,6 +136,7 @@ public class ToolbarPanel extends JPanel{
             buttonSettings.setSelected( false ) ;
             buttonForum.setSelected( false );
             buttonDownloadCenter.setSelected( false );
+            buttonForumSearch.setSelected( false );
             App.mainPanelCenter.removeAll();
             App.classesPanel.setContent() ;
             App.mainPanelCenter.add( App.classesPanel , BorderLayout.CENTER );
@@ -149,6 +151,7 @@ public class ToolbarPanel extends JPanel{
             buttonSettings.setSelected( true ) ;
             buttonForum.setSelected( false );
             buttonDownloadCenter.setSelected( false );
+            buttonForumSearch.setSelected( false );
             App.mainPanelCenter.removeAll() ;
             App.mainPanelCenter.add( App.settingsPanel , BorderLayout.CENTER ) ;
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
@@ -162,9 +165,25 @@ public class ToolbarPanel extends JPanel{
             buttonSettings.setSelected( false ) ;
             buttonForum.setSelected( true );
             buttonDownloadCenter.setSelected( false ) ;
+            buttonForumSearch.setSelected( false );
             App.mainPanelCenter.removeAll() ;
             App.forumPanel.initialize();
             App.mainPanelCenter.add( App.forumPanel , BorderLayout.CENTER ) ;
+            SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
+            FlatLaf.updateUI();
+        });
+
+        buttonForumSearch.addActionListener( e-> {
+            App.isForum = true;
+            buttonHome.setSelected( false ) ;
+            buttonClasses.setSelected( false ) ;
+            buttonSettings.setSelected( false ) ;
+            buttonForum.setSelected( false );
+            buttonDownloadCenter.setSelected( false ) ;
+            buttonForumSearch.setSelected( true );
+            App.mainPanelCenter.removeAll() ;
+            App.searchPanel.initialize();
+            App.mainPanelCenter.add( App.searchPanel , BorderLayout.CENTER ) ;
             SwingUtilities.invokeLater(() -> App.mainPanelCenter.updateUI());
             FlatLaf.updateUI();
         });
@@ -176,6 +195,7 @@ public class ToolbarPanel extends JPanel{
             buttonSettings.setSelected( false ) ;
             buttonForum.setSelected( false ) ;
             buttonDownloadCenter.setSelected( true ) ;
+            buttonForumSearch.setSelected( false );
             App.mainPanelCenter.removeAll();
             App.downloadPanel.setContent();
             App.mainPanelCenter.add( App.downloadPanel , BorderLayout.CENTER ) ;

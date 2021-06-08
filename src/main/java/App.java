@@ -44,6 +44,7 @@ public class App {
     public static SettingsPanel settingsPanel ;
     public static ForumPanel forumPanel;
     public static DownloadPanel downloadPanel ;
+    public static SearchPanel searchPanel;
 
     public static OBEManager student;
     public static MyClient myclient;
@@ -281,7 +282,7 @@ public class App {
         forumPanel = new ForumPanel();
         settingsPanel = new SettingsPanel() ;
         downloadPanel = new DownloadPanel() ;
-
+        searchPanel = new SearchPanel();
 
         mainToolPanel.add( toolbarPanel , BorderLayout.CENTER ) ;
         mainPanelCenter.add( homePanel , BorderLayout.CENTER ) ;
