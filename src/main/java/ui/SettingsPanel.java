@@ -9,15 +9,13 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 
 public class SettingsPanel extends JPanel {
     JButton lightModeButton , darkModeButton ;
     JButton tempPathchooser , workPathchooser;
+    JCheckBox autoSubmitSwitch ;
     JTextArea tempPathLabel , workPathLabel ;
     public String nowTempPath , nowWorkPath ;
     public SettingsPanel(){
@@ -107,7 +105,7 @@ public class SettingsPanel extends JPanel {
         JPanel panelCenter = new JPanel(new MigLayout(
                 "",
                 "[grow,shrink,fill]",
-                "[fill][fill][fill]"
+                "[fill][fill][fill][fill]"
         )) ;
         {
             JPanel panelColorTheme = new JPanel( new MigLayout(
@@ -154,6 +152,17 @@ public class SettingsPanel extends JPanel {
             workPathchooser.setFont( UiConsts.FONT_NORMAL ) ;
             panelTempPath.add( workPathchooser , "cell 0 0" ) ;
             panelCenter.add( panelTempPath , "cell 0 2" ) ;
+        }
+        {
+            JPanel panelCheckAutoUpdate = new JPanel( new MigLayout(
+                "",
+                "[grow]",
+                "[grow]"
+            )) ;
+            autoSubmitSwitch = new JCheckBox( "是否自动提交" ) ;
+            autoSubmitSwitch.setSelected( false ) ;
+            panelCheckAutoUpdate.add( autoSubmitSwitch , "cell 0 0,wmin 20" ) ;
+            panelCenter.add( panelCheckAutoUpdate , "cell 0 3" ) ;
         }
         return panelCenter ;
     }
@@ -203,7 +212,7 @@ public class SettingsPanel extends JPanel {
                 return ;
             }
             nowTempPath = source.getPath() ;
-            App.student.createTempFolders( source.getPath() ); ;
+            App.student.createTempFolders( source.getPath() );
             tempPathLabel.setText( "当前缓存目录：" + nowTempPath + "\\" ) ;
             try {
                 var osw = new OutputStreamWriter(new FileOutputStream("./tempPathconfig.txt"), StandardCharsets.UTF_8);
@@ -248,6 +257,8 @@ public class SettingsPanel extends JPanel {
             }
             JOptionPane.showMessageDialog( null ,"成功工作目录路径","成功", JOptionPane.INFORMATION_MESSAGE ) ;
         });
+
+        autoSubmitSwitch.addActionListener( e -> App.isAutoSubmit = autoSubmitSwitch.isSelected());
     }
     public void setContent(){
     }

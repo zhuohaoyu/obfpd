@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.rmi.server.ExportException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class App {
     public static boolean isForum = false;
     public static boolean islogin = false ;
     public static boolean isFinishedUpdate = false;
-    public static boolean isAutoUpdate = true ;
+    public static boolean isAutoSubmit = false ;
     public static String username ;
     public static String password ;
     public static JFrame frame ;
@@ -66,8 +67,8 @@ public class App {
 
 
     public class Login extends JDialog {
-        public JTextField jtaid = null;
-        public JPasswordField  jtapw = null;
+        public JTextField jtaid ;
+        public JPasswordField jtapw;
         public progressBarFrame pbar = null ;
 
         public Login() {
@@ -135,12 +136,7 @@ public class App {
                 jbok.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                jbok.setEnabled(false);
-                            }
-                        });
+                        SwingUtilities.invokeLater(() -> jbok.setEnabled(false));
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -156,37 +152,31 @@ public class App {
                                     student.initsDocument();
                                     int maxc = student.getTotCourse() ;
                                     pbar.init( maxc ) ;
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            while( true ){
-                                                int nowc = student.getCourses().size() ;
-                                                pbar.setVal( nowc ) ;
-                                                pbar.setNowHint( "正在加载：" + student.getNowCrawlingCourse() ); ;
-                                                try {
-                                                    Thread.sleep( 200 ) ;
-                                                } catch ( Exception ae ) { ae.printStackTrace(); }
-                                                if( nowc >= maxc ){
-                                                    pbar.deleteIt();
-                                                };
+                                    new Thread(() -> {
+                                        while( true ){
+                                            int nowc = student.getCourses().size() ;
+                                            pbar.setVal( nowc ) ;
+                                            pbar.setNowHint( "正在加载：" + student.getNowCrawlingCourse() ) ;
+                                            try {
+                                                Thread.sleep( 200 ) ;
+                                            } catch ( Exception ae ) { ae.printStackTrace(); }
+                                            if( nowc >= maxc ){
+                                                pbar.deleteIt();
                                             }
                                         }
                                     }).start();
                                     student.getContent();
                                 }
                                 try {
-                                    SwingUtilities.invokeAndWait(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (islogin == true) {
-                                                setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
-                                                pbar.deleteIt();
-                                                dispose();
-                                            }
-                                            else {
-                                                JOptionPane.showMessageDialog(null, "账号或者密码错误！", "登录失败", JOptionPane.ERROR_MESSAGE);
-                                                jbok.setEnabled(true);
-                                            }
+                                    SwingUtilities.invokeAndWait(() -> {
+                                        if (islogin) {
+                                            setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
+                                            pbar.deleteIt();
+                                            dispose();
+                                        }
+                                        else {
+                                            JOptionPane.showMessageDialog(null, "账号或者密码错误！", "登录失败", JOptionPane.ERROR_MESSAGE);
+                                            jbok.setEnabled(true);
                                         }
                                     });
                                 } catch ( Exception ae ){ ae.printStackTrace(); System.exit(1);}
@@ -228,7 +218,7 @@ public class App {
         Login fLogin =  new Login() ;
         fLogin.login();
 
-        if (islogin == false) System.exit(0);
+        if (!islogin) System.exit(0);
         myclient = new MyClient("username");
         writeLoginTimeLog() ;
         while (!isFinishedUpdate) {
@@ -307,7 +297,14 @@ public class App {
             @Override
             public void run() {
                 while (true) {
-                    if(!isAutoUpdate) break;
+                    while( !isAutoSubmit ){
+                        System.err.println( "自动提交被关闭" ) ;
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     System.out.println("自动上交开始");
                     for( OBECourse course : student.getCourses() ) {
                         for(OBEHomework homework : course.getHomework() ){
@@ -346,7 +343,7 @@ public class App {
             File configFile = new File("config.txt");
             if(!configFile.exists()) {
                 // set default
-                ti = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()).toString();
+                ti = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()) ;
             } else {
                 var fin = new BufferedReader(new FileReader("config.txt"));
                 ti = fin.readLine();
@@ -363,20 +360,16 @@ public class App {
                 sum += 1;
             }
             myclient.send(jsonObject);
-        }
-        catch (Exception e) { }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        var osw = new OutputStreamWriter(new FileOutputStream("./config.txt"), "UTF-8");
-                        osw.write(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
-                        osw.close();
-                        Thread.sleep(30 * 1000);
-                    }
-                    catch (Exception e) { }
+        } catch (Exception e) { e.printStackTrace(); }
+        new Thread(() -> {
+            while (true) {
+                try {
+                    var osw = new OutputStreamWriter(new FileOutputStream("./config.txt"), StandardCharsets.UTF_8);
+                    osw.write(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date()));
+                    osw.close();
+                    Thread.sleep(30 * 1000);
                 }
+                catch (Exception e) { e.printStackTrace(); }
             }
         }).start();
     }
