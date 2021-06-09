@@ -227,8 +227,20 @@ public class App {
             }
             catch (Exception e) { }
         }
+//        {
+//            ImageIcon img = new ImageIcon( "F:\\1.jpg" ) ;
+//            System.out.println( img.getDescription() ) ;
+//            Image image = img.getImage().getScaledInstance( frame.getWidth() , frame.getHeight() , Image.SCALE_FAST ) ;
+//            img = new ImageIcon( image ) ;
+//            JLabel imgLabel = new JLabel() ;
+//            imgLabel.setIcon( img ) ;
+//            frame.getLayeredPane().add( imgLabel ) ;
+//            JPanel content = (JPanel) frame.getContentPane() ;
+//            content.setOpaque( false ) ;
+//        }
         addComponent() ;
         loadSettings() ;
+
         runScheduleMission() ;
     }
 
@@ -308,23 +320,20 @@ public class App {
                     System.out.println("自动上交开始");
                     for( OBECourse course : student.getCourses() ) {
                         for(OBEHomework homework : course.getHomework() ){
-                            System.out.println("自动上交枚举中：" + course.getCourseName()  + "->" + homework.getTitle() );
-                            if( homework.checkFileUpdate() ){
-
+                            if( homework.checkAutoUpdate() ){
+                                System.out.println("开始上交：" + course.getCourseName() + "->" + homework.getTitle() );
                                 String packed = classesPanel.packSelectedItems( "" );
                                 Boolean ret = App.student.uploadHomework(packed, course.getCourseID(), homework.getId());
-                                System.out.println("开始上交：" + course.getCourseName() + "->" + homework.getTitle() );
                                 if(ret) {
                                     System.out.println("自动上交成功：" + course.getCourseName() + "->" + homework.getTitle() );
                                     homework.setStatus(0);
                                     System.out.println(homework.getDescription());
                                     System.out.println(homework.getDeadLine());
                                     homework.writeInUPDTimeLog();
+                                    homework.resetIsUploadSeletedChanged( ); ;
                                 }
                             }
-                            break;
                         }
-                        break ;
                     }
                     System.out.println("单次上交结束");
                     try {

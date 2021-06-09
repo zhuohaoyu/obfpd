@@ -43,6 +43,7 @@ import static com.formdev.flatlaf.FlatClientProperties.TABBED_PANE_MINIMUM_TAB_W
 public class ClassesPanel extends JPanel {
     JTabbedPane classTab , homeworkTab ;
     JTable fileTable ;
+    JCheckBox switchHomeworkAutoSubmit ;
     JPanel homeworkDetailPane;
     int chosedClassId ;
     int chosedHomeworkId ;
@@ -121,13 +122,14 @@ public class ClassesPanel extends JPanel {
             homeworkTab.putClientProperty( TABBED_PANE_MAXIMUM_TAB_WIDTH , 240 ) ;
             homeworkTab.putClientProperty( TABBED_PANE_MINIMUM_TAB_WIDTH , 240 ) ;
             this.add(homeworkTab);
+            switchHomeworkAutoSubmit = new JCheckBox( "当前作业自动提交" ) ;
         }
         homeworkDetailPane = new JPanel();
         homeworkDetailPane.setLayout(
                 new MigLayout(
                         "ltr,insets 0,hidemode 0",
                         "[fill,grow,shrink]",
-                        "[][][][fill,grow][fill,grow][]"
+                        "[][][][fill,grow][fill,grow][][]"
                 )
         );
         homeworkDetailPane.setVisible(true);
@@ -303,6 +305,7 @@ public class ClassesPanel extends JPanel {
 
         JScrollPane jsp = new JScrollPane(fileTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         homeworkDetailPane.add(jsp, "span,growx,growy,wmin 100");
+        homeworkDetailPane.add( switchHomeworkAutoSubmit , "wrap,wmin 50" ) ;
 
         if(currentSelectedHomework.getStatus() == 1) {
             JButton jb1 = new JButton("提交作业");
@@ -333,6 +336,7 @@ public class ClassesPanel extends JPanel {
                                 System.out.println(currentSelectedHomework.getDescription());
                                 System.out.println(currentSelectedHomework.getDeadLine());
                                 currentSelectedHomework.writeInUPDTimeLog();
+                                currentSelectedHomework.resetIsUploadSeletedChanged( );
                                 SwingUtilities.invokeLater(() -> {
                                     homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
                                     resetHomeworkDetailPanel();
@@ -376,6 +380,7 @@ public class ClassesPanel extends JPanel {
                                 System.out.println(currentSelectedHomework.getDescription());
                                 System.out.println(currentSelectedHomework.getDeadLine());
                                 currentSelectedHomework.writeInUPDTimeLog();
+                                currentSelectedHomework.resetIsUploadSeletedChanged( );
                                 SwingUtilities.invokeLater(() -> {
                                     homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
                                     resetHomeworkDetailPanel();
@@ -490,8 +495,11 @@ public class ClassesPanel extends JPanel {
                 System.out.println( currentSelectedHomework.getTitle() ) ;
                 resetHomeworkDetailPanel();
                 homeworkDetailPane.setVisible(true);
+                switchHomeworkAutoSubmit.setSelected( currentSelectedHomework.getAllowAutoSubmit() ) ;
             }
         });
+
+        switchHomeworkAutoSubmit.addActionListener(e -> currentSelectedHomework.setAllowAutoSubmit( switchHomeworkAutoSubmit.isSelected() ));
 
         fileTable.addMouseListener(new MouseListener() {
             @Override
@@ -499,10 +507,19 @@ public class ClassesPanel extends JPanel {
                 Map<String,Boolean> nowSelected = new HashMap<String ,Boolean>() ;
                 TableModel tmodel = fileTable.getModel() ;
                 int rowCount = tmodel.getRowCount() ;
+                boolean isChanged = false ;
                 for( int i = 0 ; i < rowCount ; i ++ ){
-                    if( (Boolean) tmodel.getValueAt( i , 2 ) )
-                        nowSelected.put( (String) tmodel.getValueAt( i , 0 ) , true ) ;
+                    String nowname = (String) tmodel.getValueAt( i , 0 ) ;
+                    if( (Boolean) tmodel.getValueAt( i , 2 ) ) {
+                        nowSelected.put( nowname , true);
+                        if( currentSelectedHomework.getUploadSelected().get( nowname ) == null )
+                            isChanged = true ;
+                    } else {
+                        if( currentSelectedHomework.getUploadSelected().get( nowname ) != null )
+                            isChanged = true ;
+                    }
                 }
+                currentSelectedHomework.setIsUploadSeletedChanged() ;
                 currentSelectedHomework.writeInChosedFileList( nowSelected ) ;
             }
             @Override

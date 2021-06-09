@@ -33,6 +33,10 @@ public class OBEHomework {
     String lastUpdateTime = null ;
     // 每个文件是否被选择提交
     Map< String , Boolean > uploadSelected ;
+    // UploadSelected 在上次提交后是否被改变过
+    Boolean isUploadSeletedChanged ;
+    // 该作业是否自动提交
+    Boolean isAllowAutoSubmit ;
 
     public String getLocalPath() {
         return localPath;
@@ -44,6 +48,18 @@ public class OBEHomework {
 
     public void setStatus(int s) {
         status = s;
+    }
+
+    public void setIsUploadSeletedChanged( ){ isUploadSeletedChanged = true ;  }
+
+    public void resetIsUploadSeletedChanged() { isUploadSeletedChanged = false ;}
+
+    public Boolean getAllowAutoSubmit() { return isAllowAutoSubmit;  }
+
+    public void setAllowAutoSubmit(Boolean allowAutoSubmit) {
+        if( !isAllowAutoSubmit && allowAutoSubmit)
+            isUploadSeletedChanged = true ;
+        isAllowAutoSubmit = allowAutoSubmit ;
     }
 
     public void setLocalPath(String s) {
@@ -154,6 +170,8 @@ public class OBEHomework {
         scoring = "";
         attachments = new ArrayList<>();
         uploadSelected = new HashMap<String,Boolean>() ;
+        isAllowAutoSubmit = false ;
+        isUploadSeletedChanged = false ;
         status = 0;
     }
 
@@ -174,11 +192,23 @@ public class OBEHomework {
 //        if( aTime >= bTime ) return -1 ;
 //        System.out.printf( "single check Day: %d %d\n" , bTime - aTime , ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24  );
         return ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24 ;
-  ;
     }
 
-    public Boolean checkFileUpdate(){
-        if( lastUpdateTime == null ) return false ;
+    public Boolean checkAutoUpdate(){
+//        if( lastUpdateTime == null ) return false ;
+        if(!isAllowAutoSubmit) return false ;
+        try {
+            Calendar ddl = Calendar.getInstance() ;
+            ddl.setTime( new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse( deadLine ) ) ;
+            Calendar now = Calendar.getInstance() ;
+            if( now.getTimeInMillis() >= ddl.getTimeInMillis() ){
+                return false ;
+            }
+        } catch ( ParseException e ){
+            System.err.println( "in checkFileUpdate : parse1 error") ;
+        }
+        if( isUploadSeletedChanged ) return true ;
+
         String path = localPath ;
         System.out.println( "checking Update... " + path);
         File file = new File(path);
@@ -188,7 +218,7 @@ public class OBEHomework {
             Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse( lastUpdateTime ) ;
             lsupd.setTime( date );
         } catch ( ParseException e ){
-            System.err.println( "in checkFileUpdate : parse error") ;
+            System.err.println( "in checkFileUpdate : parse2 error") ;
         }
 
         for (int i = 0; i < tempList.length; i++) {
