@@ -5,6 +5,7 @@ import main.java.App;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -50,6 +51,7 @@ public class ForumPanel extends JPanel {
             jta.setEnabled(false);
             jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
             JScrollPane jsp = new JScrollPane( jta );
+            if (flag) jta.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
             panel.add(jta, "cell 0 0,wmin 100");
             if (flag)
                 panel.setPreferredSize(new Dimension(200, 90));
@@ -107,7 +109,7 @@ public class ForumPanel extends JPanel {
                         "[grow,fill]",
                         "[grow,fill][]"
                 ));
-                panelPoster.add(createREPLY(detail, true), "cell 0 0");
+                panelPoster.add(createREPLY(detail, false), "cell 0 0");
 
                 {
                     JPanel panel = new JPanel();
@@ -234,7 +236,7 @@ public class ForumPanel extends JPanel {
                             "[grow,fill]",
                             "[grow,fill][]"
                     ));
-                    panelPoster.add(createREPLY(detail, true), "cell 0 0");
+                    panelPoster.add(createREPLY(detail, false), "cell 0 0");
 
                     {
                         JPanel panel = new JPanel();
@@ -527,7 +529,7 @@ public class ForumPanel extends JPanel {
         panel.setLayout( new MigLayout(
                 "insets 0,hidemode 3",
                 "15[grow,fill]10",
-                "[][]"
+                "10[][]"
         ));
         JTextArea jta = new JTextArea();
         jta.setLineWrap(true);
@@ -535,6 +537,7 @@ public class ForumPanel extends JPanel {
         jta.setText("Title: " + title + ".\n\nUser:  " + user);
         jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
         JScrollPane jsp = new JScrollPane( jta );
+        jta.setBorder(BorderFactory.createRaisedBevelBorder());
         panel.add(jta, "cell 0 0,wmin 100");
         panel.setPreferredSize(new Dimension(200, 120));
         JButton ReadMoreButton = new JButton();
