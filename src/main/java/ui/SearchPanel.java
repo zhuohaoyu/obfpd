@@ -45,7 +45,7 @@ public class SearchPanel extends JPanel {
             jta.setEnabled(false);
             jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
             JScrollPane jsp = new JScrollPane( jta );
-            panel.add(jsp, "cell 0 0");
+            panel.add(jta, "cell 0 0,wmin 100");
             if (flag)
                 panel.setPreferredSize(new Dimension(200, 90));
             else
@@ -410,7 +410,7 @@ public class SearchPanel extends JPanel {
         jta.setText("Title: " + title + ".\n\nUser:  " + user);
         jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
         JScrollPane jsp = new JScrollPane( jta );
-        panel.add(jsp, "cell 0 0");
+        panel.add(jta, "cell 0 0,wmin 100");
         panel.setPreferredSize(new Dimension(200, 120));
         JButton ReadMoreButton = new JButton();
         ReadMoreButton.setText("Read More");
@@ -451,7 +451,7 @@ public class SearchPanel extends JPanel {
         panelContent.setLayout(new MigLayout(
                 "insets 0,hidemode 3",
                 // columns
-                "[grow,fill]para",
+                "15[grow,fill]10",
                 // rows
                 buf));
         for (int i = total; i >= 0; --i) {
