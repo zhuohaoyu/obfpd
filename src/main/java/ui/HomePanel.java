@@ -192,14 +192,17 @@ public class HomePanel extends Panel {
         System.out.println( day ) ;
         if( day > 243 ) day = -day + 243 ; // 9.1为基准
         else if( day > 90 ) day = -day + 90 ;
-        int fix = App.student.getDayLimitHomeworkCnt( day ) ;
-        int le0 = App.student.getDayLimitHomeworkCnt(0) - fix ;
-        int le1 = App.student.getDayLimitHomeworkCnt(1) - fix - le0 ;
-        int le3 = App.student.getDayLimitHomeworkCnt(3) - fix - le1 - le0 ;
-        int le = App.student.getDayLimitHomeworkCnt(999) - fix - le3 - le1 - le0 ;
+
+        int le0 = App.student.getDayLimitHomeworkCnt(day , 1).size() ;
+        int le1 = App.student.getDayLimitHomeworkCnt(day,1).size() ;
+        int le3 = App.student.getDayLimitHomeworkCnt(day,3).size() ;
+        int le = App.student.getDayLimitHomeworkCnt(day,999).size() ;
         homeworktot.setText( "待完成的作业：" + Integer.toString( le ) + " 项" ) ;
+        if( le3 == 0 ) homework3d.setForeground( null );
         homework3d.setText( "剩余时间不足3天的作业：" + Integer.toString( le3 ) + " 项" ) ;
+        if( le1 == 0 ) homework1d.setForeground( null );
         homework1d.setText( "剩余时间不足1天的作业：" + Integer.toString( le1 ) + " 项" ) ;
+        if( le0 == 0 ) homeworktle.setForeground( null );
         homeworktle.setText( "超时的作业：" + Integer.toString( le0 ) + " 项" ) ;
 
         String buf = "[]";

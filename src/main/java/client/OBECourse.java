@@ -41,12 +41,12 @@ public class OBECourse {
     public ArrayList<OBEAttachment> getAttachment() {
         return attachment;
     }
-    public int getDayLimitHomeworkCnt( int day ){
-        int rt = 0 ;
+    public Map<OBEHomework,Integer> getDayLimitHomeworkCnt( int downlim , int uplim ){
+        Map<OBEHomework,Integer> rt = new HashMap<OBEHomework,Integer>() ;
 //        System.out.printf( "now course :%s %d\n" , CourseName , homework.size() ) ;
         for (OBEHomework obeHomework : homework) {
-            long tmp = obeHomework.checkLeftDay();
-            if (tmp <= day ) rt++;
+            int tmp = obeHomework.checkLeftDay();
+            if( downlim <= tmp && tmp <= uplim ) rt.put( obeHomework , tmp ) ;
         }
         return rt ;
     }

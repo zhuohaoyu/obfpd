@@ -42,11 +42,11 @@ public class OBEManager {
         return courses;
     }
     public String getNowCrawlingCourse() { return nowCrawlingCourse; }
-    public int getDayLimitHomeworkCnt( int day ){
-        int rt = 0 ;
+    public Map<OBEHomework,Integer> getDayLimitHomeworkCnt( int downlim , int uplim ){
+        Map<OBEHomework,Integer> rt = new HashMap<OBEHomework,Integer>() ;
 //        System.out.printf( "tot course :%d\n" , courses.size() ) ;
         for (OBECourse cours : courses) {
-            rt += cours.getDayLimitHomeworkCnt(day);
+            rt.putAll( cours.getDayLimitHomeworkCnt( downlim , uplim ) ) ;
         }
         return rt ;
     }

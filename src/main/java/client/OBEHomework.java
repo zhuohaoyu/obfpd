@@ -175,7 +175,7 @@ public class OBEHomework {
         status = 0;
     }
 
-    public long checkLeftDay() {
+    public int checkLeftDay() {
         if( status == 0 ) return -999 ;
         SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = null;
@@ -191,7 +191,7 @@ public class OBEHomework {
         long aTime=now.getTimeInMillis() , bTime = ddl.getTimeInMillis() ;
 //        if( aTime >= bTime ) return -1 ;
 //        System.out.printf( "single check Day: %d %d\n" , bTime - aTime , ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24  );
-        return ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24 ;
+        return (int)( ( ( bTime - aTime ) / 1000 / 60 / 60 + 23 ) / 24 ) ;
     }
 
     public Boolean checkAutoUpdate(){
