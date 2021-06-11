@@ -75,7 +75,7 @@ public class HomePanel extends Panel {
             homeworktle = new JLabel() ;
             homeworktot.setFont(UiConsts.FONT_TITLE2);
             homework3d.setFont(UiConsts.FONT_TITLE2);
-            homework3d.setForeground(UiConsts.MIMOSAYELLOW);
+//            homework3d.setForeground(UiConsts.MIMOSAYELLOW);
             homework1d.setFont(UiConsts.FONT_TITLE2);
             homework1d.setForeground(UiConsts.BRIGHTRED);
             homeworktle.setFont( UiConsts.FONT_TITLE2 ) ;
