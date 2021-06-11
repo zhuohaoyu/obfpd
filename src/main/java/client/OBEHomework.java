@@ -37,6 +37,8 @@ public class OBEHomework {
     Boolean isUploadSeletedChanged ;
     // 该作业是否自动提交
     Boolean isAllowAutoSubmit ;
+    // 该作业隶属的课程
+    OBECourse masterCourse ;
 
     public String getLocalPath() {
         return localPath;
@@ -45,6 +47,8 @@ public class OBEHomework {
     public String getLocalTemp() {
         return localTemp;
     }
+
+    public OBECourse getMasterCourse(){ return masterCourse ; }
 
     public void setStatus(int s) {
         status = s;

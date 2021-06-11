@@ -67,6 +67,7 @@ public class OBECourse {
                 OBEHomework curhw = new OBEHomework();
                 String[] temp = cur.id().split("-");
                 curhw.id = Integer.parseInt(temp[1]);
+                curhw.masterCourse = this ;
 
                 Element titleElem = cur.getElementById("hno-" + curhw.id);
                 curhw.title = titleElem.text();

@@ -43,7 +43,7 @@ public class MyClient {
     public MyClient(String __user) {
         user = __user;
         try {
-            client = new MyWebSocketClient(new URI("ws://10.44.102.237:8090"),new Draft_6455());
+            client = new MyWebSocketClient(new URI("ws://localhost:8090"),new Draft_6455());
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
