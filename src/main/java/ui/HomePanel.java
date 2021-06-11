@@ -17,6 +17,7 @@ public class HomePanel extends Panel {
     JLabel homeworktot , homework3d , homework1d , homeworktle ;
     JLabel lableTitle ;
     JPanel updatePostPanel ;
+    JTabbedPane homeworkWarn ;
     public HomePanel(){
         initialize() ;
         addComponent() ;
@@ -67,8 +68,9 @@ public class HomePanel extends Panel {
             JPanel panelCenterLeft = new JPanel( new MigLayout(
                   "inset 0, hidemode 3",
                   "[]",
-                  "[]20[]20[]20[]"
+                  "[]20[]20[]20[]20[]"
             ));
+            homeworkWarn = new JTabbedPane() ;
             homeworktot = new JLabel();
             homework3d = new JLabel();
             homework1d = new JLabel();
@@ -194,10 +196,10 @@ public class HomePanel extends Panel {
         if( day > 243 ) day = -day + 243 ; // 9.1为基准
         else if( day > 90 ) day = -day + 90 ;
 
-        int le0 = App.student.getDayLimitHomeworkCnt(day , 1).size() ;
-        int le1 = App.student.getDayLimitHomeworkCnt(day,1).size() ;
-        int le3 = App.student.getDayLimitHomeworkCnt(day,3).size() ;
-        int le = App.student.getDayLimitHomeworkCnt(day,999).size() ;
+        int le0 = App.student.getDayLimitHomeworkCnt(day , 0).size() ;
+        int le1 = App.student.getDayLimitHomeworkCnt(0,1).size() ;
+        int le3 = App.student.getDayLimitHomeworkCnt(1,3).size() ;
+        int le = App.student.getDayLimitHomeworkCnt(3,999).size() ;
         homeworktot.setText( "待完成的作业：" + Integer.toString( le ) + " 项" ) ;
         if( le3 == 0 ) homework3d.setForeground( null );
         homework3d.setText( "剩余时间不足3天的作业：" + Integer.toString( le3 ) + " 项" ) ;

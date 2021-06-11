@@ -46,7 +46,7 @@ public class OBECourse {
 //        System.out.printf( "now course :%s %d\n" , CourseName , homework.size() ) ;
         for (OBEHomework obeHomework : homework) {
             int tmp = obeHomework.checkLeftDay();
-            if( downlim <= tmp && tmp <= uplim ) rt.put( obeHomework , tmp ) ;
+            if( downlim < tmp && tmp <= uplim ) rt.put( obeHomework , tmp ) ;
         }
         return rt ;
     }
