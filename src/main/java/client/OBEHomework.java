@@ -175,7 +175,7 @@ public class OBEHomework {
         status = 0;
     }
 
-    public int checkLeftDay() {
+    public int checkLeftDay() { // 返回为剩余天数向上取整
         if( status == 0 ) return -999 ;
         SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = null;
