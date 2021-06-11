@@ -92,6 +92,7 @@ public class HomePanel extends Panel {
             JScrollPane jscr = new JScrollPane( updatePostPanel ) ;
             jscr.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) ;
             jscr.setVerticalScrollBarPolicy( JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED ); ;
+            jscr.getVerticalScrollBar().setUnitIncrement(16);
             panelCenter.add( jscr , "cell 1 0") ;
         }
         return panelCenter ;
@@ -144,12 +145,12 @@ public class HomePanel extends Panel {
         ));
         JTextArea jta = new JTextArea();
         jta.setLineWrap(true);
-        jta.setEnabled(false);
+        jta.setEditable(false);
         jta.setText("更新作业: 于" + time + "\n    " + courseName + ": " + homeworkName );
         jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
-        JScrollPane jsp = new JScrollPane( jta );
-        jsp.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) ;
-        panel.add(jsp, "cell 0 0,growx,growy");
+//        JScrollPane jsp = new JScrollPane( jta );
+//        jsp.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) ;
+        panel.add(jta, "cell 0 0,growx,growy,wmin 100");
         panel.setPreferredSize(new Dimension(200, 120));
         return panel;
     }

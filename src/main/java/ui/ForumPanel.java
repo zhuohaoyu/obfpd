@@ -48,7 +48,7 @@ public class ForumPanel extends JPanel {
             JTextArea jta = new JTextArea();
             jta.setText(detail.get("content"));
             jta.setLineWrap(true);
-            jta.setEnabled(false);
+            jta.setEditable(false);
             jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
             JScrollPane jsp = new JScrollPane( jta );
             if (flag) jta.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
@@ -273,7 +273,7 @@ public class ForumPanel extends JPanel {
                 ));
                 jtacontent = new JTextArea();
                 jtacontent.setLineWrap(true);
-                jtacontent.setFont(jtacontent.getFont().deriveFont(jtacontent.getFont().getSize() + 4f));
+                jtacontent.setFont(UiConsts.FONT_NORMAL);
                 JScrollPane jsp = new JScrollPane( jtacontent );
                 panelSend.add(jsp, "cell 0 0");
                 panelSend.setPreferredSize(new Dimension(200, 90));
@@ -379,9 +379,9 @@ public class ForumPanel extends JPanel {
                             "[grow,fill]"
                     ));
                     JLabel label = new JLabel("话 题：");
-                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
+                    label.setFont(UiConsts.FONT_NORMAL);
                     jtfcourse = new JTextField();
-                    jtfcourse.setFont(jtfcourse.getFont().deriveFont(jtfcourse.getFont().getSize() + 4f));
+                    jtfcourse.setFont(UiConsts.FONT_NORMAL);
                     panelCourse.add(label, "cell 0 0");
                     panelCourse.add(jtfcourse, "cell 1 0");
                     panelContent.add(panelCourse, "cell 0 1");
@@ -394,9 +394,9 @@ public class ForumPanel extends JPanel {
                             "[grow,fill]"
                     ));
                     JLabel label = new JLabel("标 题：");
-                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
+                    label.setFont(UiConsts.FONT_NORMAL);
                     jtftitile = new JTextField();
-                    jtftitile.setFont(jtftitile.getFont().deriveFont(jtftitile.getFont().getSize() + 4f));
+                    jtftitile.setFont(UiConsts.FONT_NORMAL);
                     panelCourse.add(label, "cell 0 0");
                     panelCourse.add(jtftitile, "cell 1 0");
                     panelContent.add(panelCourse, "cell 0 0");
@@ -409,9 +409,9 @@ public class ForumPanel extends JPanel {
                             "[grow,fill]"
                     ));
                     JLabel label = new JLabel("内 容：");
-                    label.setFont(label.getFont().deriveFont(label.getFont().getSize() + 4f));
+                    label.setFont(UiConsts.FONT_NORMAL);
                     jtacontent = new JTextArea();
-                    jtacontent.setFont(jtacontent.getFont().deriveFont(jtacontent.getFont().getSize() + 4f));
+                    jtacontent.setFont(UiConsts.FONT_NORMAL);
                     jtacontent.setLineWrap(true);
                     JScrollPane jsp = new JScrollPane(jtacontent);
                     panelCourse.add(label, "cell 0 0");
@@ -533,17 +533,17 @@ public class ForumPanel extends JPanel {
         ));
         JTextArea jta = new JTextArea();
         jta.setLineWrap(true);
-        jta.setEnabled(false);
+        jta.setEditable(false);
         jta.setText("Title: " + title + ".\n\nUser:  " + user);
-        jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
+        jta.setFont(UiConsts.FONT_NORMAL);
         JScrollPane jsp = new JScrollPane( jta );
         jta.setBorder(BorderFactory.createRaisedBevelBorder());
         panel.add(jta, "cell 0 0,wmin 100");
         panel.setPreferredSize(new Dimension(200, 120));
         JButton ReadMoreButton = new JButton();
-        ReadMoreButton.setText("Read More");
+        ReadMoreButton.setText("打开帖子");
         ReadMoreButton.setSelected(true);
-        ReadMoreButton.setFont(ReadMoreButton.getFont().deriveFont(ReadMoreButton.getFont().getSize() + 0f));
+        ReadMoreButton.setFont(UiConsts.FONT_NORMAL);
         ReadMoreButton.setName("ReadMoreButton");
         panel.add(ReadMoreButton, "cell 0 1");
 
