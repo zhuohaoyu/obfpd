@@ -141,7 +141,7 @@ public class App {
                             @Override
                             public void run() {
                                 username = jtaid.getText();
-                                password = jtapw.getText();
+                                password = new String(jtapw.getPassword());
                                 student.setInfo(username, password) ;
 
                                 islogin = student.doLogin();
