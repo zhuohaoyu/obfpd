@@ -254,6 +254,11 @@ public class App {
             else {
                 UIManager.setLookAndFeel( new FlatArcOrangeIJTheme() ) ;
             }
+            UIManager.put( "Button.arc", 999 );
+            UIManager.put( "Component.arc", 999 );
+            UIManager.put( "ProgressBar.arc", 999 );
+            UIManager.put( "TextComponent.arc", 999 );
+
             UIManager.put( "TitlePane.unifiedBackground", true );
             UIManager.put( "TitlePane.menuBarEmbedded", true );
             UIManager.put( "ScrollBar.width", 10 );
