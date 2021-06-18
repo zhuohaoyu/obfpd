@@ -396,7 +396,7 @@ public class ClassesPanel extends JPanel {
                                 System.out.println("UPLOAD FAILED");
                                 SwingUtilities.invokeLater(() -> {
                                     resetHomeworkDetailPanel();
-                                    JOptionPane.showMessageDialog( null , "提交失败" , "坏起来了" , JOptionPane.INFORMATION_MESSAGE );
+                                    JOptionPane.showMessageDialog( null , "提交失败" , "坏起来了" , JOptionPane.ERROR_MESSAGE );
                                 });
                             }
                         }

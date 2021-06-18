@@ -235,12 +235,14 @@ public class DownloadPanel extends JPanel {
                 progressBarFrame pbar = new progressBarFrame( "下载附件中..." ) ;
                 pbar.showIt() ;
                 pbar.init( tfileCnt );
+                int cnt = 0 ;
                 for( int i = 1 ; i < rowCount ; i ++ ){
                     pbar.setNowHint( "正在下载：" + currentSelectedCourse.getAttachment().get(i-1).getName() );
                     if( (boolean) tmodel.getValueAt( i , 1 ) ){
                         currentSelectedCourse.getAttachment().get(i-1).downloadTo( App.student.getCookie() , source.getPath() + "\\" ) ;
+                        cnt ++ ;
                     }
-                    pbar.setVal( i ) ;
+                    pbar.setVal( cnt ) ;
                 }
                 pbar.deleteIt();
             }).start();
