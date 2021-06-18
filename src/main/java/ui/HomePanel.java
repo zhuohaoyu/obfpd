@@ -175,7 +175,7 @@ public class HomePanel extends Panel {
         JTextArea jta = new JTextArea();
         jta.setLineWrap(true);
         jta.setEnabled(false);
-        jta.setText("暂无新作业" );
+        jta.setText("暂无作业更新" );
         jta.setFont(jta.getFont().deriveFont(jta.getFont().getSize() + 4f));
         JScrollPane jsp = new JScrollPane( jta );
         jsp.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) ;

@@ -303,7 +303,7 @@ public class ClassesPanel extends JPanel {
             }
         }
 
-        JScrollPane jsp = new JScrollPane(fileTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        JScrollPane jsp = new JScrollPane(fileTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         homeworkDetailPane.add(jsp, "span,growx,growy,wmin 100");
         homeworkDetailPane.add( switchHomeworkAutoSubmit , "wrap,wmin 50" ) ;
 
@@ -330,7 +330,7 @@ public class ClassesPanel extends JPanel {
                             String packed = packSelectedItems( "" );
                             Boolean ret = App.student.uploadHomework(packed, currentSelectedCourse.getCourseID(), currentSelectedHomework.getId());
                             System.out.println("RES:" + ret.toString());
-                            if(ret) {
+                            if(ret.booleanValue() == true ) {
                                 System.out.println("UPLOAD SUCCESS");
                                 currentSelectedHomework.setStatus(0);
                                 System.out.println(currentSelectedHomework.getDescription());
@@ -341,6 +341,12 @@ public class ClassesPanel extends JPanel {
                                     homeworkTab.setIconAt(chosedHomeworkId, checkSVGIcon);
                                     resetHomeworkDetailPanel();
                                     JOptionPane.showMessageDialog( null , "成功提交" , "好起来了" , JOptionPane.INFORMATION_MESSAGE );
+                                });
+                            } else if( ret.booleanValue() == false){
+                                System.out.println("UPLOAD FAILED");
+                                SwingUtilities.invokeLater(() -> {
+                                    resetHomeworkDetailPanel();
+                                    JOptionPane.showMessageDialog( null , "提交失败" , "坏起来了" , JOptionPane.INFORMATION_MESSAGE );
                                 });
                             }
                         }
@@ -386,7 +392,12 @@ public class ClassesPanel extends JPanel {
                                     resetHomeworkDetailPanel();
                                     JOptionPane.showMessageDialog( null , "成功提交" , "好起来了" , JOptionPane.INFORMATION_MESSAGE );
                                 });
-
+                            } else if( ret.booleanValue() == false){
+                                System.out.println("UPLOAD FAILED");
+                                SwingUtilities.invokeLater(() -> {
+                                    resetHomeworkDetailPanel();
+                                    JOptionPane.showMessageDialog( null , "提交失败" , "坏起来了" , JOptionPane.INFORMATION_MESSAGE );
+                                });
                             }
                         }
                     }).start() ;
