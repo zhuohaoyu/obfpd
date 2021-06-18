@@ -152,13 +152,19 @@ public class App {
                                     student.initsDocument();
                                     int maxc = student.getTotCourse() ;
                                     pbar.init( maxc ) ;
+                                    pbar.setNowHint("连接成功...");
                                     new Thread(() -> {
+                                        try {
+                                            Thread.sleep( 100 );
+                                        } catch (InterruptedException interruptedException) {
+                                            interruptedException.printStackTrace();
+                                        }
                                         while( true ){
                                             int nowc = student.getCourses().size() ;
+                                            pbar.setNowHint( "正在加载：" + student.getNowCrawlingCourse()  ) ;
                                             pbar.setVal( nowc ) ;
-                                            pbar.setNowHint( "正在加载：" + student.getNowCrawlingCourse() ) ;
                                             try {
-                                                Thread.sleep( 200 ) ;
+                                                Thread.sleep( 100 ) ;
                                             } catch ( Exception ae ) { ae.printStackTrace(); }
                                             if( nowc >= maxc ){
                                                 pbar.deleteIt();
@@ -298,6 +304,7 @@ public class App {
         mainPanelCenter.add( homePanel , BorderLayout.CENTER ) ;
 
         frame.add( mainPanel ) ;
+        homePanel.setContent();
         mainPanel.updateUI();
 
     }

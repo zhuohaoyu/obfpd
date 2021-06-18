@@ -88,10 +88,10 @@ public class HomePanel extends Panel {
             homework1d.setForeground(UiConsts.BRIGHTRED);
             homeworktle.setFont( UiConsts.FONT_TITLE3 ) ;
             homeworktle.setForeground( Color.red ) ;
-            panelCenterLeft.add(homeworktot, "cell 0 0");
-            panelCenterLeft.add(homework3d, "cell 0 1");
-            panelCenterLeft.add(homework1d, "cell 0 2");
-            panelCenterLeft.add(homeworktle, "cell 0 3") ;
+            panelCenterLeft.add(homeworktot, "cell 0 3");
+            panelCenterLeft.add(homework3d, "cell 0 2");
+            panelCenterLeft.add(homework1d, "cell 0 1");
+            panelCenterLeft.add(homeworktle, "cell 0 0") ;
             homeworkWarn.putClientProperty( TABBED_PANE_TAB_AREA_ALIGNMENT, TABBED_PANE_ALIGN_FILL );
             panelCenterLeft.add( homeworkWarn, "cell 0 4,wmin 400" ) ;
             panelCenter.add( panelCenterLeft , "cell 0 0,aligny top,growx") ;
@@ -227,7 +227,7 @@ public class HomePanel extends Panel {
             int le1 = App.student.getDayLimitHomeworkCnt(0, 1).size();
             int le3 = App.student.getDayLimitHomeworkCnt(1, 3).size();
             int le = App.student.getDayLimitHomeworkCnt(3, 999).size();
-            homeworktot.setText("待完成的作业：" + Integer.toString(le) + " 项");
+            homeworktot.setText("其余待完成的作业：" + Integer.toString(le) + " 项");
             if (le3 == 0) homework3d.setForeground(null);
             homework3d.setText("剩余时间不足3天的作业：" + Integer.toString(le3) + " 项");
             if (le1 == 0) homework1d.setForeground(null);
@@ -237,11 +237,11 @@ public class HomePanel extends Panel {
 
             homeworkWarnInit = false ;
             homeworkWarn.removeAll();
+            homeworkWarnInit = true;
             homeworkWarn.add( "超时" , null );
             homeworkWarn.add( "<1" , null );
             homeworkWarn.add( "<3", null );
-            homeworkWarn.add( "所有" , null );
-            homeworkWarnInit = true;
+            homeworkWarn.add( "其它" , null );
         }
 
         {
